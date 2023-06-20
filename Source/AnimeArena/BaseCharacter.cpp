@@ -12,30 +12,35 @@
 
 // Sets default values
 ABaseCharacter::ABaseCharacter()
+	: m_HasToSlowDown{ false }
 {
 	// Init components
-	// ---------------
+	// ***************
 
-	// Set size for collision capsule
-	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
+	// CharacterControllerComponent
+	// ----------------------------
 
-	// Don't rotate when the controller rotates. Let that just affect the camera
+	// Let camera control rotation
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationRoll = false;
 
 	// Configure character movement
-	GetCharacterMovement()->bOrientRotationToMovement = true;
-	GetCharacterMovement()->RotationRate = FRotator(0.0f, 500.0f, 0.0f);
+	auto pCharacterMovement{ GetCharacterMovement() };
+	pCharacterMovement->bOrientRotationToMovement = true;
+	pCharacterMovement->RotationRate = FRotator(0.0f, 500.0f, 0.0f);
 
 	// Default variables
-	GetCharacterMovement()->JumpZVelocity = 700.f;
-	GetCharacterMovement()->AirControl = 0.35f;
-	GetCharacterMovement()->MaxWalkSpeed = 500.f;
-	GetCharacterMovement()->MinAnalogWalkSpeed = 20.f;
-	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
+	pCharacterMovement->JumpZVelocity = 700.f;
+	pCharacterMovement->AirControl = 0.35f;
+	pCharacterMovement->MaxWalkSpeed = 500.f;
+	pCharacterMovement->MinAnalogWalkSpeed = 20.f;
+	pCharacterMovement->BrakingDecelerationWalking = 2000.f;
 
-	// Create a camera boom
+	// Camera
+	// ------
+
+	// Create a camera springArm
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
 	CameraBoom->SetupAttachment(RootComponent);
 	CameraBoom->TargetArmLength = 400.0f;
@@ -52,7 +57,7 @@ void ABaseCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	//Add Input Mapping Context
+	// Add Input Mapping Context
 	// ------------------------
 	if (APlayerController* pPlayerController = Cast<APlayerController>(Controller))
 	{
@@ -61,6 +66,12 @@ void ABaseCharacter::BeginPlay()
 			pSubsystem->AddMappingContext(DefaultMappingContext, 0);
 		}
 	}
+
+	// Get movementSpeed
+	// -----------------
+	auto pCharacterMovement{ GetCharacterMovement() };
+	m_MaxWalkingSpeed = pCharacterMovement->MaxWalkSpeed;
+	m_MaxAcceleration = pCharacterMovement->MaxAcceleration;
 }
 
 // Called every frame
@@ -68,58 +79,114 @@ void ABaseCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if(m_HasToSlowDown) Slowdown(DeltaTime);
 }
 
 // Called to bind functionality to input
 void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	// Set up action bindings
-	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent))
+	if (UEnhancedInputComponent* enhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent))
 	{
-		//Jumping
-		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ACharacter::Jump);
-		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
+		// Moving
+		enhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ABaseCharacter::Move);
+		enhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Completed, this, &ABaseCharacter::StopMove);
 
-		//Moving
-		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ABaseCharacter::Move);
+		// Sprinting
+		enhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Started, this, &ABaseCharacter::Sprint);
+		enhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Completed, this, &ABaseCharacter::StopSprinting);
 
-		//Looking
-		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ABaseCharacter::Look);
+		// Jumping
+		enhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ACharacter::Jump);
+		enhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
+
+		// Looking
+		enhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ABaseCharacter::Look);
 	}
 }
 
-void ABaseCharacter::Move(const FInputActionValue& Value)
+void ABaseCharacter::Move(const FInputActionValue& value)
 {
-	// input is a Vector2D
-	FVector2D movementVector = Value.Get<FVector2D>();
+	// Input is a Vector2D
+	FVector2D movementVector = value.Get<FVector2D>();
 
 	if (Controller != nullptr)
 	{
-		// find out which way is forward
+		// Find out which way is forward
 		const FRotator rotation = Controller->GetControlRotation();
 		const FRotator yawRotation{ 0, rotation.Yaw, 0 };
 
-		// get forward vector
+		// Get forward vector
 		const FVector forwardDirection = FRotationMatrix(yawRotation).GetUnitAxis(EAxis::X);
 
-		// get right vector 
+		// Get right vector 
 		const FVector rightDirection = FRotationMatrix(yawRotation).GetUnitAxis(EAxis::Y);
 
-		// add movement 
+		// Add movement 
 		AddMovementInput(forwardDirection, movementVector.Y);
 		AddMovementInput(rightDirection, movementVector.X);
 	}
 }
-
-void ABaseCharacter::Look(const FInputActionValue& Value)
+void ABaseCharacter::StopMove(const FInputActionValue& value)
 {
-	// input is a Vector2D
-	FVector2D lookAxisVector = Value.Get<FVector2D>();
+	if (Controller == nullptr) return;
+
+	// When no movement, no sprinting as well
+	StopSprinting(value);
+}
+
+void ABaseCharacter::Sprint(const FInputActionValue& /*value*/)
+{
+	if (Controller == nullptr) return;
+	m_HasToSlowDown = false;
+
+	// Set new maxSpeed and acceleration
+	auto pCharacterMovement{ GetCharacterMovement() };
+	pCharacterMovement->MaxWalkSpeed = m_MaxWalkingSpeed * MaxMovementSpeedMult;
+	pCharacterMovement->MaxAcceleration = m_MaxAcceleration * MaxAccelerationSpeedMult;
+}
+void ABaseCharacter::StopSprinting(const FInputActionValue& /*value*/)
+{
+	if (Controller == nullptr) return;
+	m_HasToSlowDown = true;
+
+	// Reset maxSpeed and maxAcceleration
+	auto pCharacterMovement{ GetCharacterMovement() };
+	pCharacterMovement->MaxAcceleration = m_MaxAcceleration;
+}
+
+void ABaseCharacter::Look(const FInputActionValue& value)
+{
+	// Input is a Vector2D
+	FVector2D lookAxisVector = value.Get<FVector2D>();
 
 	if (Controller != nullptr)
 	{
-		// add yaw and pitch input to controller
+		// Add yaw and pitch input to controller
 		AddControllerYawInput(lookAxisVector.X);
 		AddControllerPitchInput(lookAxisVector.Y);
 	}
+}
+
+void ABaseCharacter::Slowdown(float DeltaTime)
+{
+	// Slowdown after sprinting
+	// ------------------------
+	auto pCharacterMovement{ GetCharacterMovement() };
+
+	// Calculate new maxWalkSpeed
+	const float acceleration{ pCharacterMovement->MaxAcceleration * (MaxAccelerationSpeedMult * 2.f) };
+	float maxWalkSpeed{ pCharacterMovement->MaxWalkSpeed };
+	maxWalkSpeed -= acceleration * DeltaTime;
+
+	// Check if back to normal
+	if (maxWalkSpeed <= m_MaxWalkingSpeed)
+	{
+		// Reset
+		maxWalkSpeed = m_MaxWalkingSpeed;
+		m_HasToSlowDown = false;
+	}
+
+	// Set speed
+	pCharacterMovement->MaxWalkSpeed = maxWalkSpeed;
 }

@@ -16,13 +16,21 @@ public:
 	// Sets default values for this character's properties
 	ABaseCharacter();
 
+	// Settings
+	// --------
+
+	// Movement
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Settings)
+		float MaxMovementSpeedMult;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Settings)
+		float MaxAccelerationSpeedMult;
+
 	// Components
 	// ----------
 
 	// Camera
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera)
 		class USpringArmComponent* CameraBoom;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera)
 		class UCameraComponent* FollowCamera;
 
@@ -31,18 +39,23 @@ public:
 		class UInputMappingContext* DefaultMappingContext;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
-		class UInputAction* JumpAction;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 		class UInputAction* MoveAction;
-
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+		class UInputAction* SprintAction;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+		class UInputAction* JumpAction;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 		class UInputAction* LookAction;
 
 protected:
 	// Input
-	void Move(const FInputActionValue& Value);
-	void Look(const FInputActionValue& Value);
+	void Move(const FInputActionValue& value);
+	void StopMove(const FInputActionValue& value);
+	
+	void Sprint(const FInputActionValue& value);
+	void StopSprinting(const FInputActionValue& value);
+
+	void Look(const FInputActionValue& value);
 
 public:	
 	// Called when the game starts or when spawned
@@ -54,4 +67,16 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+private:
+	// Member variables
+	// ----------------
+
+	float m_MaxWalkingSpeed;
+	float m_MaxAcceleration;
+
+	bool m_HasToSlowDown;
+
+	// Member functions
+	// ----------------
+	void Slowdown(float DeltaTime);
 };
