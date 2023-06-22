@@ -30,13 +30,16 @@ void UStateMachineComponent::BeginPlay()
 
 	// Set initState
 	// -------------
+
+	// Get initState
 	UStateBase* pNewState = m_StateMap.FindRef(InitialState);
-	if (pNewState->IsValidLowLevel() == false)
+	if (pNewState->IsValidLowLevel() == false || pNewState == nullptr)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Red, this->GetOwner()->GetName() + "'s state switch failed. " + "Invalid state!");
+		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Red, this->GetOwner()->GetName() + "'s initial state set failed. " + "Invalid state!");
 		return;
 	}
 
+	// Set currentState
 	CurrentState = pNewState;
 	CurrentState->OnEnter(GetOwner());
 }
@@ -46,6 +49,9 @@ void UStateMachineComponent::BeginPlay()
 void UStateMachineComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	// Return if no currentState
+	if (CurrentState == nullptr) return;
 
 	// Update
 	CurrentState->Tick(DeltaTime);
