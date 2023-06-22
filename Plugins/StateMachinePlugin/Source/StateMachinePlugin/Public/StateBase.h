@@ -16,8 +16,8 @@ class STATEMACHINEPLUGIN_API UStateBase : public UObject
 
 public:
 	virtual void OnEnter(AActor* pStateOwner) { m_pStateOwner = pStateOwner; }
-	virtual void Tick(float deltaTime) {}
 	virtual void OnExit() {}
+	virtual void Tick(float deltaTime) {}
 
 public:
 	// Properties
