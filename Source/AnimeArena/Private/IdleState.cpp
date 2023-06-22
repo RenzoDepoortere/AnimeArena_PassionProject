@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 #include "IdleState.h"
 #include "../BasePlayerController.h"
+#include "StateMachineComponent.h"
 #include <Kismet/GameplayStatics.h>
 
 void UIdleState::OnEnter(AActor* pStateOwner)
@@ -26,7 +27,9 @@ void UIdleState::OnExit()
 	}
 }
 
-void UIdleState::Move(const FInputActionValue& value)
+void UIdleState::Move(const FInputActionValue& /*value*/)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Yellow, "Move input");
+	// Change to moveState
+	auto pStateMachine{ GetStateOwner()->GetComponentByClass<UStateMachineComponent>() };
+	pStateMachine->SwitchStateByKey({ "Move" });
 }

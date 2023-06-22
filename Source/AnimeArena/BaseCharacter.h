@@ -48,13 +48,7 @@ public:
 		class UInputAction* LookAction;
 
 protected:
-	// Input
-	void Move(const FInputActionValue& value);
-	void StopMove(const FInputActionValue& value);
-	
-	void Sprint(const FInputActionValue& value);
-	void StopSprinting(const FInputActionValue& value);
-
+	// Input	
 	void Look(const FInputActionValue& value);
 
 public:	
@@ -66,17 +60,4 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
-private:
-	// Member variables
-	// ----------------
-
-	float m_MaxWalkingSpeed;
-	float m_MaxAcceleration;
-
-	bool m_HasToSlowDown;
-
-	// Member functions
-	// ----------------
-	void Slowdown(float DeltaTime);
 };

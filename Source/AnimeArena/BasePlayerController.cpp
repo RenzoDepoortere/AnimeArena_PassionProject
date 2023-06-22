@@ -21,24 +21,7 @@ void ABasePlayerController::SetupInputComponent()
 		// Jumping
 		enhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ABasePlayerController::Jump);
 		enhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ABasePlayerController::StopJumping);
-
-		// Looking
-		enhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ABasePlayerController::Look);
 	}
-}
-
-void ABasePlayerController::StopMoving(const FInputActionValue& value)
-{
-
-}
-
-void ABasePlayerController::Sprint(const FInputActionValue& value)
-{
-
-}
-void ABasePlayerController::StopSprinting(const FInputActionValue& value)
-{
-
 }
 
 void ABasePlayerController::Jump(const FInputActionValue& value)
@@ -46,11 +29,6 @@ void ABasePlayerController::Jump(const FInputActionValue& value)
 	
 }
 void ABasePlayerController::StopJumping(const FInputActionValue& value)
-{
-
-}
-
-void ABasePlayerController::Look(const FInputActionValue& value)
 {
 
 }

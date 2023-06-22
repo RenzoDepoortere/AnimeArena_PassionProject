@@ -12,6 +12,10 @@
 
 // Delegates (= Events)
 DECLARE_MULTICAST_DELEGATE_OneParam(FMoveEvent, const FInputActionValue&);
+DECLARE_MULTICAST_DELEGATE(FMoveStopEvent);
+
+DECLARE_MULTICAST_DELEGATE(FSprintEvent);
+DECLARE_MULTICAST_DELEGATE(FSprintStopEvent);
 
 UCLASS()
 class ANIMEARENA_API ABasePlayerController : public APlayerController
@@ -21,18 +25,20 @@ class ANIMEARENA_API ABasePlayerController : public APlayerController
 public:
 	// Input functions
 	void Move(const FInputActionValue& value) { if (m_MoveEvent.IsBound()) m_MoveEvent.Broadcast(value); }
-	void StopMoving(const FInputActionValue& value);
+	void StopMoving(const FInputActionValue& /*value*/) { if (m_MoveStopEvent.IsBound()) m_MoveStopEvent.Broadcast(); }
 
-	void Sprint(const FInputActionValue& value);
-	void StopSprinting(const FInputActionValue& value);
+	void Sprint(const FInputActionValue& /*value*/) { if (m_SprintEvent.IsBound()) m_SprintEvent.Broadcast(); }
+	void StopSprinting(const FInputActionValue& /*value*/) { if (m_SprintStopEvent.IsBound()) m_SprintStopEvent.Broadcast(); }
 
 	void Jump(const FInputActionValue& value);
 	void StopJumping(const FInputActionValue& value);
 
-	void Look(const FInputActionValue& value);
-
 	// Getters
 	FMoveEvent* const GetMoveEvent() { return &m_MoveEvent; }
+	FMoveStopEvent* const GetMoveStopEvent() { return &m_MoveStopEvent; }
+
+	FSprintEvent* const GetSprintEvent() { return &m_SprintEvent; }
+	FSprintStopEvent* const GetSprintStopEvent() { return &m_SprintStopEvent; }
 
 public:
 	// Properties
@@ -54,4 +60,8 @@ private:
 
 	// Events
 	FMoveEvent m_MoveEvent;
+	FMoveStopEvent m_MoveStopEvent;
+
+	FSprintEvent m_SprintEvent;
+	FSprintStopEvent m_SprintStopEvent;
 };
