@@ -27,10 +27,6 @@ void ABasePlayerController::SetupInputComponent()
 	}
 }
 
-void ABasePlayerController::Move(const FInputActionValue& value)
-{
-
-}
 void ABasePlayerController::StopMoving(const FInputActionValue& value)
 {
 

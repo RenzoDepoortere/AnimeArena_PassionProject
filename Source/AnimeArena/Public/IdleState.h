@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "StateBase.h"
+#include "InputActionValue.h"
 #include "IdleState.generated.h"
 
 /**
@@ -17,4 +18,8 @@ class ANIMEARENA_API UIdleState : public UStateBase
 public:
 	virtual void OnEnter(AActor* pStateOwner) override;
 	virtual void OnExit() override;
+
+private:
+	// Member functions
+	void Move(const FInputActionValue& value);
 };
