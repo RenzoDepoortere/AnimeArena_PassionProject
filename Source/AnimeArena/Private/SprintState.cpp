@@ -24,6 +24,11 @@ void USprintState::OnEnter(AActor* pStateOwner)
 	m_MaxMoveMult = pCharacter->MaxMovementSpeedMult;
 	m_MaxAccelMult = pCharacter->MaxAccelerationSpeedMult;
 
+	// Set velocity to max
+	pCharacter->GetVelocity().Normalize();
+	const auto newVelocity{ pCharacter->GetVelocity() * m_MaxWalkingSpeed };
+	pCharacter->GetVelocity().Set(newVelocity.X, newVelocity.Y, newVelocity.Z);
+
 	// Set new maxSpeed and acceleration
 	pCharacterMovement->MaxWalkSpeed = m_MaxWalkingSpeed * m_MaxMoveMult;
 	pCharacterMovement->MaxAcceleration = m_MaxAcceleration * m_MaxAccelMult;

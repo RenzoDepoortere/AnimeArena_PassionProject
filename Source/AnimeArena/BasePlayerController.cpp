@@ -15,7 +15,7 @@ void ABasePlayerController::SetupInputComponent()
 		enhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Completed, this, &ABasePlayerController::StopMoving);
 
 		// Sprinting
-		enhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Started, this, &ABasePlayerController::Sprint);
+		enhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Triggered, this, &ABasePlayerController::Sprint);
 		enhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Completed, this, &ABasePlayerController::StopSprinting);
 
 		// Jumping

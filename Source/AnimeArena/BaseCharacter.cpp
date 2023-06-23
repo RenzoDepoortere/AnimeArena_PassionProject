@@ -32,6 +32,7 @@ ABaseCharacter::ABaseCharacter()
 	// Default variables
 	pCharacterMovement->JumpZVelocity = 700.f;
 	pCharacterMovement->AirControl = 0.35f;
+	
 	pCharacterMovement->MaxWalkSpeed = 500.f;
 	pCharacterMovement->MinAnalogWalkSpeed = 20.f;
 	pCharacterMovement->BrakingDecelerationWalking = 2000.f;

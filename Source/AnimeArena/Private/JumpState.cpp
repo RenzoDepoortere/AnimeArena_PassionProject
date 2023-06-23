@@ -44,9 +44,9 @@ void UJumpState::Tick(float deltaTime)
 	// If reached ground
 	if (GetCharacter()->GetCharacterMovement()->IsFalling() == false)
 	{
-		// Change to previousState
+		// Change to idleState
 		auto pStateMachine{ GetCharacter()->GetComponentByClass<UStateMachineComponent>() };
-		pStateMachine->SwitchStateByKey({ pStateMachine->PreviousState });
+		pStateMachine->SwitchStateByKey({ "Idle"});
 	}
 }
 
