@@ -23,12 +23,3 @@ void ABasePlayerController::SetupInputComponent()
 		enhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ABasePlayerController::StopJumping);
 	}
 }
-
-void ABasePlayerController::Jump(const FInputActionValue& value)
-{
-	
-}
-void ABasePlayerController::StopJumping(const FInputActionValue& value)
-{
-
-}

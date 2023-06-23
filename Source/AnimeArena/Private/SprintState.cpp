@@ -38,6 +38,8 @@ void USprintState::OnEnter(AActor* pStateOwner)
 		pController->GetMoveStopEvent()->AddUObject(this, &USprintState::StopMove);
 
 		pController->GetSprintStopEvent()->AddUObject(this, &USprintState::StopSprint);
+
+		pController->GetJumpEvent()->AddUObject(this, &USprintState::Jump);
 	}
 }
 void USprintState::OnExit()
@@ -55,6 +57,8 @@ void USprintState::OnExit()
 		pController->GetMoveStopEvent()->RemoveAll(this);
 
 		pController->GetSprintStopEvent()->RemoveAll(this);
+
+		pController->GetJumpEvent()->RemoveAll(this);
 	}
 }
 
@@ -83,6 +87,13 @@ void USprintState::StopSprint()
 	pCharacterMovement->MaxAcceleration = m_MaxAcceleration;
 
 	m_HasToSlowDown = true;
+}
+
+void USprintState::Jump()
+{
+	// Change to jumpState
+	auto pStateMachine{ GetCharacter()->GetComponentByClass<UStateMachineComponent>() };
+	pStateMachine->SwitchStateByKey({ "Jump" });
 }
 
 void USprintState::Slowdown(float deltaTime)

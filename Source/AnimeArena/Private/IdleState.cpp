@@ -15,6 +15,7 @@ void UIdleState::OnEnter(AActor* pStateOwner)
 	if (pController)
 	{
 		pController->GetMoveEvent()->AddUObject(this, &UIdleState::Move);
+		pController->GetJumpEvent()->AddUObject(this, &UIdleState::Jump);
 	}
 }
 void UIdleState::OnExit()
@@ -24,6 +25,7 @@ void UIdleState::OnExit()
 	if (pController)
 	{
 		pController->GetMoveEvent()->RemoveAll(this);
+		pController->GetJumpEvent()->RemoveAll(this);
 	}
 }
 
@@ -32,4 +34,10 @@ void UIdleState::Move(const FInputActionValue& /*value*/)
 	// Change to moveState
 	auto pStateMachine{ GetStateOwner()->GetComponentByClass<UStateMachineComponent>() };
 	pStateMachine->SwitchStateByKey({ "Move" });
+}
+void UIdleState::Jump()
+{
+	// Change to jumpState
+	auto pStateMachine{ GetStateOwner()->GetComponentByClass<UStateMachineComponent>() };
+	pStateMachine->SwitchStateByKey({ "Jump" });
 }

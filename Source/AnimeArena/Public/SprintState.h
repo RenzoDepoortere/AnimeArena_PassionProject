@@ -38,5 +38,7 @@ private:
 
 	void StopSprint();
 
+	void Jump();
+
 	void Slowdown(float DeltaTime);
 };

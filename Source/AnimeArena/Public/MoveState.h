@@ -25,4 +25,6 @@ private:
 	void StopMove();
 
 	void Sprint();
+
+	void Jump();
 };
