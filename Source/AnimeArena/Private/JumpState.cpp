@@ -5,6 +5,11 @@
 #include "../BasePlayerController.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
+UJumpState::UJumpState()
+{
+	StateDisplayName = "Jump";
+}
+
 void UJumpState::OnEnter(AActor* pStateOwner) 
 {
 	Super::OnEnter(pStateOwner);
@@ -46,7 +51,7 @@ void UJumpState::Tick(float deltaTime)
 	{
 		// Change to idleState
 		auto pStateMachine{ GetCharacter()->GetComponentByClass<UStateMachineComponent>() };
-		pStateMachine->SwitchStateByKey({ "Idle"});
+		pStateMachine->SwitchStateByKey({ "Idle" });
 	}
 }
 

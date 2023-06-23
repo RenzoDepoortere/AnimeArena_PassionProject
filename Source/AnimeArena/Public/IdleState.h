@@ -16,6 +16,8 @@ class ANIMEARENA_API UIdleState : public UBasePlayerState
 	GENERATED_BODY()
 	
 public:
+	UIdleState();
+
 	virtual void OnEnter(AActor* pStateOwner) override;
 	virtual void OnExit() override;
 

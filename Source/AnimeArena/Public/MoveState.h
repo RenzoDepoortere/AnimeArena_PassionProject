@@ -16,6 +16,8 @@ class ANIMEARENA_API UMoveState : public UBasePlayerState
 	GENERATED_BODY()
 	
 public:
+	UMoveState();
+
 	virtual void OnEnter(AActor* pStateOwner) override;
 	virtual void OnExit() override;
 

@@ -13,6 +13,16 @@ class ANIMEARENA_API ABaseCharacter : public ACharacter
 	GENERATED_BODY()
 
 public:
+	// Called when the game starts or when spawned
+	virtual void BeginPlay() override;
+
+	// Called every frame
+	virtual void Tick(float DeltaTime) override;
+
+	// Called to bind functionality to input
+	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+public:
 	// Sets default values for this character's properties
 	ABaseCharacter();
 
@@ -24,6 +34,9 @@ public:
 		float MaxMovementSpeedMult;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Settings)
 		float MaxAccelerationSpeedMult;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Settings)
+		float SprintBoost;
 
 	// Components
 	// ----------
@@ -50,14 +63,4 @@ public:
 protected:
 	// Input	
 	void Look(const FInputActionValue& value);
-
-public:	
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 };

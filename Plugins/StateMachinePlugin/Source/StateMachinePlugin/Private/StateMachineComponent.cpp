@@ -22,10 +22,10 @@ void UStateMachineComponent::BeginPlay()
 
 	// Store basePointers to states
 	// ----------------------------
-	for (const auto& currentState : States)
+	for (auto It = States.CreateConstIterator(); It; ++It)
 	{
-		UStateBase* State = NewObject<UStateBase>(this, currentState.Value);
-		m_StateMap.Add(currentState.Key, State);
+		UStateBase* State = NewObject<UStateBase>(this, It->Value);
+		m_StateMap.Add(It->Key, State);
 	}
 
 	// Set initState
@@ -33,7 +33,7 @@ void UStateMachineComponent::BeginPlay()
 
 	// Get initState
 	UStateBase* pNewState = m_StateMap.FindRef(InitialState);
-	if (pNewState->IsValidLowLevel() == false || pNewState == nullptr)
+	if (pNewState->IsValidLowLevelFast() == false)
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Red, this->GetOwner()->GetName() + "'s initial state set failed. " + "Invalid state!");
 		return;
@@ -82,9 +82,10 @@ void UStateMachineComponent::SwitchStateByKey(const FString& stateKey)
 {
 	// Get state
 	UStateBase* pNewState = m_StateMap.FindRef(stateKey);
-	if (pNewState->IsValidLowLevel() == false || pNewState == nullptr)
+	if (pNewState->IsValidLowLevelFast() == false)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Red, this->GetOwner()->GetName() + "'s state switch failed. " + "Invalid state!");
+ 		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Red, this->GetOwner()->GetName() + "'s state switch failed. Invalid state!");
+		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Red, "Tried to change from " + CurrentState->StateDisplayName.ToString() + " to " + stateKey);
 		return;
 	}
 

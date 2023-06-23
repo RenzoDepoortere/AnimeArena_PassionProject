@@ -16,6 +16,8 @@ class ANIMEARENA_API USprintState : public UBasePlayerState
 	GENERATED_BODY()
 	
 public:
+	USprintState();
+
 	virtual void OnEnter(AActor* pStateOwner) override;
 	virtual void OnExit() override;
 	virtual void Tick(float deltaTime) override;

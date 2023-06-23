@@ -7,6 +7,11 @@
 #include "GameFramework/Controller.h"
 #include "../BaseCharacter.h"
 
+USprintState::USprintState()
+{
+	StateDisplayName = "Sprint";
+}
+
 void USprintState::OnEnter(AActor* pStateOwner)
 {
 	Super::OnEnter(pStateOwner);
@@ -24,10 +29,12 @@ void USprintState::OnEnter(AActor* pStateOwner)
 	m_MaxMoveMult = pCharacter->MaxMovementSpeedMult;
 	m_MaxAccelMult = pCharacter->MaxAccelerationSpeedMult;
 
-	// Set velocity to max
-	pCharacter->GetVelocity().Normalize();
-	const auto newVelocity{ pCharacter->GetVelocity() * m_MaxWalkingSpeed };
-	pCharacter->GetVelocity().Set(newVelocity.X, newVelocity.Y, newVelocity.Z);
+	// Give boost
+	FVector impulseForce{ pCharacter->GetVelocity() };
+	impulseForce.Normalize();
+	impulseForce *= pCharacter->SprintBoost;
+
+	pCharacterMovement->AddImpulse(impulseForce, true);
 
 	// Set new maxSpeed and acceleration
 	pCharacterMovement->MaxWalkSpeed = m_MaxWalkingSpeed * m_MaxMoveMult;

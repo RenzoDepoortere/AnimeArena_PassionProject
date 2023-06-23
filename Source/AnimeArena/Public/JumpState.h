@@ -16,6 +16,8 @@ class ANIMEARENA_API UJumpState : public UBasePlayerState
 	GENERATED_BODY()
 	
 public:
+	UJumpState();
+
 	virtual void OnEnter(AActor* pStateOwner) override;
 	virtual void OnExit() override;
 	virtual void Tick(float deltaTime) override;

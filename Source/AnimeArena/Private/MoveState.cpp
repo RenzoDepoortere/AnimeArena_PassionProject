@@ -7,6 +7,11 @@
 #include "GameFramework/Controller.h"
 #include "../BaseCharacter.h"
 
+UMoveState::UMoveState()
+{
+	StateDisplayName = "Move";
+}
+
 void UMoveState::OnEnter(AActor* pStateOwner)
 {
 	Super::OnEnter(pStateOwner);

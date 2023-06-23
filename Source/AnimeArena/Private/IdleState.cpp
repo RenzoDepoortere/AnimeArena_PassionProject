@@ -4,6 +4,11 @@
 #include "StateMachineComponent.h"
 #include <Kismet/GameplayStatics.h>
 
+UIdleState::UIdleState()
+{
+	StateDisplayName = "Idle";
+}
+
 void UIdleState::OnEnter(AActor* pStateOwner)
 {
 	Super::OnEnter(pStateOwner);
