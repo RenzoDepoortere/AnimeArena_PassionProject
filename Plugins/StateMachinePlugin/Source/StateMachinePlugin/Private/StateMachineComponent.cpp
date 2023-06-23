@@ -40,6 +40,8 @@ void UStateMachineComponent::BeginPlay()
 	}
 
 	// Set currentState
+	PreviousState = InitialState;
+
 	CurrentState = pNewState;
 	CurrentState->OnEnter(GetOwner());
 }
@@ -56,12 +58,20 @@ void UStateMachineComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 	// Update
 	CurrentState->Tick(DeltaTime);
 
+	// Cooldown
+	for (const auto& currentState : m_StateMap)
+	{
+		if (currentState.Value->GetHasCooldown()) currentState.Value->Cooldown(DeltaTime);
+	}
+
 	// Check if needs to switch state
 	if (m_HasToSwitchState)
 	{
 		m_HasToSwitchState = false;
 
 		// Switch state
+		PreviousState = m_NewStateKey;
+
 		CurrentState->OnExit();
 		CurrentState = m_pNewState;
 		CurrentState->OnEnter(GetOwner());
@@ -78,7 +88,18 @@ void UStateMachineComponent::SwitchStateByKey(const FString& stateKey)
 		return;
 	}
 
+	// Check if state in cooldown
+	if (pNewState->GetHasCooldown() && 0 < pNewState->GetCurrentCooldown())
+	{
+		// Sound queu?
+
+
+		return;
+	}
+
 	// Store state
 	m_HasToSwitchState = true;
+
+	m_NewStateKey = stateKey;
 	m_pNewState = pNewState;
 }

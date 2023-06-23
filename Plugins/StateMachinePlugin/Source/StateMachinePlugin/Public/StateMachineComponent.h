@@ -28,11 +28,13 @@ public:
 	// Properties
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "StateMachine")
 	TMap<FString, TSubclassOf<UStateBase>> States;
-
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "StateMachine")
 	FString InitialState;
+	
 	UPROPERTY(BlueprintReadOnly)
 	UStateBase* CurrentState = nullptr;
+	UPROPERTY(BluePrintReadOnly)
+	FString PreviousState;
 
 	UFUNCTION(BlueprintCallable, Category = "StateMachine")
 	void SwitchStateByKey(const FString& stateKey);
@@ -41,5 +43,7 @@ private:
 	// Member variables
 	TMap<FString, UStateBase*> m_StateMap;
 	bool m_HasToSwitchState;
+	
 	UStateBase* m_pNewState;
+	FString m_NewStateKey;
 };
