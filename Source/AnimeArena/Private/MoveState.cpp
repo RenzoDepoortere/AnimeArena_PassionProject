@@ -7,19 +7,14 @@
 #include "GameFramework/Controller.h"
 #include "../BaseCharacter.h"
 
-#include <Kismet/GameplayStatics.h>
-
 void UMoveState::OnEnter(AActor* pStateOwner)
 {
 	Super::OnEnter(pStateOwner);
 
-	// Get CharacterPtr
-	m_pCharacter = Cast<ACharacter>(pStateOwner);
-
 	// Set animation
 
 	// Subscribe to inputEvents
-	auto pController{ Cast<ABasePlayerController>(UGameplayStatics::GetPlayerController(this, 0)) };
+	auto pController{ GetPlayerController() };
 	if (pController)
 	{
 		pController->GetMoveEvent()->AddUObject(this, &UMoveState::Move);
@@ -31,7 +26,7 @@ void UMoveState::OnEnter(AActor* pStateOwner)
 void UMoveState::OnExit()
 {
 	// Unsubscribe from inputEvents
-	auto pController{ Cast<ABasePlayerController>(UGameplayStatics::GetPlayerController(this, 0)) };
+	auto pController{ GetPlayerController() };
 	if (pController)
 	{
 		pController->GetMoveEvent()->RemoveAll(this);
@@ -43,36 +38,20 @@ void UMoveState::OnExit()
 
 void UMoveState::Move(const FInputActionValue& value)
 {
-	// Input is a Vector2D
-	FVector2D movementVector = value.Get<FVector2D>();
-
-	if (m_pCharacter->Controller != nullptr)
-	{
-		// Find out which way is forward
-		const FRotator rotation = m_pCharacter->Controller->GetControlRotation();
-		const FRotator yawRotation{ 0, rotation.Yaw, 0 };
-
-		// Get forward vector
-		const FVector forwardDirection = FRotationMatrix(yawRotation).GetUnitAxis(EAxis::X);
-
-		// Get right vector 
-		const FVector rightDirection = FRotationMatrix(yawRotation).GetUnitAxis(EAxis::Y);
-
-		// Add movement 
-		m_pCharacter->AddMovementInput(forwardDirection, movementVector.Y);
-		m_pCharacter->AddMovementInput(rightDirection, movementVector.X);
-	}
+	// BaseMove
+	const FVector2D movementVector{ value.Get<FVector2D>() };
+	BaseMove(movementVector);
 }
 void UMoveState::StopMove()
 {
 	// Change to idleState
-	auto pStateMachine{ m_pCharacter->GetComponentByClass<UStateMachineComponent>() };
+	auto pStateMachine{ GetCharacter()->GetComponentByClass<UStateMachineComponent>()};
 	pStateMachine->SwitchStateByKey({ "Idle" });
 }
 
 void UMoveState::Sprint()
 {
 	// Change to sprintState
-	auto pStateMachine{ m_pCharacter->GetComponentByClass<UStateMachineComponent>() };
+	auto pStateMachine{ GetCharacter()->GetComponentByClass<UStateMachineComponent>() };
 	pStateMachine->SwitchStateByKey({ "Sprint" });
 }

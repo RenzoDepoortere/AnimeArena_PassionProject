@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "StateBase.h"
+#include "BasePlayerState.h"
 #include "InputActionValue.h"
 #include "SprintState.generated.h"
 
@@ -11,7 +11,7 @@
  * 
  */
 UCLASS()
-class ANIMEARENA_API USprintState : public UStateBase
+class ANIMEARENA_API USprintState : public UBasePlayerState
 {
 	GENERATED_BODY()
 	
@@ -23,8 +23,6 @@ public:
 private:
 	// Member variables
 	// ----------------
-	ACharacter* m_pCharacter;
-
 	float m_MaxWalkingSpeed;
 	float m_MaxAcceleration;
 	bool m_HasToSlowDown;

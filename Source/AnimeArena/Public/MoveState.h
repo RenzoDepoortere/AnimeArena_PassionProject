@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "StateBase.h"
+#include "BasePlayerState.h"
 #include "InputActionValue.h"
 #include "MoveState.generated.h"
 
@@ -11,7 +11,7 @@
  * 
  */
 UCLASS()
-class ANIMEARENA_API UMoveState : public UStateBase
+class ANIMEARENA_API UMoveState : public UBasePlayerState
 {
 	GENERATED_BODY()
 	
@@ -20,12 +20,7 @@ public:
 	virtual void OnExit() override;
 
 private:
-	// Member variables
-	// ----------------
-	ACharacter* m_pCharacter;
-
 	// Member functions
-	// ----------------
 	void Move(const FInputActionValue& value);
 	void StopMove();
 

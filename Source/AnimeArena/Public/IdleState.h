@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "StateBase.h"
+#include "BasePlayerState.h"
 #include "InputActionValue.h"
 #include "IdleState.generated.h"
 
@@ -11,7 +11,7 @@
  * 
  */
 UCLASS()
-class ANIMEARENA_API UIdleState : public UStateBase
+class ANIMEARENA_API UIdleState : public UBasePlayerState
 {
 	GENERATED_BODY()
 	

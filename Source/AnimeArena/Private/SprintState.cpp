@@ -7,24 +7,22 @@
 #include "GameFramework/Controller.h"
 #include "../BaseCharacter.h"
 
-#include <Kismet/GameplayStatics.h>
-
 void USprintState::OnEnter(AActor* pStateOwner)
 {
 	Super::OnEnter(pStateOwner);
 
 	// Reset variables
-	m_pCharacter = Cast<ACharacter>(pStateOwner);
 	m_HasToSlowDown = false;
 
 	// Get movementSpeed
-	auto pCharacterMovement{ m_pCharacter->GetCharacterMovement() };
+	auto pCharacter{ GetCharacter() };
+
+	auto pCharacterMovement{ pCharacter->GetCharacterMovement() };
 	m_MaxWalkingSpeed = pCharacterMovement->MaxWalkSpeed;
 	m_MaxAcceleration = pCharacterMovement->MaxAcceleration;
 
-	auto pBaseChar{ Cast<ABaseCharacter>(m_pCharacter) };
-	m_MaxMoveMult = pBaseChar->MaxMovementSpeedMult;
-	m_MaxAccelMult = pBaseChar->MaxAccelerationSpeedMult;
+	m_MaxMoveMult = pCharacter->MaxMovementSpeedMult;
+	m_MaxAccelMult = pCharacter->MaxAccelerationSpeedMult;
 
 	// Set new maxSpeed and acceleration
 	pCharacterMovement->MaxWalkSpeed = m_MaxWalkingSpeed * m_MaxMoveMult;
@@ -33,7 +31,7 @@ void USprintState::OnEnter(AActor* pStateOwner)
 	// Set animation
 
 	// Subscribe to inputEvents
-	auto pController{ Cast<ABasePlayerController>(UGameplayStatics::GetPlayerController(this, 0)) };
+	auto pController{ GetPlayerController() };
 	if (pController)
 	{
 		pController->GetMoveEvent()->AddUObject(this, &USprintState::Move);
@@ -45,12 +43,12 @@ void USprintState::OnEnter(AActor* pStateOwner)
 void USprintState::OnExit()
 {
 	// Reset moveSpeed and accelSpeed
-	auto pCharacterMovement{ m_pCharacter->GetCharacterMovement() };
+	auto pCharacterMovement{ GetCharacter()->GetCharacterMovement() };
 	pCharacterMovement->MaxWalkSpeed = m_MaxWalkingSpeed;
 	pCharacterMovement->MaxAcceleration = m_MaxAcceleration;
 
 	// Unsubscribe from inputEvents
-	auto pController{ Cast<ABasePlayerController>(UGameplayStatics::GetPlayerController(this, 0)) };
+	auto pController{ GetPlayerController() };
 	if (pController)
 	{
 		pController->GetMoveEvent()->RemoveAll(this);
@@ -67,37 +65,21 @@ void USprintState::Tick(float deltaTime)
 
 void USprintState::Move(const FInputActionValue& value)
 {
-	// Input is a Vector2D
-	FVector2D movementVector = value.Get<FVector2D>();
-
-	if (m_pCharacter->Controller != nullptr)
-	{
-		// Find out which way is forward
-		const FRotator rotation = m_pCharacter->Controller->GetControlRotation();
-		const FRotator yawRotation{ 0, rotation.Yaw, 0 };
-
-		// Get forward vector
-		const FVector forwardDirection = FRotationMatrix(yawRotation).GetUnitAxis(EAxis::X);
-
-		// Get right vector 
-		const FVector rightDirection = FRotationMatrix(yawRotation).GetUnitAxis(EAxis::Y);
-
-		// Add movement 
-		m_pCharacter->AddMovementInput(forwardDirection, movementVector.Y);
-		m_pCharacter->AddMovementInput(rightDirection, movementVector.X);
-	}
+	// BaseMove
+	const FVector2D movementVector{ value.Get<FVector2D>() };
+	BaseMove(movementVector);
 }
 void USprintState::StopMove()
 {
 	// Change to idleState
-	auto pStateMachine{ m_pCharacter->GetComponentByClass<UStateMachineComponent>() };
+	auto pStateMachine{ GetCharacter()->GetComponentByClass<UStateMachineComponent>()};
 	pStateMachine->SwitchStateByKey({ "Idle" });
 }
 
 void USprintState::StopSprint()
 {
 	// Reset maxSpeed and maxAcceleration
-	auto pCharacterMovement{ m_pCharacter->GetCharacterMovement() };
+	auto pCharacterMovement{ GetCharacter()->GetCharacterMovement() };
 	pCharacterMovement->MaxAcceleration = m_MaxAcceleration;
 
 	m_HasToSlowDown = true;
@@ -107,7 +89,7 @@ void USprintState::Slowdown(float deltaTime)
 {
 	// Slowdown after sprinting
 	// ------------------------
-	auto pCharacterMovement{ m_pCharacter->GetCharacterMovement() };
+	auto pCharacterMovement{ GetCharacter()->GetCharacterMovement() };
 
 	// Calculate new maxWalkSpeed
 	const float acceleration{ pCharacterMovement->MaxAcceleration * (m_MaxAccelMult * 2.f) };
@@ -122,7 +104,7 @@ void USprintState::Slowdown(float deltaTime)
 		m_HasToSlowDown = false;
 
 		// Change state to moveState
-		auto pStateMachine{ m_pCharacter->GetComponentByClass<UStateMachineComponent>() };
+		auto pStateMachine{ GetCharacter()->GetComponentByClass<UStateMachineComponent>() };
 		pStateMachine->SwitchStateByKey({ "Move" });
 	}
 
