@@ -20,18 +20,12 @@ public:
 
 	virtual void OnEnter(AActor* pStateOwner) override;
 	virtual void OnExit() override;
-	virtual void Tick(float deltaTime) override;
 
 private:
 	// Member variables
 	// ----------------
 	float m_MaxWalkingSpeed;
-	float m_MaxAcceleration;
-	bool m_HasToSlowDown;
-
 	float m_MaxMoveMult;
-	float m_MaxAccelMult;
-
 
 	// Member functions
 	// ----------------
@@ -39,8 +33,6 @@ private:
 	void StopMove();
 
 	void StopSprint();
-
 	void Jump();
-
-	void Slowdown(float DeltaTime);
+	void Dash();
 };

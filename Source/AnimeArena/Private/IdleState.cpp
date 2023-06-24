@@ -21,6 +21,7 @@ void UIdleState::OnEnter(AActor* pStateOwner)
 	{
 		pController->GetMoveEvent()->AddUObject(this, &UIdleState::Move);
 		pController->GetJumpEvent()->AddUObject(this, &UIdleState::Jump);
+		pController->GetDashEvent()->AddUObject(this, &UIdleState::Dash);
 	}
 }
 void UIdleState::OnExit()
@@ -31,7 +32,14 @@ void UIdleState::OnExit()
 	{
 		pController->GetMoveEvent()->RemoveAll(this);
 		pController->GetJumpEvent()->RemoveAll(this);
+		pController->GetDashEvent()->RemoveAll(this);
 	}
+}
+void UIdleState::Tick(float deltaTime)
+{
+	// Check is falling
+
+	// Change to jumpState
 }
 
 void UIdleState::Move(const FInputActionValue& /*value*/)
@@ -45,4 +53,10 @@ void UIdleState::Jump()
 	// Change to jumpState
 	auto pStateMachine{ GetStateOwner()->GetComponentByClass<UStateMachineComponent>() };
 	pStateMachine->SwitchStateByKey({ "Jump" });
+}
+void UIdleState::Dash()
+{
+	// Change to dashState
+	auto pStateMachine{ GetStateOwner()->GetComponentByClass<UStateMachineComponent>() };
+	pStateMachine->SwitchStateByKey({ "Dash" });
 }

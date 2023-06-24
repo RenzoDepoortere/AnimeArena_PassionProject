@@ -20,6 +20,8 @@ DECLARE_MULTICAST_DELEGATE(FSprintStopEvent);
 DECLARE_MULTICAST_DELEGATE(FJumpEvent);
 DECLARE_MULTICAST_DELEGATE(FJumpStopEvent);
 
+DECLARE_MULTICAST_DELEGATE(FDashEvent);
+
 UCLASS()
 class ANIMEARENA_API ABasePlayerController : public APlayerController
 {
@@ -36,6 +38,8 @@ public:
 	void Jump(const FInputActionValue& /*value*/) { if (m_JumpEvent.IsBound()) m_JumpEvent.Broadcast(); }
 	void StopJumping(const FInputActionValue& /*value*/) { if (m_JumpStopEvent.IsBound()) m_JumpStopEvent.Broadcast(); }
 
+	void Dash(const FInputActionValue& /*value*/) { if (m_DashEvent.IsBound()) m_DashEvent.Broadcast(); }
+
 	// Getters
 	FMoveEvent* const GetMoveEvent() { return &m_MoveEvent; }
 	FMoveStopEvent* const GetMoveStopEvent() { return &m_MoveStopEvent; }
@@ -46,6 +50,8 @@ public:
 	FJumpEvent* const GetJumpEvent() { return &m_JumpEvent; }
 	FJumpStopEvent* const GetJumpStopEvent() { return &m_JumpStopEvent; }
 
+	FDashEvent* const GetDashEvent() { return &m_DashEvent; }
+
 public:
 	// Properties
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
@@ -55,7 +61,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 		class UInputAction* JumpAction;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
-		class UInputAction* LookAction;
+		class UInputAction* DashAction;
 	
 protected:
 	virtual void SetupInputComponent() override;
@@ -73,4 +79,6 @@ private:
 
 	FJumpEvent m_JumpEvent;
 	FJumpStopEvent m_JumpStopEvent;
+
+	FDashEvent m_DashEvent;
 };

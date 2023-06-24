@@ -33,10 +33,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Settings)
 		float MaxMovementSpeedMult;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Settings)
-		float MaxAccelerationSpeedMult;
+		float SprintBoost;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Settings)
-		float SprintBoost;
+		float DashBoost;
 
 	// Components
 	// ----------
@@ -50,13 +50,6 @@ public:
 	// Input
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 		class UInputMappingContext* DefaultMappingContext;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
-		class UInputAction* MoveAction;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
-		class UInputAction* SprintAction;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
-		class UInputAction* JumpAction;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 		class UInputAction* LookAction;
 

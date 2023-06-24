@@ -16,18 +16,12 @@ void USprintState::OnEnter(AActor* pStateOwner)
 {
 	UBasePlayerState::OnEnter(pStateOwner);
 
-	// Reset variables
-	m_HasToSlowDown = false;
-
 	// Get movementSpeed
 	auto pCharacter{ GetCharacter() };
 
 	auto pCharacterMovement{ pCharacter->GetCharacterMovement() };
 	m_MaxWalkingSpeed = pCharacterMovement->MaxWalkSpeed;
-	m_MaxAcceleration = pCharacterMovement->MaxAcceleration;
-
 	m_MaxMoveMult = pCharacter->MaxMovementSpeedMult;
-	m_MaxAccelMult = pCharacter->MaxAccelerationSpeedMult;
 
 	// Give boost
 	FVector impulseForce{ pCharacter->GetVelocity() };
@@ -38,7 +32,6 @@ void USprintState::OnEnter(AActor* pStateOwner)
 
 	// Set new maxSpeed and acceleration
 	pCharacterMovement->MaxWalkSpeed = m_MaxWalkingSpeed * m_MaxMoveMult;
-	pCharacterMovement->MaxAcceleration = m_MaxAcceleration * m_MaxAccelMult;
 
 	// Set animation
 
@@ -50,16 +43,15 @@ void USprintState::OnEnter(AActor* pStateOwner)
 		pController->GetMoveStopEvent()->AddUObject(this, &USprintState::StopMove);
 
 		pController->GetSprintStopEvent()->AddUObject(this, &USprintState::StopSprint);
-
 		pController->GetJumpEvent()->AddUObject(this, &USprintState::Jump);
+		pController->GetDashEvent()->AddUObject(this, &USprintState::Dash);
 	}
 }
 void USprintState::OnExit()
 {
-	// Reset moveSpeed and accelSpeed
+	// Reset moveSpeed
 	auto pCharacterMovement{ GetCharacter()->GetCharacterMovement() };
 	pCharacterMovement->MaxWalkSpeed = m_MaxWalkingSpeed;
-	pCharacterMovement->MaxAcceleration = m_MaxAcceleration;
 
 	// Unsubscribe from inputEvents
 	auto pController{ GetPlayerController() };
@@ -69,14 +61,9 @@ void USprintState::OnExit()
 		pController->GetMoveStopEvent()->RemoveAll(this);
 
 		pController->GetSprintStopEvent()->RemoveAll(this);
-
 		pController->GetJumpEvent()->RemoveAll(this);
+		pController->GetDashEvent()->RemoveAll(this);
 	}
-}
-
-void USprintState::Tick(float deltaTime)
-{
-	if (m_HasToSlowDown) Slowdown(deltaTime);
 }
 
 void USprintState::Move(const FInputActionValue& value)
@@ -94,42 +81,19 @@ void USprintState::StopMove()
 
 void USprintState::StopSprint()
 {
-	// Reset maxSpeed and maxAcceleration
-	auto pCharacterMovement{ GetCharacter()->GetCharacterMovement() };
-	pCharacterMovement->MaxAcceleration = m_MaxAcceleration;
-
-	m_HasToSlowDown = true;
+	// Change state to moveState
+	auto pStateMachine{ GetCharacter()->GetComponentByClass<UStateMachineComponent>() };
+	pStateMachine->SwitchStateByKey({ "Move" });
 }
-
 void USprintState::Jump()
 {
 	// Change to jumpState
 	auto pStateMachine{ GetCharacter()->GetComponentByClass<UStateMachineComponent>() };
 	pStateMachine->SwitchStateByKey({ "Jump" });
 }
-
-void USprintState::Slowdown(float deltaTime)
+void USprintState::Dash()
 {
-	// Slowdown after sprinting
-	// ------------------------
-	auto pCharacterMovement{ GetCharacter()->GetCharacterMovement() };
-
-	// Calculate new maxWalkSpeed
-	float maxWalkSpeed{ pCharacterMovement->MaxWalkSpeed };
-	maxWalkSpeed -= pCharacterMovement->MaxAcceleration * deltaTime;
-
-	// Check if back to normal
-	if (maxWalkSpeed <= m_MaxWalkingSpeed)
-	{
-		// Reset
-		maxWalkSpeed = m_MaxWalkingSpeed;
-		m_HasToSlowDown = false;
-
-		// Change state to moveState
-		auto pStateMachine{ GetCharacter()->GetComponentByClass<UStateMachineComponent>() };
-		pStateMachine->SwitchStateByKey({ "Move" });
-	}
-
-	// Set speed
-	pCharacterMovement->MaxWalkSpeed = maxWalkSpeed;
+	// Change to dashState
+	auto pStateMachine{ GetCharacter()->GetComponentByClass<UStateMachineComponent>() };
+	pStateMachine->SwitchStateByKey({ "Dash" });
 }

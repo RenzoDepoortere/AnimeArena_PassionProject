@@ -14,6 +14,8 @@ void UJumpState::OnEnter(AActor* pStateOwner)
 {
 	UBasePlayerState::OnEnter(pStateOwner);
 
+	// Check if isn't falling
+	
 	// Jump
 	GetCharacter()->Jump();
 
@@ -27,6 +29,8 @@ void UJumpState::OnEnter(AActor* pStateOwner)
 
 		pController->GetJumpEvent()->AddUObject(this, &UJumpState::Jump);
 		pController->GetJumpStopEvent()->AddUObject(this, &UJumpState::StopJump);
+
+		pController->GetDashEvent()->AddUObject(this, &UJumpState::Dash);
 	}
 }
 void UJumpState::OnExit() 
@@ -42,6 +46,8 @@ void UJumpState::OnExit()
 
 		pController->GetJumpEvent()->RemoveAll(this);
 		pController->GetJumpStopEvent()->RemoveAll(this);
+
+		pController->GetDashEvent()->RemoveAll(this);
 	}
 }
 void UJumpState::Tick(float deltaTime)
@@ -63,11 +69,19 @@ void UJumpState::Move(const FInputActionValue& value)
 }
 void UJumpState::Jump()
 {
-	// Jump
-	GetCharacter()->Jump();
+	// Check if has air option
+
+	// Check if didn't use in air before
 }
 void UJumpState::StopJump()
 {
 	// Stop jumping
 	GetCharacter()->StopJumping();
+}
+
+void UJumpState::Dash()
+{
+	// Change to dashState
+	auto pStateMachine{ GetStateOwner()->GetComponentByClass<UStateMachineComponent>() };
+	pStateMachine->SwitchStateByKey({ "Dash" });
 }
