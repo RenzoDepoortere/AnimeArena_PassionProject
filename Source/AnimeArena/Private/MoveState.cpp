@@ -14,7 +14,7 @@ UMoveState::UMoveState()
 
 void UMoveState::OnEnter(AActor* pStateOwner)
 {
-	Super::OnEnter(pStateOwner);
+	UBasePlayerState::OnEnter(pStateOwner);
 
 	// Set animation
 

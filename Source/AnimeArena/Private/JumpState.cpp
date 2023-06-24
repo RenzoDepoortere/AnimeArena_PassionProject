@@ -12,7 +12,7 @@ UJumpState::UJumpState()
 
 void UJumpState::OnEnter(AActor* pStateOwner) 
 {
-	Super::OnEnter(pStateOwner);
+	UBasePlayerState::OnEnter(pStateOwner);
 
 	// Jump
 	GetCharacter()->Jump();

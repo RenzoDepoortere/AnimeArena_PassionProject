@@ -14,7 +14,7 @@ USprintState::USprintState()
 
 void USprintState::OnEnter(AActor* pStateOwner)
 {
-	Super::OnEnter(pStateOwner);
+	UBasePlayerState::OnEnter(pStateOwner);
 
 	// Reset variables
 	m_HasToSlowDown = false;
@@ -115,9 +115,8 @@ void USprintState::Slowdown(float deltaTime)
 	auto pCharacterMovement{ GetCharacter()->GetCharacterMovement() };
 
 	// Calculate new maxWalkSpeed
-	const float acceleration{ pCharacterMovement->MaxAcceleration * (m_MaxAccelMult * 2.f) };
 	float maxWalkSpeed{ pCharacterMovement->MaxWalkSpeed };
-	maxWalkSpeed -= acceleration * deltaTime;
+	maxWalkSpeed -= pCharacterMovement->MaxAcceleration * deltaTime;
 
 	// Check if back to normal
 	if (maxWalkSpeed <= m_MaxWalkingSpeed)

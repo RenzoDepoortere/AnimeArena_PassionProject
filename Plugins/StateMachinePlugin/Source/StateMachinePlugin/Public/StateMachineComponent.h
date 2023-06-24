@@ -30,6 +30,9 @@ public:
 	TMap<FString, TSubclassOf<UStateBase>> States;
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "StateMachine")
 	FString InitialState;
+
+	UPROPERTY()
+	TMap<FString, UStateBase*> StateMap;
 	
 	UPROPERTY(BlueprintReadOnly)
 	UStateBase* CurrentState = nullptr;
@@ -41,9 +44,7 @@ public:
 
 private:
 	// Member variables
-	TMap<FString, UStateBase*> m_StateMap;
 	bool m_HasToSwitchState;
-	
 	UStateBase* m_pNewState;
 	FString m_NewStateKey;
 };

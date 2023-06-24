@@ -11,7 +11,7 @@ UIdleState::UIdleState()
 
 void UIdleState::OnEnter(AActor* pStateOwner)
 {
-	Super::OnEnter(pStateOwner);
+	UBasePlayerState::OnEnter(pStateOwner);
 
 	// Set animation
 

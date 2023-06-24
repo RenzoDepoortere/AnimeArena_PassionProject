@@ -1,6 +1,4 @@
 // Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "StateMachineComponent.h"
 
 // Sets default values for this component's properties
@@ -22,18 +20,18 @@ void UStateMachineComponent::BeginPlay()
 
 	// Store basePointers to states
 	// ----------------------------
-	for (auto It = States.CreateConstIterator(); It; ++It)
+	for (auto it = States.CreateConstIterator(); it; ++it)
 	{
-		UStateBase* State = NewObject<UStateBase>(this, It->Value);
-		m_StateMap.Add(It->Key, State);
+		UStateBase* state = NewObject<UStateBase>(this, it->Value, FName{it->Key});
+		StateMap.Add(it->Key, state);
 	}
 
 	// Set initState
 	// -------------
 
 	// Get initState
-	UStateBase* pNewState = m_StateMap.FindRef(InitialState);
-	if (pNewState->IsValidLowLevelFast() == false)
+	UStateBase* pNewState = StateMap.FindRef(InitialState);
+	if (pNewState->IsValidLowLevel() == false)
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Red, this->GetOwner()->GetName() + "'s initial state set failed. " + "Invalid state!");
 		return;
@@ -59,7 +57,7 @@ void UStateMachineComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 	CurrentState->Tick(DeltaTime);
 
 	// Cooldown
-	for (const auto& currentState : m_StateMap)
+	for (const auto& currentState : StateMap)
 	{
 		if (currentState.Value->GetHasCooldown()) currentState.Value->Cooldown(DeltaTime);
 	}
@@ -81,8 +79,8 @@ void UStateMachineComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 void UStateMachineComponent::SwitchStateByKey(const FString& stateKey)
 {
 	// Get state
-	UStateBase* pNewState = m_StateMap.FindRef(stateKey);
-	if (pNewState->IsValidLowLevelFast() == false)
+	UStateBase* pNewState = StateMap.FindRef(stateKey);
+	if (pNewState->IsValidLowLevel() == false)
 	{
  		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Red, this->GetOwner()->GetName() + "'s state switch failed. Invalid state!");
 		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Red, "Tried to change from " + CurrentState->StateDisplayName.ToString() + " to " + stateKey);
