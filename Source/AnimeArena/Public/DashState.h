@@ -23,6 +23,8 @@ public:
 
 private:
 	// Member variables
-	float m_CurrentTime{};
-	float m_StartFriction{};
+	float m_CurrentTime;
+	float m_StartFriction;
+
+	bool m_HasSetCooldown;
 };

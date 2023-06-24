@@ -15,9 +15,15 @@ void UJumpState::OnEnter(AActor* pStateOwner)
 	UBasePlayerState::OnEnter(pStateOwner);
 
 	// Check if isn't falling
-	
-	// Jump
-	GetCharacter()->Jump();
+	auto pCharacterMovement{ GetCharacter()->GetCharacterMovement() };
+	if (pCharacterMovement->IsFalling() == false)
+	{
+		// Jump
+		GetCharacter()->Jump();
+	}
+
+	// Disable rotation
+	pCharacterMovement->bOrientRotationToMovement = false;
 
 	// Set animation
 
@@ -35,8 +41,13 @@ void UJumpState::OnEnter(AActor* pStateOwner)
 }
 void UJumpState::OnExit() 
 {
+	auto pCharacter{ GetCharacter() };
+
 	// Stop jumping
-	GetCharacter()->StopJumping();
+	pCharacter->StopJumping();
+
+	// Enable rotations
+	pCharacter->GetCharacterMovement()->bOrientRotationToMovement = true;
 
 	// Unsubscribe from inputEvents
 	auto pController{ GetPlayerController() };
@@ -69,9 +80,14 @@ void UJumpState::Move(const FInputActionValue& value)
 }
 void UJumpState::Jump()
 {
-	// Check if has air option
+	auto pCharacter{ GetCharacter() };
 
-	// Check if didn't use in air before
+	// If has air option and didn't use before
+	if (pCharacter->HasAirOption && pCharacter->GetUsedAirAbility() == false)
+	{
+		// Change to airOptionState
+
+	}
 }
 void UJumpState::StopJump()
 {
@@ -81,7 +97,16 @@ void UJumpState::StopJump()
 
 void UJumpState::Dash()
 {
-	// Change to dashState
-	auto pStateMachine{ GetStateOwner()->GetComponentByClass<UStateMachineComponent>() };
-	pStateMachine->SwitchStateByKey({ "Dash" });
+	auto pCharacter{ GetCharacter() };
+
+	// Check if used airDash before
+	if (pCharacter->GetUsedAirDash() == false)
+	{
+		// Set usedAirDash
+		pCharacter->SetUsedAirDash(true);
+
+		// Change to dashState
+		auto pStateMachine{ GetStateOwner()->GetComponentByClass<UStateMachineComponent>() };
+		pStateMachine->SwitchStateByKey({ "Dash" });
+	}
 }

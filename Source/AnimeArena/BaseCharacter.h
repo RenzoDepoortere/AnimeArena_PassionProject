@@ -7,6 +7,8 @@
 #include "InputActionValue.h"
 #include "BaseCharacter.generated.h"
 
+class ABasePlayerController;
+
 UCLASS()
 class ANIMEARENA_API ABaseCharacter : public ACharacter
 {
@@ -15,6 +17,7 @@ class ANIMEARENA_API ABaseCharacter : public ACharacter
 public:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	virtual void Destroyed() override;
 
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -23,7 +26,15 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 public:
-	// Sets default values for this character's properties
+	void SetUsedAirAbility(bool usedAirAbility) { m_UsedAirAbility = usedAirAbility; }
+	bool GetUsedAirAbility() const { return m_UsedAirAbility; }
+
+	void SetUsedAirDash(bool usedAirDash) { m_UsedAirDash = usedAirDash; }
+	bool GetUsedAirDash() const { return m_UsedAirDash; }
+
+	const FVector2D& GetLastMovementInput() const { return m_LastMovementInput; }
+
+public:
 	ABaseCharacter();
 
 	// Settings
@@ -37,6 +48,11 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Settings)
 		float DashBoost;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Settings)
+		float DashCooldown;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Settings)
+		bool HasAirOption;
 
 	// Components
 	// ----------
@@ -53,7 +69,19 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 		class UInputAction* LookAction;
 
-protected:
-	// Input	
+private:
+	// Member variables
+	ABasePlayerController* m_pController;
+
+	bool m_UsedAirAbility;
+	bool m_UsedAirDash;
+
+	FVector2D m_LastMovementInput;
+
+	// Member functions
+	// ----------------
+	void Move(const FInputActionValue& value);
+	void StopMove();
+
 	void Look(const FInputActionValue& value);
 };

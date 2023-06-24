@@ -23,6 +23,9 @@ public:
 	virtual void OnExit() {}
 	virtual void Tick(float deltaTime) {}
 
+public:
+	bool GetIsInvincible() const { return m_IsInvincible; }
+
 protected:
 	void BaseMove(const FVector2D& direction);
 
@@ -30,8 +33,12 @@ protected:
 	ABaseCharacter* GetCharacter() const { return m_pCharacter; }
 	ABasePlayerController* GetPlayerController() const { return m_pPlayerController; }
 
+	void SetIsInvincible(bool isInvincible) { m_IsInvincible = isInvincible; }
+
 private:
 	// Member variables
 	ABaseCharacter* m_pCharacter;
 	ABasePlayerController* m_pPlayerController;
+
+	bool m_IsInvincible{ false };
 };

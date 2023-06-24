@@ -2,7 +2,8 @@
 #include "IdleState.h"
 #include "../BasePlayerController.h"
 #include "StateMachineComponent.h"
-#include <Kismet/GameplayStatics.h>
+#include "../BaseCharacter.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 UIdleState::UIdleState()
 {
@@ -13,10 +14,20 @@ void UIdleState::OnEnter(AActor* pStateOwner)
 {
 	UBasePlayerState::OnEnter(pStateOwner);
 
+	auto pCharacter{ GetCharacter() };
+
+	// If on ground
+	if (pCharacter->GetCharacterMovement()->IsFalling() == false)
+	{
+		// Reset jumpVariables
+		pCharacter->SetUsedAirAbility(false);
+		pCharacter->SetUsedAirDash(false);
+	}
+
 	// Set animation
 
 	// Subscribe to inputEvents
-	auto pController{ Cast<ABasePlayerController>(UGameplayStatics::GetPlayerController(this, 0)) };
+	auto pController{ GetPlayerController() };
 	if (pController)
 	{
 		pController->GetMoveEvent()->AddUObject(this, &UIdleState::Move);
@@ -27,7 +38,7 @@ void UIdleState::OnEnter(AActor* pStateOwner)
 void UIdleState::OnExit()
 {
 	// Unsubscribe from inputEvents
-	auto pController{ Cast<ABasePlayerController>(UGameplayStatics::GetPlayerController(this, 0)) };
+	auto pController{ GetPlayerController() };
 	if (pController)
 	{
 		pController->GetMoveEvent()->RemoveAll(this);
@@ -35,11 +46,15 @@ void UIdleState::OnExit()
 		pController->GetDashEvent()->RemoveAll(this);
 	}
 }
-void UIdleState::Tick(float deltaTime)
+void UIdleState::Tick(float /*deltaTime*/)
 {
-	// Check is falling
-
-	// Change to jumpState
+	// Check if is falling
+	if (GetCharacter()->GetCharacterMovement()->IsFalling())
+	{
+		// Change to jumpState
+		auto pStateMachine{ GetStateOwner()->GetComponentByClass<UStateMachineComponent>() };
+		pStateMachine->SwitchStateByKey({ "Jump" });
+	}
 }
 
 void UIdleState::Move(const FInputActionValue& /*value*/)
