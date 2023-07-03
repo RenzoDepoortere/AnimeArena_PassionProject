@@ -67,7 +67,7 @@ void ABaseCharacter::BeginPlay()
 
 	// Get controller
 	m_pController = Cast<ABasePlayerController>(UGameplayStatics::GetPlayerController(this, 0));
-	
+
 	// Add Input Mapping Context
 	// ------------------------
 	if (m_pController)

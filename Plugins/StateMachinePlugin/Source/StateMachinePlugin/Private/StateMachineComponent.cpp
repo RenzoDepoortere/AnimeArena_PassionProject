@@ -4,6 +4,7 @@
 // Sets default values for this component's properties
 UStateMachineComponent::UStateMachineComponent()
 	: m_HasToSwitchState{ false }
+	, m_TimerHandle{}
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
@@ -18,11 +19,16 @@ void UStateMachineComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
+	// Late Start
+	GetOwner()->GetWorldTimerManager().SetTimer(m_TimerHandle, this, &UStateMachineComponent::LateStart, 1.f, false);
+}
+void UStateMachineComponent::LateStart()
+{
 	// Store basePointers to states
 	// ----------------------------
 	for (auto it = States.CreateConstIterator(); it; ++it)
 	{
-		UStateBase* state = NewObject<UStateBase>(this, it->Value, FName{it->Key});
+		UStateBase* state = NewObject<UStateBase>(this, it->Value, FName{ it->Key });
 		StateMap.Add(it->Key, state);
 	}
 

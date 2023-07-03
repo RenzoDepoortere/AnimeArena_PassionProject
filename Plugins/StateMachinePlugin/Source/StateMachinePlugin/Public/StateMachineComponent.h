@@ -47,4 +47,9 @@ private:
 	bool m_HasToSwitchState;
 	UStateBase* m_pNewState;
 	FString m_NewStateKey;
+
+	FTimerHandle m_TimerHandle;
+
+	// Member functions
+	void LateStart();
 };
