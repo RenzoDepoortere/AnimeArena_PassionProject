@@ -6,6 +6,7 @@
 #include "StateBase.h"
 #include "StateMachineComponent.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnStateSwitch, const FString&, stateKey);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class STATEMACHINEPLUGIN_API UStateMachineComponent : public UActorComponent
@@ -39,6 +40,9 @@ public:
 	UPROPERTY(BluePrintReadOnly)
 	FString PreviousState;
 
+	UPROPERTY(BlueprintAssignable, Category = "StateMachine")
+	FOnStateSwitch OnStateSwitch;
+
 	UFUNCTION(BlueprintCallable, Category = "StateMachine")
 	void SwitchStateByKey(const FString& stateKey);
 
@@ -47,9 +51,4 @@ private:
 	bool m_HasToSwitchState;
 	UStateBase* m_pNewState;
 	FString m_NewStateKey;
-
-	FTimerHandle m_TimerHandle;
-
-	// Member functions
-	void LateStart();
 };

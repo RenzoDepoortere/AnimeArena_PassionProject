@@ -16,8 +16,6 @@ void UMoveState::OnEnter(AActor* pStateOwner)
 {
 	UBasePlayerState::OnEnter(pStateOwner);
 
-	// Set animation
-
 	// Subscribe to inputEvents
 	auto pController{ GetPlayerController() };
 	if (pController)

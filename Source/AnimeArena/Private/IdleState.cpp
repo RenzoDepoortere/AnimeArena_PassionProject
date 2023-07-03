@@ -24,8 +24,6 @@ void UIdleState::OnEnter(AActor* pStateOwner)
 		pCharacter->SetUsedAirDash(false);
 	}
 
-	// Set animation
-
 	// Subscribe to inputEvents
 	auto pController{ GetPlayerController() };
 	if (pController)
