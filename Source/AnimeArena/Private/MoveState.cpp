@@ -42,6 +42,16 @@ void UMoveState::OnExit()
 		pController->GetDashEvent()->RemoveAll(this);
 	}
 }
+void UMoveState::Tick(float /*deltaTime*/)
+{
+	// Check if is falling
+	if (GetCharacter()->GetCharacterMovement()->IsFalling())
+	{
+		// Change to jumpState
+		auto pStateMachine{ GetStateOwner()->GetComponentByClass<UStateMachineComponent>() };
+		pStateMachine->SwitchStateByKey({ "Jump" });
+	}
+}
 
 void UMoveState::Move(const FInputActionValue& value)
 {

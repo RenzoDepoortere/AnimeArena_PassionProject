@@ -65,6 +65,16 @@ void USprintState::OnExit()
 		pController->GetDashEvent()->RemoveAll(this);
 	}
 }
+void USprintState::Tick(float /*deltaTime*/)
+{
+	// Check if is falling
+	if (GetCharacter()->GetCharacterMovement()->IsFalling())
+	{
+		// Change to jumpState
+		auto pStateMachine{ GetStateOwner()->GetComponentByClass<UStateMachineComponent>() };
+		pStateMachine->SwitchStateByKey({ "Jump" });
+	}
+}
 
 void USprintState::Move(const FInputActionValue& value)
 {

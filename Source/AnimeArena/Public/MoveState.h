@@ -20,6 +20,7 @@ public:
 
 	virtual void OnEnter(AActor* pStateOwner) override;
 	virtual void OnExit() override;
+	virtual void Tick(float deltaTime) override;
 
 private:
 	// Member functions
