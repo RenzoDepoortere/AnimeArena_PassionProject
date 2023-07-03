@@ -37,7 +37,7 @@ void UDashState::OnEnter(AActor* pStateOwner)
 
 	// Reset variables
 	// ---------------
-	const float maxDashTime{ 0.5f };
+	const float maxDashTime{ 0.3f };
 	m_CurrentTime = maxDashTime;
 
 	// Store and set friction
