@@ -32,8 +32,6 @@ public:
 	void SetUsedAirDash(bool usedAirDash) { m_UsedAirDash = usedAirDash; }
 	bool GetUsedAirDash() const { return m_UsedAirDash; }
 
-	const FVector2D& GetLastMovementInput() const { return m_LastMovementInput; }
-
 public:
 	ABaseCharacter();
 
@@ -53,6 +51,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Settings)
 		bool HasAirOption;
+
+	UFUNCTION(BlueprintCallable, Category = Movement)
+	const FVector2D& GetLastMovementInput() const { return m_LastMovementInput; }
 
 	// Components
 	// ----------
