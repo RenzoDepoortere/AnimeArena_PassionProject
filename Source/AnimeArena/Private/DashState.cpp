@@ -8,6 +8,7 @@
 UDashState::UDashState()
 	: m_CurrentTime{}
 	, m_StartFriction{}
+	, m_WasInput{ true }
 	, m_HasSetCooldown{ false }
 {
 	// Set name
@@ -75,8 +76,12 @@ void UDashState::OnEnter(AActor* pStateOwner)
 	// Add force
 	pCharacterMovement->AddImpulse(impulseForce, true);
 
-	// Set animation
-	// -------------
+	// Check if was input
+	const bool negligibleXValue{ -0.2f <= lastInput.X && lastInput.X <= 0.2f };
+	const bool negligibleYValue{ -0.2f <= lastInput.Y && lastInput.Y <= 0.2f };
+
+	if (negligibleXValue && negligibleYValue) m_WasInput = false;
+	else									  m_WasInput = true;
 
 	//// Subscribe to inputEvents
 	//// ------------------------
@@ -88,7 +93,7 @@ void UDashState::OnEnter(AActor* pStateOwner)
 }
 void UDashState::OnExit()
 {
-	// Reset frictino
+	// Reset friction
 	GetCharacter()->GetCharacterMovement()->GroundFriction = m_StartFriction;
 
 	//// Unsubscribe from inputEvents
@@ -100,6 +105,14 @@ void UDashState::OnExit()
 }
 void UDashState::Tick(float deltaTime)
 {
+	// If was no input
+	if (m_WasInput == false)
+	{
+		// Remove velocity
+		GetCharacter()->GetVelocity().Set(0.f, 0.f, 0.f);
+	}
+
+	// Cooldown
 	m_CurrentTime -= deltaTime;
 	if (m_CurrentTime < 0)
 	{

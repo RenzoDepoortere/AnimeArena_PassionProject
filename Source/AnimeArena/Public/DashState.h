@@ -26,5 +26,6 @@ private:
 	float m_CurrentTime;
 	float m_StartFriction;
 
+	bool m_WasInput;
 	bool m_HasSetCooldown;
 };
