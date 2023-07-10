@@ -17,9 +17,11 @@
 // Sets default values
 ABaseCharacter::ABaseCharacter()
 	: m_pController{ nullptr }
+	, m_LastMovementInput{}
 	, m_UsedAirAbility{ false }
 	, m_UsedAirDash{ false }
-	, m_LastMovementInput{}
+	, m_IsLocked{ false }
+	, m_pLockedCharacter{ nullptr }
 {
 	// Init components
 	// ***************
@@ -100,6 +102,8 @@ void ABaseCharacter::Destroyed()
 void ABaseCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	if (m_IsLocked) FollowLockedCharacter();
 }
 
 // Called to bind functionality to input
@@ -110,6 +114,7 @@ void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	{
 		// Looking
 		enhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ABaseCharacter::Look);
+		enhancedInputComponent->BindAction(LockAction, ETriggerEvent::Started, this, &ABaseCharacter::LockToggle);
 	}
 }
 
@@ -126,6 +131,9 @@ void ABaseCharacter::StopMove()
 
 void ABaseCharacter::Look(const FInputActionValue& value)
 {
+	// Return if locked
+	if (m_IsLocked) return;
+
 	// Input is a Vector2D
 	FVector2D lookAxisVector = value.Get<FVector2D>();
 
@@ -135,4 +143,72 @@ void ABaseCharacter::Look(const FInputActionValue& value)
 		AddControllerYawInput(lookAxisVector.X);
 		AddControllerPitchInput(lookAxisVector.Y);
 	}
+}
+
+void ABaseCharacter::LockToggle()
+{
+	// If is locked, unlock
+	if (m_IsLocked)
+	{
+		m_IsLocked = false;
+		m_pLockedCharacter = nullptr;
+		return;
+	}
+
+	// Get all baseCharacters
+	TArray<AActor*> pCharacters{};
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ABaseCharacter::StaticClass(), pCharacters);
+
+	// Get viewportSize
+	int32 screenWidth{};
+	int32 screenHeight{};
+	m_pController->GetViewportSize(screenWidth, screenHeight);
+
+	auto isOnScreen = [&](const FVector2D& screenPosition)
+	{
+		return (0 <= screenPosition.X && screenPosition.X <= screenWidth) && (0 <= screenPosition.Y && screenPosition.Y <= screenHeight);
+	};
+
+	// Loop through characters
+	const FVector actorPos{ GetActorLocation() };
+	FVector currentActorPos{};
+	
+	FVector2D screenPosition{};
+	double currentDistance{};
+
+	double closestDistance{ DBL_MAX };
+	AActor* pClosestActor{ nullptr };
+
+	for (const auto& currentCharacter : pCharacters)
+	{
+		// If is on actor, continue
+		if (currentCharacter == this) continue;
+
+		// If is not on screen, continue
+		currentActorPos = currentCharacter->GetActorLocation();
+		if (m_pController->ProjectWorldLocationToScreen(currentActorPos, screenPosition, true) == false) continue;
+		if (isOnScreen(screenPosition) == false) continue;
+
+		// Check if is closer then other character
+		currentDistance = FVector::DistSquared(actorPos, currentActorPos);
+		if (currentDistance < closestDistance)
+		{
+			// Store distance
+			closestDistance = currentDistance;
+			pClosestActor = currentCharacter;
+		}
+	}
+
+	// If found closestCharacter
+	if (pClosestActor)
+	{
+		// Toggle lockstate
+		m_IsLocked = true;
+		m_pLockedCharacter = pClosestActor;
+	}
+}
+
+void ABaseCharacter::FollowLockedCharacter()
+{
+	
 }

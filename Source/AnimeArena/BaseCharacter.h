@@ -69,6 +69,8 @@ public:
 		class UInputMappingContext* DefaultMappingContext;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 		class UInputAction* LookAction;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+		class UInputAction* LockAction;
 
 protected:
 	ABasePlayerController* const GetPlayerController() { return m_pController; }
@@ -76,11 +78,13 @@ protected:
 private:
 	// Member variables
 	ABasePlayerController* m_pController;
+	FVector2D m_LastMovementInput;
 
 	bool m_UsedAirAbility;
 	bool m_UsedAirDash;
 
-	FVector2D m_LastMovementInput;
+	bool m_IsLocked;
+	AActor* m_pLockedCharacter;
 
 	// Member functions
 	// ----------------
@@ -88,4 +92,7 @@ private:
 	void StopMove();
 
 	void Look(const FInputActionValue& value);
+	void LockToggle();
+
+	void FollowLockedCharacter();
 };
