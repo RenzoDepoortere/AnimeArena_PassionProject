@@ -86,7 +86,8 @@ void UJumpState::Jump()
 	if (pCharacter->HasAirOption && pCharacter->GetUsedAirAbility() == false)
 	{
 		// Change to airOptionState
-
+		auto pStateMachine{ GetStateOwner()->GetComponentByClass<UStateMachineComponent>() };
+		pStateMachine->SwitchStateByKey({ "AirOption" });
 	}
 }
 void UJumpState::StopJump()
