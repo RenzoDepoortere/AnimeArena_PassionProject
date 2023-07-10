@@ -70,6 +70,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 		class UInputAction* LookAction;
 
+protected:
+	ABasePlayerController* const GetPlayerController() { return m_pController; }
+
 private:
 	// Member variables
 	ABasePlayerController* m_pController;

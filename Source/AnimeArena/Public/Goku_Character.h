@@ -17,6 +17,10 @@ class ANIMEARENA_API AGoku_Character : public ABaseCharacter
 public:
 	AGoku_Character();
 
+	// Publics
+	UFUNCTION(BlueprintCallable, Category = Movement)
+	float GetVerticalFlightInput() const { return m_VerticalFlightInput; }
+
 public:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -27,4 +31,15 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+private:
+	// Member variables
+	float m_VerticalFlightInput;
+
+	// Member functions
+	void FlyUp();
+	void StopFlyUp();
+
+	void FlyDown();
+	void StopFlyDown();
 };
