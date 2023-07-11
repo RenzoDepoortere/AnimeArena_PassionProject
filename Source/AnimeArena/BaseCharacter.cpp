@@ -47,6 +47,9 @@ ABaseCharacter::ABaseCharacter()
 	pCharacterMovement->MinAnalogWalkSpeed = 20.f;
 	pCharacterMovement->BrakingDecelerationWalking = 2000.f;
 
+	// Return if can't be controlled
+	if (CanBeControlled == false) return;
+
 	// Camera
 	// ------
 
@@ -69,6 +72,9 @@ void ABaseCharacter::BeginPlay()
 
 	// Get controller
 	m_pController = Cast<ABasePlayerController>(UGameplayStatics::GetPlayerController(this, 0));
+
+	// Return if can't be controlled
+	if (CanBeControlled == false) return;
 
 	// Add Input Mapping Context
 	// ------------------------
@@ -109,6 +115,9 @@ void ABaseCharacter::Tick(float DeltaTime)
 // Called to bind functionality to input
 void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
+	// Return if can't be controlled
+	if (CanBeControlled == false) return;
+
 	// Set up action bindings
 	if (UEnhancedInputComponent* enhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent))
 	{

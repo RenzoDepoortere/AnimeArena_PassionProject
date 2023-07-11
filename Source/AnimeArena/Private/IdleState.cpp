@@ -14,7 +14,9 @@ void UIdleState::OnEnter(AActor* pStateOwner)
 {
 	UBasePlayerState::OnEnter(pStateOwner);
 
+	// Return if can't be controlled
 	auto pCharacter{ GetCharacter() };
+	if (pCharacter->CanBeControlled == false) return;
 
 	// If on ground
 	if (pCharacter->GetCharacterMovement()->IsFalling() == false)
@@ -46,8 +48,12 @@ void UIdleState::OnExit()
 }
 void UIdleState::Tick(float /*deltaTime*/)
 {
+	// Return if can't be controlled
+	auto pCharacter{ GetCharacter() };
+	if (pCharacter->CanBeControlled == false) return;
+
 	// Check if is falling
-	if (GetCharacter()->GetCharacterMovement()->IsFalling())
+	if (pCharacter->GetCharacterMovement()->IsFalling())
 	{
 		// Change to jumpState
 		auto pStateMachine{ GetStateOwner()->GetComponentByClass<UStateMachineComponent>() };

@@ -38,6 +38,10 @@ public:
 	// Settings
 	// --------
 
+	// Controllability
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Settings)
+		bool CanBeControlled = true;
+
 	// Movement
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Settings)
 		float MaxMovementSpeedMult;
