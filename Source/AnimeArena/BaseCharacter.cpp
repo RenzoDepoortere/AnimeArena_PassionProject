@@ -204,11 +204,24 @@ void ABaseCharacter::LockToggle()
 	{
 		// Toggle lockstate
 		m_IsLocked = true;
-		m_pLockedCharacter = pClosestActor;
+		m_pLockedCharacter = Cast<ABaseCharacter>(pClosestActor);
 	}
 }
 
 void ABaseCharacter::FollowLockedCharacter()
 {
-	
+	// Return if lockedChar is not valid
+	if (m_pLockedCharacter->IsValidLowLevel() == false) return;
+
+	// Calculate desired rotation
+	const FVector lockedCharPos{ m_pLockedCharacter->GetActorLocation() };
+	const FVector toDirection{ lockedCharPos - GetActorLocation() };
+
+	FRotator controlRotation{ GetControlRotation() };
+	const FRotator desiredRotation{ FRotationMatrix::MakeFromX(toDirection).Rotator() };
+
+	const FVector rotationToMove{ (desiredRotation - controlRotation).Euler() };
+
+	// Add input to controller
+	m_pController->SetControlRotation(controlRotation.Add(rotationToMove.Y, rotationToMove.Z, rotationToMove.X));
 }

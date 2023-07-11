@@ -84,7 +84,7 @@ private:
 	bool m_UsedAirDash;
 
 	bool m_IsLocked;
-	AActor* m_pLockedCharacter;
+	ABaseCharacter* m_pLockedCharacter;
 
 	// Member functions
 	// ----------------
