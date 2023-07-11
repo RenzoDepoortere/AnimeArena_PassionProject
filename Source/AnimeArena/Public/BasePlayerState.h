@@ -24,7 +24,13 @@ public:
 	virtual void Tick(float deltaTime) {}
 
 public:
-	bool GetIsInvincible() const { return m_IsInvincible; }
+	struct extraStateInfo
+	{
+		bool isInvincible{ false };
+		bool canBeAttackCanceled{ true };
+	};
+	
+	const extraStateInfo& GetExtraStateInfo() const { return m_ExtraStateInfo; }
 
 protected:
 	void BaseMove(const FVector2D& direction);
@@ -33,12 +39,12 @@ protected:
 	ABaseCharacter* GetCharacter() const { return m_pCharacter; }
 	ABasePlayerController* GetPlayerController() const { return m_pPlayerController; }
 
-	void SetIsInvincible(bool isInvincible) { m_IsInvincible = isInvincible; }
+	extraStateInfo* const GetExtraStateInfoPointer() { return &m_ExtraStateInfo; }
 
 private:
 	// Member variables
 	ABaseCharacter* m_pCharacter;
 	ABasePlayerController* m_pPlayerController;
 
-	bool m_IsInvincible{ false };
+	extraStateInfo m_ExtraStateInfo{};
 };
