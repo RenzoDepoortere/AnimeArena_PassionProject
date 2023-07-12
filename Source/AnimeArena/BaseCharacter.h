@@ -5,9 +5,28 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "InputActionValue.h"
+#include "Public/BaseAttack.h"
 #include "BaseCharacter.generated.h"
 
 class ABasePlayerController;
+
+USTRUCT(BlueprintType)
+struct FAttackStruct
+{
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Main)
+		FString stringPattern;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Main)
+		TArray<TSubclassOf<UBaseAttack>> attackClasses;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Options)
+		bool groundUsable;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Options)
+		bool airUsable;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Options)
+		bool ultOnly;
+};
 
 UCLASS()
 class ANIMEARENA_API ABaseCharacter : public ACharacter
@@ -75,6 +94,11 @@ public:
 		class UInputAction* LookAction;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 		class UInputAction* LockAction;
+
+	// Attacks
+	// -------
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attacks")
+		TArray<FAttackStruct> Attacks;
 
 protected:
 	ABasePlayerController* const GetPlayerController() { return m_pController; }
