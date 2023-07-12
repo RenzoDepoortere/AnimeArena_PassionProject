@@ -25,6 +25,9 @@ DECLARE_MULTICAST_DELEGATE(FJumpStopEvent);
 
 DECLARE_MULTICAST_DELEGATE(FDashEvent);
 
+DECLARE_MULTICAST_DELEGATE(FLightAttackEvent);
+DECLARE_MULTICAST_DELEGATE(FHeavyAttackEvent);
+
 UCLASS()
 class ANIMEARENA_API ABasePlayerController : public APlayerController
 {
@@ -48,6 +51,9 @@ public:
 
 	void Dash(const FInputActionValue& /*value*/) { if (m_DashEvent.IsBound()) m_DashEvent.Broadcast(); }
 
+	void LightAttack(const FInputActionValue& /*value*/) { if (m_LightAttackEvent.IsBound()) m_LightAttackEvent.Broadcast(); }
+	void HeavyAttack(const FInputActionValue& /*value*/) { if (m_HeavyAttackEvent.IsBound()) m_HeavyAttackEvent.Broadcast(); }
+
 	// Getters
 	FMoveEvent* const GetMoveEvent() { return &m_MoveEvent; }
 	FMoveStopEvent* const GetMoveStopEvent() { return &m_MoveStopEvent; }
@@ -63,6 +69,9 @@ public:
 
 	FDashEvent* const GetDashEvent() { return &m_DashEvent; }
 
+	FLightAttackEvent* const GetLightAttackEvent() { return &m_LightAttackEvent; }
+	FHeavyAttackEvent* const GetHeavyAttackEvent() { return &m_HeavyAttackEvent; }
+
 public:
 	// Properties
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
@@ -73,6 +82,11 @@ public:
 		class UInputAction* JumpAction;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 		class UInputAction* DashAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+		class UInputAction* LightAttackAction;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+		class UInputAction* HeavyAttackAction;
 	
 protected:
 	virtual void SetupInputComponent() override;
@@ -95,6 +109,9 @@ private:
 	FJumpStopEvent m_JumpStopEvent;
 
 	FDashEvent m_DashEvent;
+
+	FLightAttackEvent m_LightAttackEvent;
+	FHeavyAttackEvent m_HeavyAttackEvent;
 
 	// Times
 	float m_LastSprintTapTime;

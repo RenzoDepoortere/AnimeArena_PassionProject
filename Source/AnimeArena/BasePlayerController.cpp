@@ -31,6 +31,10 @@ void ABasePlayerController::SetupInputComponent()
 
 		// Dashing
 		enhancedInputComponent->BindAction(DashAction, ETriggerEvent::Started, this, &ABasePlayerController::Dash);
+
+		// Attacks
+		enhancedInputComponent->BindAction(LightAttackAction, ETriggerEvent::Started, this, &ABasePlayerController::LightAttack);
+		enhancedInputComponent->BindAction(HeavyAttackAction, ETriggerEvent::Started, this, &ABasePlayerController::HeavyAttack);
 	}
 }
 

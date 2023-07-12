@@ -18,6 +18,7 @@
 ABaseCharacter::ABaseCharacter()
 	: m_pController{ nullptr }
 	, m_LastMovementInput{}
+	, m_LastAttackWasLight{ false }
 	, m_UsedAirAbility{ false }
 	, m_UsedAirDash{ false }
 	, m_IsLocked{ false }
@@ -92,6 +93,9 @@ void ABaseCharacter::BeginPlay()
 	{
 		m_pController->GetMoveEvent()->AddUObject(this, &ABaseCharacter::Move);
 		m_pController->GetMoveStopEvent()->AddUObject(this, &ABaseCharacter::StopMove);
+
+		m_pController->GetLightAttackEvent()->AddUObject(this, &ABaseCharacter::LightAttack);
+		m_pController->GetHeavyAttackEvent()->AddUObject(this, &ABaseCharacter::HeavyAttack);
 	}
 }
 void ABaseCharacter::Destroyed()
@@ -101,6 +105,9 @@ void ABaseCharacter::Destroyed()
 	{
 		m_pController->GetMoveEvent()->RemoveAll(this);
 		m_pController->GetMoveStopEvent()->RemoveAll(this);
+
+		m_pController->GetLightAttackEvent()->RemoveAll(this);
+		m_pController->GetHeavyAttackEvent()->RemoveAll(this);
 	}
 }
 
@@ -136,6 +143,21 @@ void ABaseCharacter::StopMove()
 {
 	// Store input
 	m_LastMovementInput = {};
+}
+
+void ABaseCharacter::LightAttack()
+{
+	// Store input
+	m_LastAttackWasLight = true;
+
+	GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Yellow, "LightAttack");
+}
+void ABaseCharacter::HeavyAttack()
+{
+	// Store input
+	m_LastAttackWasLight = false;
+
+	GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Yellow, "HeavyAttack");
 }
 
 void ABaseCharacter::Look(const FInputActionValue& value)

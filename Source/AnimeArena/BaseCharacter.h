@@ -107,6 +107,7 @@ private:
 	// Member variables
 	ABasePlayerController* m_pController;
 	FVector2D m_LastMovementInput;
+	bool m_LastAttackWasLight;
 
 	bool m_UsedAirAbility;
 	bool m_UsedAirDash;
@@ -118,6 +119,9 @@ private:
 	// ----------------
 	void Move(const FInputActionValue& value);
 	void StopMove();
+
+	void LightAttack();
+	void HeavyAttack();
 
 	void Look(const FInputActionValue& value);
 	void LockToggle();
