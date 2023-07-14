@@ -19,4 +19,17 @@ public:
 
 	virtual void OnEnter(AActor* pStateOwner) override;
 	virtual void OnExit() override;
+
+private:
+	// Member variables
+	FString m_CurrentAttackString;
+	TArray<FString> m_PossibleAttackStrings;
+	
+	// Member functions
+	void LightAttack();
+	void HeavyAttack();
+
+	void AttackEnded();
+
+	FString ConvertInputToString(FVector2D movementInput) const;
 };

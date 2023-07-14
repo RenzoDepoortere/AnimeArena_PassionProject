@@ -8,7 +8,10 @@
 #include "Public/BaseAttack.h"
 #include "BaseCharacter.generated.h"
 
+DECLARE_MULTICAST_DELEGATE(FAttackEndEvent);
+
 class ABasePlayerController;
+class UStateMachineComponent;
 
 USTRUCT(BlueprintType)
 struct FAttackStruct
@@ -26,6 +29,14 @@ struct FAttackStruct
 		bool airUsable;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Options)
 		bool ultOnly;
+};
+
+UENUM(BlueprintType)
+enum class EAttackEnum : uint8
+{
+	start UMETA(DisplayName = "Start"),
+	active UMETA(DisplayName = "Active"),
+	delay UMETA(DisplayName = "Delay")
 };
 
 UCLASS()
@@ -50,6 +61,8 @@ public:
 
 	void SetUsedAirDash(bool usedAirDash) { m_UsedAirDash = usedAirDash; }
 	bool GetUsedAirDash() const { return m_UsedAirDash; }
+
+	FAttackEndEvent* const GetAttackEndEvent() { return &m_AttackEndEvent; }
 
 public:
 	ABaseCharacter();
@@ -76,7 +89,14 @@ public:
 		bool HasAirOption;
 
 	UFUNCTION(BlueprintCallable, Category = Movement)
-	const FVector2D& GetLastMovementInput() const { return m_LastMovementInput; }
+		const FVector2D& GetLastMovementInput() const { return m_LastMovementInput; }
+	UFUNCTION(BlueprintCallable, Category = Combat)
+		bool GetLastAttackInput() const { return m_LastAttackWasLight; }
+
+	UFUNCTION(BlueprintCallable, Category = Combat)
+		void SetAttackState(EAttackEnum newAttackState) { CurrentAttackState = newAttackState; }
+	UFUNCTION(BlueprintCallable, Category = Combat)
+		void AttackEnded() { if (m_AttackEndEvent.IsBound()) m_AttackEndEvent.Broadcast(); }
 
 	// Components
 	// ----------
@@ -97,8 +117,10 @@ public:
 
 	// Attacks
 	// -------
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attacks")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Combat)
 		TArray<FAttackStruct> Attacks;
+	UPROPERTY(BlueprintReadOnly, Category = Combat)
+		EAttackEnum CurrentAttackState;
 
 protected:
 	ABasePlayerController* const GetPlayerController() { return m_pController; }
@@ -115,10 +137,14 @@ private:
 	bool m_IsLocked;
 	ABaseCharacter* m_pLockedCharacter;
 
+	UStateMachineComponent* m_pStateMachine;
+
+	FAttackEndEvent m_AttackEndEvent;
+
 	// Member functions
 	// ----------------
-	void Move(const FInputActionValue& value);
-	void StopMove();
+	void Move(const FInputActionValue& value) { m_LastMovementInput = value.Get<FVector2D>(); }
+	void StopMove() { m_LastMovementInput = {}; }
 
 	void LightAttack();
 	void HeavyAttack();

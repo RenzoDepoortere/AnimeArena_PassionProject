@@ -10,6 +10,8 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "BasePlayerController.h"
+#include "StateMachineComponent.h"
+#include "BasePlayerState.h"
 
 #include <Kismet/GameplayStatics.h>
 
@@ -23,6 +25,8 @@ ABaseCharacter::ABaseCharacter()
 	, m_UsedAirDash{ false }
 	, m_IsLocked{ false }
 	, m_pLockedCharacter{ nullptr }
+	, m_pStateMachine{ nullptr }
+	, m_AttackEndEvent{}
 {
 	// Init components
 	// ***************
@@ -71,8 +75,9 @@ void ABaseCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// Get controller
+	// Get controller and stateMachine
 	m_pController = Cast<ABasePlayerController>(UGameplayStatics::GetPlayerController(this, 0));
+	m_pStateMachine = GetComponentByClass<UStateMachineComponent>();
 
 	// Return if can't be controlled
 	if (CanBeControlled == false) return;
@@ -115,7 +120,6 @@ void ABaseCharacter::Destroyed()
 void ABaseCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 	if (m_IsLocked) FollowLockedCharacter();
 }
 
@@ -134,30 +138,37 @@ void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	}
 }
 
-void ABaseCharacter::Move(const FInputActionValue& value)
-{
-	// Store input
-	m_LastMovementInput = value.Get<FVector2D>();
-}
-void ABaseCharacter::StopMove()
-{
-	// Store input
-	m_LastMovementInput = {};
-}
-
 void ABaseCharacter::LightAttack()
-{
+{ 
 	// Store input
-	m_LastAttackWasLight = true;
+	m_LastAttackWasLight = true; 
 
-	GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Yellow, "LightAttack");
+	// If currentState is attack, return
+	if (m_pStateMachine->IsValidLowLevel() == false) return;
+	if (m_pStateMachine->CurrentState->StateDisplayName == "Attack") return;
+
+	// Check if currentState can be attackCancelable
+	if (Cast<UBasePlayerState>(m_pStateMachine->CurrentState)->GetExtraStateInfo().canBeAttackCanceled)
+	{
+		// Switch to attackState
+		m_pStateMachine->SwitchStateByKey("Attack");
+	}
 }
 void ABaseCharacter::HeavyAttack()
 {
 	// Store input
 	m_LastAttackWasLight = false;
 
-	GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Yellow, "HeavyAttack");
+	// If currentState is attack, return
+	if (m_pStateMachine->IsValidLowLevel() == false) return;
+	if (m_pStateMachine->CurrentState->StateDisplayName == "Attack") return;
+
+	// Check if currentState can be attackCancelable
+	if (Cast<UBasePlayerState>(m_pStateMachine->CurrentState)->GetExtraStateInfo().canBeAttackCanceled)
+	{
+		// Switch to attackState
+		m_pStateMachine->SwitchStateByKey("Attack");
+	}
 }
 
 void ABaseCharacter::Look(const FInputActionValue& value)
