@@ -2,7 +2,6 @@
 #include "AttackState.h"
 #include "../BasePlayerController.h"
 #include "StateMachineComponent.h"
-#include "../BaseCharacter.h"
 
 UAttackState::UAttackState()
 	: m_CurrentAttackString{}
@@ -26,14 +25,28 @@ void UAttackState::OnEnter(AActor* pStateOwner)
 	const FVector2D lastMovementInput{ pCharacter->GetLastMovementInput() };
 	const bool wasLightAttack{ pCharacter->GetLastAttackInput() };
 
-	// Make attackString
+	// Make currentAttackString
 	m_CurrentAttackString = ConvertInputToString(lastMovementInput);
-	m_CurrentAttackString += (wasLightAttack) ? "X" : "Y";
+	m_CurrentAttackString += (wasLightAttack) ? "X " : "Y ";
 
 	GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Green, m_CurrentAttackString);
 
-	// Check for possible strings
+	// Loop through attacks
+	TArray<FAttackStruct> possibleAttacks{};
+	for (const auto& currentAttack : pCharacter->Attacks)
+	{
+		// Check if contains attackString
+		if (currentAttack.stringPattern.Contains(m_CurrentAttackString))
+		{
+			possibleAttacks.Add(currentAttack);
+		}
+	}
 
+	// Store attackStrings
+	m_PossibleAttackStrings = possibleAttacks;
+
+	// Play animation
+	//m_PossibleAttackStrings[0].
 
 	// Subscribe to events
 	// -------------------

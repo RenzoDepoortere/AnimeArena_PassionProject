@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "BasePlayerState.h"
+#include "../BaseCharacter.h"
 #include "AttackState.generated.h"
 
 /**
@@ -23,7 +24,7 @@ public:
 private:
 	// Member variables
 	FString m_CurrentAttackString;
-	TArray<FString> m_PossibleAttackStrings;
+	TArray<FAttackStruct> m_PossibleAttackStrings;
 	
 	// Member functions
 	void LightAttack();
