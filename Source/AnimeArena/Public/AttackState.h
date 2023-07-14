@@ -28,9 +28,7 @@ private:
 	int m_CurrentAttack;
 	
 	// Member functions
-	void LightAttack();
-	void HeavyAttack();
-
+	void AttackInput();
 	void AttackEnded();
 
 	FString ConvertInputToString(FVector2D movementInput) const;

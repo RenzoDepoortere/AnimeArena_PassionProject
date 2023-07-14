@@ -68,8 +68,8 @@ void UAttackState::OnEnter(AActor* pStateOwner)
 	auto pController{ GetPlayerController() };
 	if (pController)
 	{
-		pController->GetLightAttackEvent()->AddUObject(this, &UAttackState::LightAttack);
-		pController->GetHeavyAttackEvent()->AddUObject(this, &UAttackState::HeavyAttack);
+		pController->GetLightAttackEvent()->AddUObject(this, &UAttackState::AttackInput);
+		pController->GetHeavyAttackEvent()->AddUObject(this, &UAttackState::AttackInput);
 	}
 
 	// Attack
@@ -93,29 +93,54 @@ void UAttackState::OnExit()
 	pCharacter->GetAttackEndEvent()->RemoveAll(this);
 }
 
-void UAttackState::LightAttack()
+void UAttackState::AttackInput()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Blue, "LightAttack");
-
-	// Make new attackString
-
-	// Check if attackString is in possibilities
-
-		// Do nothing
-
-	// Remove unfitting attackStrings
+	// Check if in activeState
+	auto pCharacter{ GetCharacter() };
+	if (pCharacter->CurrentAttackState != EAttackEnum::active) return;
 
 	// Set currentAttackState to start
+	pCharacter->SetAttackState(EAttackEnum::start);
+
+	// Check data
+	const FVector2D lastMovementInput{ pCharacter->GetLastMovementInput() };
+	const bool wasLightAttack{ pCharacter->GetLastAttackInput() };
+
+	// Make currentAttackString
+	m_CurrentAttackString += ConvertInputToString(lastMovementInput);
+	m_CurrentAttackString += (wasLightAttack) ? "X " : "Y ";
+
+	GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Green, m_CurrentAttackString);
+
+	// Check if attackString is in possibilities
+	TArray<FAttackString> possibleAttacks{};
+	for (const auto& currentAttack : m_PossibleAttackStrings)
+	{
+		// Check if contains attackString
+		if (currentAttack.stringPattern.Contains(m_CurrentAttackString))
+		{
+			possibleAttacks.Add(currentAttack);
+		}
+	}
+
+	// Store attackStrings
+	m_PossibleAttackStrings = possibleAttacks;
+	if (m_PossibleAttackStrings.Num() == 0)
+	{
+		// Do nothing
+		return;
+	}
+
+	// Set currentAttackState to start
+	pCharacter->SetAttackState(EAttackEnum::start);
 
 	// Update index
+	++m_CurrentAttack;
 
 	// Play animation
+	auto pAnimationMontage{ m_PossibleAttackStrings[0].attacks[m_CurrentAttack].attackAnimationMontage };
+	pCharacter->GetMesh()->GetAnimInstance()->Montage_Play(pAnimationMontage);
 }
-void UAttackState::HeavyAttack()
-{
-	GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Yellow, "HeavyAttack");
-}
-
 void UAttackState::AttackEnded()
 {
 	// Change to idleState
