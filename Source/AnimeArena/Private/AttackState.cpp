@@ -2,10 +2,12 @@
 #include "AttackState.h"
 #include "../BasePlayerController.h"
 #include "StateMachineComponent.h"
+#include "Animation/AnimInstance.h"
 
 UAttackState::UAttackState()
 	: m_CurrentAttackString{}
 	, m_PossibleAttackStrings{}
+	, m_CurrentAttack{}
 {
 	StateDisplayName = "Attack";
 }
@@ -21,6 +23,8 @@ void UAttackState::OnEnter(AActor* pStateOwner)
 	auto pCharacter{ GetCharacter() };
 	pCharacter->SetAttackState(EAttackEnum::start);
 
+	m_CurrentAttack = 0;
+
 	// Check data
 	const FVector2D lastMovementInput{ pCharacter->GetLastMovementInput() };
 	const bool wasLightAttack{ pCharacter->GetLastAttackInput() };
@@ -32,7 +36,7 @@ void UAttackState::OnEnter(AActor* pStateOwner)
 	GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Green, m_CurrentAttackString);
 
 	// Loop through attacks
-	TArray<FAttackStruct> possibleAttacks{};
+	TArray<FAttackString> possibleAttacks{};
 	for (const auto& currentAttack : pCharacter->Attacks)
 	{
 		// Check if contains attackString
@@ -44,9 +48,18 @@ void UAttackState::OnEnter(AActor* pStateOwner)
 
 	// Store attackStrings
 	m_PossibleAttackStrings = possibleAttacks;
+	if (m_PossibleAttackStrings.Num() == 0)
+	{
+		// Change to idleState
+		auto pStateMachine{ GetStateOwner()->GetComponentByClass<UStateMachineComponent>() };
+		pStateMachine->SwitchStateByKey({ "Idle" });
+		return;
+	}
+
 
 	// Play animation
-	//m_PossibleAttackStrings[0].
+	auto pAnimationMontage{ m_PossibleAttackStrings[0].attacks[0].attackAnimationMontage };
+	pCharacter->GetMesh()->GetAnimInstance()->Montage_Play(pAnimationMontage);
 
 	// Subscribe to events
 	// -------------------
@@ -83,6 +96,20 @@ void UAttackState::OnExit()
 void UAttackState::LightAttack()
 {
 	GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Blue, "LightAttack");
+
+	// Make new attackString
+
+	// Check if attackString is in possibilities
+
+		// Do nothing
+
+	// Remove unfitting attackStrings
+
+	// Set currentAttackState to start
+
+	// Update index
+
+	// Play animation
 }
 void UAttackState::HeavyAttack()
 {

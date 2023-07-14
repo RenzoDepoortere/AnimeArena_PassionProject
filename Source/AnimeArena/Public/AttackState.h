@@ -24,7 +24,8 @@ public:
 private:
 	// Member variables
 	FString m_CurrentAttackString;
-	TArray<FAttackStruct> m_PossibleAttackStrings;
+	TArray<FAttackString> m_PossibleAttackStrings;
+	int m_CurrentAttack;
 	
 	// Member functions
 	void LightAttack();

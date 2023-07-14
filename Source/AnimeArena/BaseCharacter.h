@@ -14,14 +14,33 @@ class ABasePlayerController;
 class UStateMachineComponent;
 
 USTRUCT(BlueprintType)
-struct FAttackStruct
+struct FAttack
+{
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Settings)
+		UAnimMontage* attackAnimationMontage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Settings)
+		float damage;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Settings)
+		float knockback;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Settings)
+		bool isComboEnder;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Settings)
+		bool isInvincible;
+};
+
+USTRUCT(BlueprintType)
+struct FAttackString
 {
 	GENERATED_USTRUCT_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Main)
 		FString stringPattern;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Main)
-		TArray<TSubclassOf<UBaseAttack>> attackClasses;
+		TArray<FAttack> attacks;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Options)
 		bool groundUsable;
@@ -118,7 +137,7 @@ public:
 	// Attacks
 	// -------
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Combat)
-		TArray<FAttackStruct> Attacks;
+		TArray<FAttackString> Attacks;
 	UPROPERTY(BlueprintReadOnly, Category = Combat)
 		EAttackEnum CurrentAttackState;
 
