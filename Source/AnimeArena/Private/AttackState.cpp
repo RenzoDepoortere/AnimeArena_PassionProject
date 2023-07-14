@@ -68,8 +68,8 @@ void UAttackState::OnEnter(AActor* pStateOwner)
 	auto pController{ GetPlayerController() };
 	if (pController)
 	{
-		pController->GetLightAttackEvent()->AddUObject(this, &UAttackState::AttackInput);
-		pController->GetHeavyAttackEvent()->AddUObject(this, &UAttackState::AttackInput);
+		pController->GetLightAttackEvent()->AddUObject(this, &UAttackState::LightAttack);
+		pController->GetHeavyAttackEvent()->AddUObject(this, &UAttackState::HeavyAttack);
 	}
 
 	// Attack
@@ -93,7 +93,7 @@ void UAttackState::OnExit()
 	pCharacter->GetAttackEndEvent()->RemoveAll(this);
 }
 
-void UAttackState::AttackInput()
+void UAttackState::AttackInput(const FString& attackLetter)
 {
 	// Check if in activeState
 	auto pCharacter{ GetCharacter() };
@@ -104,11 +104,10 @@ void UAttackState::AttackInput()
 
 	// Check data
 	const FVector2D lastMovementInput{ pCharacter->GetLastMovementInput() };
-	const bool wasLightAttack{ pCharacter->GetLastAttackInput() };
 
 	// Make currentAttackString
 	m_CurrentAttackString += ConvertInputToString(lastMovementInput);
-	m_CurrentAttackString += (wasLightAttack) ? "X " : "Y ";
+	m_CurrentAttackString += attackLetter;
 
 	GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Green, m_CurrentAttackString);
 
