@@ -13,6 +13,25 @@ class ABasePlayerController;
 class UStateMachineComponent;
 class UHealthComponent;
 
+#pragma region Objects
+
+UENUM(BlueprintType)
+enum class EAttackEnum : uint8
+{
+	start UMETA(DisplayName = "Start"),
+	active UMETA(DisplayName = "Active"),
+	delay UMETA(DisplayName = "Delay")
+};
+
+UENUM(BlueprintType)
+enum class EAttackDirectionEnum : uint8
+{
+	forward UMETA(DisplayName = "Forward"),
+	backward UMETA(DisplayName = "Backward"),
+	left UMETA(DisplayName = "Left"),
+	right UMETA(DisplayName = "Right")
+};
+
 USTRUCT(BlueprintType)
 struct FAttack
 {
@@ -25,6 +44,9 @@ struct FAttack
 		float damage;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Settings)
 		float knockback;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Settings)
+		EAttackDirectionEnum knockbackDirection;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Settings)
 		bool isComboEnder;
@@ -48,13 +70,7 @@ struct FAttackString
 		bool ultOnly;
 };
 
-UENUM(BlueprintType)
-enum class EAttackEnum : uint8
-{
-	start UMETA(DisplayName = "Start"),
-	active UMETA(DisplayName = "Active"),
-	delay UMETA(DisplayName = "Delay")
-};
+#pragma endregion
 
 UCLASS()
 class ANIMEARENA_API ABaseCharacter : public ACharacter
@@ -151,6 +167,9 @@ public:
 
 protected:
 	ABasePlayerController* const GetPlayerController() { return m_pController; }
+
+	virtual void OnDamage(ABaseCharacter* pDamageDealer);
+	virtual void OnDeath(ABaseCharacter* pKiller);
 
 private:
 	// Member variables

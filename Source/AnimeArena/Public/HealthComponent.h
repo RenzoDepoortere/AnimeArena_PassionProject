@@ -8,7 +8,7 @@
 
 class ABaseCharacter;
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnDamageDealth, ABaseCharacter*, damageDealer);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnDamage, ABaseCharacter*, damageDealer);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnDeath, ABaseCharacter*, killer);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -26,7 +26,7 @@ public:
 		float CurrentHealth;
 
 	UPROPERTY(BlueprintAssignable, Category = Event)
-		FOnDamageDealth OnDamageDealth;
+		FOnDamage OnDamage;
 
 	UPROPERTY(BlueprintAssignable, Category = Event)
 		FOnDeath OnDeath;

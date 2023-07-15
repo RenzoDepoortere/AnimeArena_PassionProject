@@ -37,7 +37,7 @@ bool UHealthComponent::DealDamage(float amount, ABaseCharacter* pDamageDealer)
 	}
 
 	// Send damageEvent
-	OnDamageDealth.Broadcast(pDamageDealer);
+	OnDamage.Broadcast(pDamageDealer);
 
 	return true;
 }

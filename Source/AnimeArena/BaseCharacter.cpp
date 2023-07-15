@@ -101,8 +101,13 @@ void ABaseCharacter::BeginPlay()
 		}
 	}
 
-	// Subscribe to inputEvents
-	// ------------------------
+	// Subscribe to events
+	// -------------------
+
+	// HealthComponent
+	HealthComponent->OnDamage.AddDynamic(this, &ABaseCharacter::OnDamage);
+
+	// Input
 	if (m_pController)
 	{
 		m_pController->GetMoveEvent()->AddUObject(this, &ABaseCharacter::Move);
@@ -114,7 +119,13 @@ void ABaseCharacter::BeginPlay()
 }
 void ABaseCharacter::Destroyed()
 {
-	// Unsubscribe from inputEvents
+	// Unsubscribe from events
+	// -----------------------
+
+	// HealthComponent
+	HealthComponent->OnDamage.RemoveAll(this);
+
+	// Input
 	if (m_pController)
 	{
 		m_pController->GetMoveEvent()->RemoveAll(this);
@@ -155,6 +166,15 @@ void ABaseCharacter::FaceLockedCharacter()
 	const FRotator desiredRotation{ FRotationMatrix::MakeFromX(toDirection).Rotator() };
 
 	SetActorRotation(desiredRotation);
+}
+
+void ABaseCharacter::OnDamage(ABaseCharacter* /*pDamageDealer*/)
+{
+	GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Emerald, "Damage dealt");
+}
+void ABaseCharacter::OnDeath(ABaseCharacter* /*pKiller*/)
+{
+	GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Emerald, "Ded");
 }
 
 void ABaseCharacter::LightAttack()
@@ -266,7 +286,6 @@ void ABaseCharacter::LockToggle()
 		m_pLockedCharacter = Cast<ABaseCharacter>(pClosestActor);
 	}
 }
-
 void ABaseCharacter::FollowLockedCharacter()
 {
 	// Return if lockedChar is not valid
