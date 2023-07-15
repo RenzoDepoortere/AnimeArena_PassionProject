@@ -70,6 +70,9 @@ void UAttackState::OnEnter(AActor* pStateOwner)
 	auto pAnimationMontage{ m_PossibleAttackStrings[0].attacks[0].attackAnimationMontage };
 	pCharacter->GetMesh()->GetAnimInstance()->Montage_Play(pAnimationMontage);
 
+	// Faced lockedChar if lockedOn
+	if (pCharacter->GetIsLocked()) pCharacter->FaceLockedCharacter();
+
 	// Subscribe to events
 	// -------------------
 
@@ -152,6 +155,9 @@ void UAttackState::AttackInput(const FString& attackLetter)
 	// Play animation
 	auto pAnimationMontage{ m_PossibleAttackStrings[0].attacks[m_CurrentAttack].attackAnimationMontage };
 	pCharacter->GetMesh()->GetAnimInstance()->Montage_Play(pAnimationMontage);
+
+	// Faced lockedChar if lockedOn
+	if (pCharacter->GetIsLocked()) pCharacter->FaceLockedCharacter();
 }
 void UAttackState::AttackEnded()
 {

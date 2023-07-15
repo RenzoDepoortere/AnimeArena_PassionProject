@@ -138,6 +138,16 @@ void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	}
 }
 
+void ABaseCharacter::FaceLockedCharacter()
+{
+	// Face lockedChar
+	const FVector lockedCharPos{ m_pLockedCharacter->GetActorLocation() };
+	const FVector toDirection{ FVector::VectorPlaneProject((lockedCharPos - GetActorLocation()), FVector{0.f, 0.f, 1.f}) };
+	const FRotator desiredRotation{ FRotationMatrix::MakeFromX(toDirection).Rotator() };
+
+	SetActorRotation(desiredRotation);
+}
+
 void ABaseCharacter::LightAttack()
 { 
 	// Store input

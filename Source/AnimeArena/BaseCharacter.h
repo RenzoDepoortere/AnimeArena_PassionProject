@@ -81,6 +81,10 @@ public:
 	void SetUsedAirDash(bool usedAirDash) { m_UsedAirDash = usedAirDash; }
 	bool GetUsedAirDash() const { return m_UsedAirDash; }
 
+	bool GetIsLocked() const { return m_IsLocked; }
+	ABaseCharacter* GetLockedCharacter() const { return m_pLockedCharacter; }
+	void FaceLockedCharacter();
+
 	FAttackEndEvent* const GetAttackEndEvent() { return &m_AttackEndEvent; }
 
 public:

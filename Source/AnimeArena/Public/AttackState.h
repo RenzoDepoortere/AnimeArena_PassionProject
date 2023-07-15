@@ -28,7 +28,7 @@ private:
 	int m_CurrentAttack;
 
 	float m_OriginalFriction;
-	
+
 	// Member functions
 	void LightAttack() { AttackInput("X "); }
 	void HeavyAttack() { AttackInput("Y "); }
