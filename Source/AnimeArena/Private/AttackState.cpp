@@ -28,10 +28,12 @@ void UAttackState::OnEnter(AActor* pStateOwner)
 	// Check data
 	const FVector2D lastMovementInput{ pCharacter->GetLastMovementInput() };
 	const bool wasLightAttack{ pCharacter->GetLastAttackInput() };
+	const FString attackLetter{ (wasLightAttack) ? "X " : "Y " };
 
 	// Make currentAttackString
-	m_CurrentAttackString = ConvertInputToString(lastMovementInput);
-	m_CurrentAttackString += (wasLightAttack) ? "X " : "Y ";
+	m_CurrentAttackString = {};
+	m_CurrentAttackString += ConvertInputToString(lastMovementInput, attackLetter);
+	m_CurrentAttackString += attackLetter;
 
 	GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Green, m_CurrentAttackString);
 
@@ -106,7 +108,7 @@ void UAttackState::AttackInput(const FString& attackLetter)
 	const FVector2D lastMovementInput{ pCharacter->GetLastMovementInput() };
 
 	// Make currentAttackString
-	m_CurrentAttackString += ConvertInputToString(lastMovementInput);
+	m_CurrentAttackString += ConvertInputToString(lastMovementInput, attackLetter);
 	m_CurrentAttackString += attackLetter;
 
 	GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Green, m_CurrentAttackString);
@@ -147,29 +149,49 @@ void UAttackState::AttackEnded()
 	pStateMachine->SwitchStateByKey({ "Idle" });
 }
 
-FString UAttackState::ConvertInputToString(FVector2D movementInput) const
+FString UAttackState::ConvertInputToString(FVector2D movementInput, const FString& attackLetter) const
 {
 	const float absX{ static_cast<float>(abs(movementInput.X)) };
 	const float absY{ static_cast<float>(abs(movementInput.Y)) };
+	FString directionString{};
 
 	// Check if there was input
 	const bool wasNoInput{ absX <= 0.25f && absY <= 0.25f };
-	if (wasNoInput) return "N";
-
-	// Check which axis dominates
-	movementInput.Normalize();
-	const bool xIsBigger{ absY < absX };
-
-	if (xIsBigger)
-	{
-		// Check for sign
-		if (movementInput.X < 0) return "L";
-		else					 return "R";
-	}
+	if (wasNoInput) directionString = "N";
 	else
 	{
-		// Check for sign
-		if (movementInput.Y < 0) return "D";
-		else					 return "U";
+		// Check which axis dominates
+		movementInput.Normalize();
+		const bool xIsBigger{ absY < absX };
+
+		if (xIsBigger)
+		{
+			// Check for sign
+			if (movementInput.X < 0) directionString = "L";
+			else					 directionString = "R";
+		}
+		else
+		{
+			// Check for sign
+			if (movementInput.Y < 0) directionString = "D";
+			else					 directionString = "U";
+		}
 	}
+
+	// Check if contains such directionAttack
+	auto pCharacter{ GetCharacter() };
+	FString wouldBeString{ m_CurrentAttackString };
+	wouldBeString += directionString + attackLetter;
+
+	for (const auto& currentAttack : pCharacter->Attacks)
+	{
+		if (currentAttack.stringPattern.Contains(wouldBeString))
+		{
+			return directionString;
+		}
+	}
+
+	// Change directionString to neutral
+	directionString = "N";
+	return directionString;
 }

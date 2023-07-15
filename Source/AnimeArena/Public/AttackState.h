@@ -34,5 +34,5 @@ private:
 	void AttackInput(const FString& attackLetter);
 	void AttackEnded();
 
-	FString ConvertInputToString(FVector2D movementInput) const;
+	FString ConvertInputToString(FVector2D movementInput, const FString& attackLetter) const;
 };
