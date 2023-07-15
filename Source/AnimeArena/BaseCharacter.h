@@ -5,13 +5,13 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "InputActionValue.h"
-#include "Public/BaseAttack.h"
 #include "BaseCharacter.generated.h"
 
 DECLARE_MULTICAST_DELEGATE(FAttackEndEvent);
 
 class ABasePlayerController;
 class UStateMachineComponent;
+class UHealthComponent;
 
 USTRUCT(BlueprintType)
 struct FAttack
@@ -128,6 +128,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera)
 		class UCameraComponent* FollowCamera;
 
+	// Others
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = States)
+		class UStateMachineComponent* StateMachineComponent;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Health)
+		class UHealthComponent* HealthComponent;
+
 	// Input
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 		class UInputMappingContext* DefaultMappingContext;
@@ -157,8 +163,6 @@ private:
 
 	bool m_IsLocked;
 	ABaseCharacter* m_pLockedCharacter;
-
-	UStateMachineComponent* m_pStateMachine;
 
 	FAttackEndEvent m_AttackEndEvent;
 
