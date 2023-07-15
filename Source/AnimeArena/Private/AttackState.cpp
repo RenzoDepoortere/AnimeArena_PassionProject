@@ -49,7 +49,7 @@ void UAttackState::OnEnter(AActor* pStateOwner)
 	for (const auto& currentAttack : pCharacter->Attacks)
 	{
 		// Check if contains attackString
-		if (currentAttack.stringPattern.Contains(m_CurrentAttackString))
+		if (currentAttack.stringPattern.Find(m_CurrentAttackString) == 0)
 		{
 			possibleAttacks.Add(currentAttack);
 		}
@@ -132,7 +132,7 @@ void UAttackState::AttackInput(const FString& attackLetter)
 	for (const auto& currentAttack : m_PossibleAttackStrings)
 	{
 		// Check if contains attackString
-		if (currentAttack.stringPattern.Contains(m_CurrentAttackString))
+		if (currentAttack.stringPattern.Find(m_CurrentAttackString) == 0)
 		{
 			possibleAttacks.Add(currentAttack);
 		}
@@ -202,7 +202,7 @@ FString UAttackState::ConvertInputToString(FVector2D movementInput, const FStrin
 
 	for (const auto& currentAttack : pCharacter->Attacks)
 	{
-		if (currentAttack.stringPattern.Contains(wouldBeString))
+		if (currentAttack.stringPattern.Find(wouldBeString) == 0)
 		{
 			return directionString;
 		}
