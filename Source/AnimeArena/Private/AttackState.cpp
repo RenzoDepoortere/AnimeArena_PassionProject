@@ -2,12 +2,14 @@
 #include "AttackState.h"
 #include "../BasePlayerController.h"
 #include "StateMachineComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Animation/AnimInstance.h"
 
 UAttackState::UAttackState()
 	: m_CurrentAttackString{}
 	, m_PossibleAttackStrings{}
 	, m_CurrentAttack{}
+	, m_OriginalFriction{}
 {
 	StateDisplayName = "Attack";
 }
@@ -16,11 +18,16 @@ void UAttackState::OnEnter(AActor* pStateOwner)
 {
 	UBasePlayerState::OnEnter(pStateOwner);
 
+	// Store and change friction
+	auto pCharacter{ GetCharacter() };
+	auto pCharMovement{ pCharacter->GetCharacterMovement() };
+	m_OriginalFriction = pCharMovement->GroundFriction;
+	pCharMovement->GroundFriction = 0.f;
+
 	// AttackString
 	// ------------
 
 	// Set currentAttackState to start
-	auto pCharacter{ GetCharacter() };
 	pCharacter->SetAttackState(EAttackEnum::start);
 
 	m_CurrentAttack = 0;
@@ -79,8 +86,13 @@ void UAttackState::OnEnter(AActor* pStateOwner)
 }
 void UAttackState::OnExit()
 {
+	// Reset friction
+	auto pCharacter{ GetCharacter() };
+	auto pCharMovement{ pCharacter->GetCharacterMovement() };
+	pCharMovement->GroundFriction = m_OriginalFriction;
+
 	// Unsubscribe from events
-	// ----------------------------
+	// -----------------------
 
 	// Input
 	auto pController{ GetPlayerController() };
@@ -91,7 +103,6 @@ void UAttackState::OnExit()
 	}
 
 	// Attack
-	auto pCharacter{ GetCharacter() };
 	pCharacter->GetAttackEndEvent()->RemoveAll(this);
 }
 

@@ -26,6 +26,8 @@ private:
 	FString m_CurrentAttackString;
 	TArray<FAttackString> m_PossibleAttackStrings;
 	int m_CurrentAttack;
+
+	float m_OriginalFriction;
 	
 	// Member functions
 	void LightAttack() { AttackInput("X "); }
