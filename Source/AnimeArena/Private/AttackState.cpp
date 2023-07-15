@@ -46,13 +46,22 @@ void UAttackState::OnEnter(AActor* pStateOwner)
 
 	// Loop through attacks
 	TArray<FAttackString> possibleAttacks{};
+	const bool isInAir{ pCharMovement->IsFalling() };
 	for (const auto& currentAttack : pCharacter->Attacks)
 	{
-		// Check if contains attackString
-		if (currentAttack.stringPattern.Find(m_CurrentAttackString) == 0)
-		{
-			possibleAttacks.Add(currentAttack);
-		}
+		// If doesn't contain attackString, continue
+		if (currentAttack.stringPattern.Find(m_CurrentAttackString) != 0) continue;
+
+		// If groundBased and in air, continue
+		if (isInAir && currentAttack.groundBased) continue;
+
+		// If not groundBased and not in air, continue
+		if (isInAir == false && currentAttack.groundBased == false) continue;
+
+		// If ultOnly and not in ult, continue
+
+		// Add to possibleAttack
+		possibleAttacks.Add(currentAttack);
 	}
 
 	// Store attackStrings
@@ -64,7 +73,6 @@ void UAttackState::OnEnter(AActor* pStateOwner)
 		pStateMachine->SwitchStateByKey({ "Idle" });
 		return;
 	}
-
 
 	// Play animation
 	auto pAnimationMontage{ m_PossibleAttackStrings[0].attacks[0].attackAnimationMontage };

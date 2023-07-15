@@ -43,9 +43,7 @@ struct FAttackString
 		TArray<FAttack> attacks;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Options)
-		bool groundUsable;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Options)
-		bool airUsable;
+		bool groundBased;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Options)
 		bool ultOnly;
 };
