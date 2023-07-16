@@ -131,14 +131,16 @@ public:
 	UFUNCTION(BlueprintCallable, Category = Combat)
 		bool GetLastAttackInput() const { return m_LastAttackWasLight; }
 
+	// Combat
 	UFUNCTION(BlueprintCallable, Category = Combat)
 		void SetAttackState(EAttackEnum newAttackState) { CurrentAttackState = newAttackState; }
 	UFUNCTION(BlueprintCallable, Category = Combat)
 		void AttackEnded() { if (m_AttackEndEvent.IsBound()) m_AttackEndEvent.Broadcast(); }
 
 	UFUNCTION(BlueprintCallable, Category = Combat)
-	void OnDamageCollisionOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
-		int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+		void SetCheckForHittingActors(bool checkForActors) { CheckForHittingActors = checkForActors; }
+	UFUNCTION(BlueprintCallable, Category = Combat)
+		void OnDamageCollisionOverlap(TArray<AActor*> overlappingActors);
 
 	// Components
 	// ----------
@@ -172,6 +174,9 @@ public:
 		TArray<FAttackString> Attacks;
 	UPROPERTY(BlueprintReadOnly, Category = Combat)
 		EAttackEnum CurrentAttackState;
+
+	UPROPERTY(BlueprintReadOnly, Category = Combat)
+		bool CheckForHittingActors;
 
 protected:
 	ABasePlayerController* const GetPlayerController() { return m_pController; }

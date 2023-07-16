@@ -56,6 +56,11 @@ ABaseCharacter::ABaseCharacter()
 	// Return if can't be controlled
 	if (CanBeControlled == false) return;
 
+	// Change collisions
+	// -----------------
+	GetMesh()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
+
 	// Camera
 	// ------
 
@@ -85,13 +90,12 @@ ABaseCharacter::ABaseCharacter()
 	HealthComponent->MaxHealth = 100.f;
 }
 
-void ABaseCharacter::OnDamageCollisionOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
-	int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void ABaseCharacter::OnDamageCollisionOverlap(TArray<AActor*> overlappingActors)
 {
 	// Return if not hitting other player in active attack state
 	if (StateMachineComponent->CurrentState->StateDisplayName != "Attack") return;
 	if (CurrentAttackState != EAttackEnum::active) return;
-	if (OtherActor == this) return;
+	if (overlappingActors.Num() == 1 && overlappingActors[0] == this) return;
 
 	GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Blue, "Nice hit");
 }
@@ -121,7 +125,6 @@ void ABaseCharacter::BeginPlay()
 	// -------------------
 
 	// Components
-	DamageBoxCollision->OnComponentBeginOverlap.AddDynamic(this, &ABaseCharacter::OnDamageCollisionOverlap);
 	HealthComponent->OnDamage.AddDynamic(this, &ABaseCharacter::OnDamage);
 
 	// Input
@@ -140,7 +143,6 @@ void ABaseCharacter::Destroyed()
 	// -----------------------
 
 	// Components
-	DamageBoxCollision->OnComponentBeginOverlap.RemoveAll(this);
 	HealthComponent->OnDamage.RemoveAll(this);
 
 	// Input
