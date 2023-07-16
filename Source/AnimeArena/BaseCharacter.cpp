@@ -28,6 +28,8 @@ ABaseCharacter::ABaseCharacter()
 	, m_IsLocked{ false }
 	, m_pLockedCharacter{ nullptr }
 	, m_AttackEndEvent{}
+	, m_HitActors{}
+	, m_IsActiveHit{ false }
 {
 	// Init components
 	// ***************
@@ -90,14 +92,21 @@ ABaseCharacter::ABaseCharacter()
 	HealthComponent->MaxHealth = 100.f;
 }
 
-void ABaseCharacter::OnDamageCollisionOverlap(TArray<AActor*> overlappingActors)
+void ABaseCharacter::IsActiveHit(bool isActiveHit)
 {
-	// Return if not hitting other player in active attack state
-	if (StateMachineComponent->CurrentState->StateDisplayName != "Attack") return;
-	if (CurrentAttackState != EAttackEnum::active) return;
-	if (overlappingActors.Num() == 1 && overlappingActors[0] == this) return;
+	m_IsActiveHit = isActiveHit;
 
-	GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Blue, "Nice hit");
+	// If should start looking for actors
+	if (isActiveHit)
+	{
+		// Include self, you want to ignore
+		m_HitActors.Add(this);
+	}
+	else
+	{
+		// Clear actors
+		m_HitActors.Empty();
+	}
 }
 
 // Called when the game starts or when spawned
@@ -160,6 +169,8 @@ void ABaseCharacter::Destroyed()
 void ABaseCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	if (m_IsActiveHit) HandleAttacks();
 	if (m_IsLocked) FollowLockedCharacter();
 }
 
@@ -225,6 +236,35 @@ void ABaseCharacter::HeavyAttack()
 	{
 		// Switch to attackState
 		StateMachineComponent->SwitchStateByKey("Attack");
+	}
+}
+void ABaseCharacter::HandleAttacks()
+{
+	// Return if not hitting player in active attack state
+	if (StateMachineComponent->CurrentState->StateDisplayName != "Attack") return;
+	if (CurrentAttackState != EAttackEnum::active) return;
+
+	TArray<AActor*> overlappingActors{};
+	DamageBoxCollision->GetOverlappingActors(overlappingActors, ABaseCharacter::StaticClass());
+
+	// Return if not overlappingActors
+	if (overlappingActors.Num() == 0) return;
+
+	// Go through overlappingActors
+	bool hasAlreadyBeenHit{ false };
+	for (const auto& currentHitActor : overlappingActors)
+	{
+		hasAlreadyBeenHit = false;
+
+		// Check if actor already got hit
+		for (const auto& storedActor : m_HitActors)
+			if (currentHitActor == storedActor) hasAlreadyBeenHit = true;
+
+		if (hasAlreadyBeenHit) continue;
+
+		// Else add to hitActors and dealDamage
+		m_HitActors.Add(currentHitActor);
+		GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Blue, "Nice hit");
 	}
 }
 

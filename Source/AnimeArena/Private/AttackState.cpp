@@ -103,10 +103,7 @@ void UAttackState::OnExit()
 	pCharMovement->GroundFriction = m_OriginalFriction;
 
 	// Reset checkForActors
-	if (pCharacter->CheckForHittingActors)
-	{
-		pCharacter->SetCheckForHittingActors(false);
-	}
+	pCharacter->IsActiveHit(false);
 
 	// Unsubscribe from events
 	// -----------------------

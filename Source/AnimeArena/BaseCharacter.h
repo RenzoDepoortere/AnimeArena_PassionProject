@@ -126,22 +126,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Settings)
 		bool HasAirOption;
 
-	UFUNCTION(BlueprintCallable, Category = Movement)
-		const FVector2D& GetLastMovementInput() const { return m_LastMovementInput; }
-	UFUNCTION(BlueprintCallable, Category = Combat)
-		bool GetLastAttackInput() const { return m_LastAttackWasLight; }
-
-	// Combat
-	UFUNCTION(BlueprintCallable, Category = Combat)
-		void SetAttackState(EAttackEnum newAttackState) { CurrentAttackState = newAttackState; }
-	UFUNCTION(BlueprintCallable, Category = Combat)
-		void AttackEnded() { if (m_AttackEndEvent.IsBound()) m_AttackEndEvent.Broadcast(); }
-
-	UFUNCTION(BlueprintCallable, Category = Combat)
-		void SetCheckForHittingActors(bool checkForActors) { CheckForHittingActors = checkForActors; }
-	UFUNCTION(BlueprintCallable, Category = Combat)
-		void OnDamageCollisionOverlap(TArray<AActor*> overlappingActors);
-
 	// Components
 	// ----------
 
@@ -175,8 +159,22 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = Combat)
 		EAttackEnum CurrentAttackState;
 
-	UPROPERTY(BlueprintReadOnly, Category = Combat)
-		bool CheckForHittingActors;
+	// Functions
+	// ---------
+
+	UFUNCTION(BlueprintCallable, Category = Movement)
+		const FVector2D& GetLastMovementInput() const { return m_LastMovementInput; }
+	UFUNCTION(BlueprintCallable, Category = Combat)
+		bool GetLastAttackInput() const { return m_LastAttackWasLight; }
+
+	// Combat
+	UFUNCTION(BlueprintCallable, Category = Combat)
+		void SetAttackState(EAttackEnum newAttackState) { CurrentAttackState = newAttackState; }
+	UFUNCTION(BlueprintCallable, Category = Combat)
+		void AttackEnded() { if (m_AttackEndEvent.IsBound()) m_AttackEndEvent.Broadcast(); }
+
+	UFUNCTION(BlueprintCallable, Category = Combat)
+		void IsActiveHit(bool isActiveHit);
 
 protected:
 	ABasePlayerController* const GetPlayerController() { return m_pController; }
@@ -197,6 +195,8 @@ private:
 	ABaseCharacter* m_pLockedCharacter;
 
 	FAttackEndEvent m_AttackEndEvent;
+	TArray<AActor*> m_HitActors;
+	bool m_IsActiveHit;
 
 	// Member functions
 	// ----------------
@@ -205,9 +205,9 @@ private:
 
 	void LightAttack();
 	void HeavyAttack();
+	void HandleAttacks();
 
 	void Look(const FInputActionValue& value);
 	void LockToggle();
-
 	void FollowLockedCharacter();
 };
