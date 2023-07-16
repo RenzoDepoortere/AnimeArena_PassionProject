@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "InputActionValue.h"
+#include "Public/HealthInterface.h"
 #include "BaseCharacter.generated.h"
 
 DECLARE_MULTICAST_DELEGATE(FAttackEndEvent);
@@ -12,7 +13,7 @@ DECLARE_MULTICAST_DELEGATE(FAttackEndEvent);
 class ABasePlayerController;
 class UStateMachineComponent;
 class UBoxComponent;
-class UHealthComponent;
+//class UHealthComponent;
 
 #pragma region Objects
 
@@ -30,7 +31,9 @@ enum class EAttackDirectionEnum : uint8
 	forward UMETA(DisplayName = "Forward"),
 	backward UMETA(DisplayName = "Backward"),
 	left UMETA(DisplayName = "Left"),
-	right UMETA(DisplayName = "Right")
+	right UMETA(DisplayName = "Right"),
+	up UMETA(DisplayName = "Up"),
+	down UMETA(DisplayName = "Down")
 };
 
 USTRUCT(BlueprintType)
@@ -74,7 +77,7 @@ struct FAttackString
 #pragma endregion
 
 UCLASS()
-class ANIMEARENA_API ABaseCharacter : public ACharacter
+class ANIMEARENA_API ABaseCharacter : public ACharacter, public IHealthInterface
 {
 	GENERATED_BODY()
 
@@ -112,6 +115,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Settings)
 		bool CanBeControlled = true;
 
+	// Health
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Settings)
+		float MaxHealth = 100;
+
 	// Movement
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Settings)
 		float MaxMovementSpeedMult;
@@ -141,8 +148,6 @@ public:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = States)
 		class UStateMachineComponent* StateMachineComponent;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Health)
-		class UHealthComponent* HealthComponent;
 
 	// Input
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
@@ -152,12 +157,21 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 		class UInputAction* LockAction;
 
-	// Attacks
-	// -------
+	// Other variables
+	// ---------------
+
+	// Attack
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Combat)
 		TArray<FAttackString> Attacks;
 	UPROPERTY(BlueprintReadOnly, Category = Combat)
 		EAttackEnum CurrentAttackState;
+
+	UPROPERTY(BlueprintReadOnly, Category = Combat)
+		FAttack CurrentAttack;
+
+	// Health
+	UPROPERTY(BlueprintReadOnly, Category = Health)
+		float CurrentHealth;
 
 	// Functions
 	// ---------
@@ -176,11 +190,16 @@ public:
 	UFUNCTION(BlueprintCallable, Category = Combat)
 		void IsActiveHit(bool isActiveHit);
 
+	UFUNCTION(BlueprintCallable, Category = Health)
+		virtual void SetHealth(float amount) override;
+	UFUNCTION(BlueprintCallable, Category = Health)
+		virtual bool DealDamage(float amount, ABaseCharacter* pDamageDealer) override;
+
 protected:
 	ABasePlayerController* const GetPlayerController() { return m_pController; }
 
-	virtual void OnDamage(ABaseCharacter* pDamageDealer);
-	virtual void OnDeath(ABaseCharacter* pKiller);
+	virtual void OnDamage(float amount, ABaseCharacter* pDamageDealer);
+	virtual void OnDeath(float amount, ABaseCharacter* pKiller);
 
 private:
 	// Member variables

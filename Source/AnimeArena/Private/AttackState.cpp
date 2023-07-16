@@ -81,6 +81,9 @@ void UAttackState::OnEnter(AActor* pStateOwner)
 	// Faced lockedChar if lockedOn
 	if (pCharacter->GetIsLocked()) pCharacter->FaceLockedCharacter();
 
+	// Set currentAttack
+	pCharacter->CurrentAttack = m_PossibleAttackStrings[0].attacks[0];
+
 	// Subscribe to events
 	// -------------------
 
@@ -169,6 +172,9 @@ void UAttackState::AttackInput(const FString& attackLetter)
 
 	// Faced lockedChar if lockedOn
 	if (pCharacter->GetIsLocked()) pCharacter->FaceLockedCharacter();
+
+	// Set currentAttack
+	pCharacter->CurrentAttack = m_PossibleAttackStrings[0].attacks[m_CurrentAttack];
 }
 void UAttackState::AttackEnded()
 {

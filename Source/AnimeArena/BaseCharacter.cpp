@@ -13,7 +13,7 @@
 #include "StateMachineComponent.h"
 #include "BasePlayerState.h"
 #include "Components/BoxComponent.h"
-#include "HealthComponent.h"
+//#include "HealthComponent.h"
 
 #include <Kismet/GameplayStatics.h>
 
@@ -86,10 +86,6 @@ ABaseCharacter::ABaseCharacter()
 
 	// StateMachine
 	StateMachineComponent = CreateDefaultSubobject<UStateMachineComponent>(TEXT("StateMachine"));
-
-	// HealthComponent
-	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("Health"));
-	HealthComponent->MaxHealth = 100.f;
 }
 
 void ABaseCharacter::IsActiveHit(bool isActiveHit)
@@ -109,6 +105,24 @@ void ABaseCharacter::IsActiveHit(bool isActiveHit)
 	}
 }
 
+void ABaseCharacter::SetHealth(float amount)
+{
+	CurrentHealth = amount;
+}
+bool ABaseCharacter::DealDamage(float amount, ABaseCharacter* pDamageDealer)
+{
+	CurrentHealth -= amount;
+	if (CurrentHealth <= 0)
+	{
+		CurrentHealth = 0;
+		OnDeath(amount, pDamageDealer);
+		return true;
+	}
+
+	OnDamage(amount, pDamageDealer);
+	return true;
+}
+
 // Called when the game starts or when spawned
 void ABaseCharacter::BeginPlay()
 {
@@ -119,6 +133,9 @@ void ABaseCharacter::BeginPlay()
 
 	// Return if can't be controlled
 	if (CanBeControlled == false) return;
+
+	// Set health to max
+	SetHealth(MaxHealth);
 
 	// Add Input Mapping Context
 	// ------------------------
@@ -132,9 +149,6 @@ void ABaseCharacter::BeginPlay()
 
 	// Subscribe to events
 	// -------------------
-
-	// Components
-	HealthComponent->OnDamage.AddDynamic(this, &ABaseCharacter::OnDamage);
 
 	// Input
 	if (m_pController)
@@ -150,9 +164,6 @@ void ABaseCharacter::Destroyed()
 {
 	// Unsubscribe from events
 	// -----------------------
-
-	// Components
-	HealthComponent->OnDamage.RemoveAll(this);
 
 	// Input
 	if (m_pController)
@@ -199,13 +210,13 @@ void ABaseCharacter::FaceLockedCharacter()
 	SetActorRotation(desiredRotation);
 }
 
-void ABaseCharacter::OnDamage(ABaseCharacter* /*pDamageDealer*/)
+void ABaseCharacter::OnDamage(float /*amount*/, ABaseCharacter* /*pDamageDealer*/)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Emerald, "Damage dealt");
+	GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Blue, "Damage dealt");
 }
-void ABaseCharacter::OnDeath(ABaseCharacter* /*pKiller*/)
+void ABaseCharacter::OnDeath(float /*amount*/, ABaseCharacter* /*pKiller*/)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Emerald, "Ded");
+	GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Blue, "Ded");
 }
 
 void ABaseCharacter::LightAttack()
@@ -264,7 +275,7 @@ void ABaseCharacter::HandleAttacks()
 
 		// Else add to hitActors and dealDamage
 		m_HitActors.Add(currentHitActor);
-		GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Blue, "Nice hit");
+		Cast<ABaseCharacter>(currentHitActor)->DealDamage(CurrentAttack.damage, this);
 	}
 }
 
