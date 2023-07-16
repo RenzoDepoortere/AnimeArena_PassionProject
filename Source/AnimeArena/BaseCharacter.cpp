@@ -12,6 +12,7 @@
 #include "BasePlayerController.h"
 #include "StateMachineComponent.h"
 #include "BasePlayerState.h"
+#include "Components/BoxComponent.h"
 #include "HealthComponent.h"
 
 #include <Kismet/GameplayStatics.h>
@@ -72,12 +73,27 @@ ABaseCharacter::ABaseCharacter()
 	// Other components
 	// ----------------
 
+	// BoxCollision
+	DamageBoxCollision = CreateDefaultSubobject<UBoxComponent>(TEXT("DamageBoxCollision"));
+	DamageBoxCollision->SetupAttachment(RootComponent);
+
 	// StateMachine
 	StateMachineComponent = CreateDefaultSubobject<UStateMachineComponent>(TEXT("StateMachine"));
 
 	// HealthComponent
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("Health"));
 	HealthComponent->MaxHealth = 100.f;
+}
+
+void ABaseCharacter::OnDamageCollisionOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
+	int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	// Return if not hitting other player in active attack state
+	if (StateMachineComponent->CurrentState->StateDisplayName != "Attack") return;
+	if (CurrentAttackState != EAttackEnum::active) return;
+	if (OtherActor == this) return;
+
+	GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Blue, "Nice hit");
 }
 
 // Called when the game starts or when spawned
@@ -104,7 +120,8 @@ void ABaseCharacter::BeginPlay()
 	// Subscribe to events
 	// -------------------
 
-	// HealthComponent
+	// Components
+	DamageBoxCollision->OnComponentBeginOverlap.AddDynamic(this, &ABaseCharacter::OnDamageCollisionOverlap);
 	HealthComponent->OnDamage.AddDynamic(this, &ABaseCharacter::OnDamage);
 
 	// Input
@@ -122,7 +139,8 @@ void ABaseCharacter::Destroyed()
 	// Unsubscribe from events
 	// -----------------------
 
-	// HealthComponent
+	// Components
+	DamageBoxCollision->OnComponentBeginOverlap.RemoveAll(this);
 	HealthComponent->OnDamage.RemoveAll(this);
 
 	// Input

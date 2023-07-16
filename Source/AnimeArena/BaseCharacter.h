@@ -11,6 +11,7 @@ DECLARE_MULTICAST_DELEGATE(FAttackEndEvent);
 
 class ABasePlayerController;
 class UStateMachineComponent;
+class UBoxComponent;
 class UHealthComponent;
 
 #pragma region Objects
@@ -135,6 +136,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = Combat)
 		void AttackEnded() { if (m_AttackEndEvent.IsBound()) m_AttackEndEvent.Broadcast(); }
 
+	UFUNCTION(BlueprintCallable, Category = Combat)
+	void OnDamageCollisionOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
 	// Components
 	// ----------
 
@@ -145,6 +150,9 @@ public:
 		class UCameraComponent* FollowCamera;
 
 	// Others
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Collision)
+		class UBoxComponent* DamageBoxCollision;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = States)
 		class UStateMachineComponent* StateMachineComponent;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Health)
