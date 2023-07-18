@@ -28,6 +28,9 @@ void UDashState::OnEnter(AActor* pStateOwner)
 	auto pCharacter{ GetCharacter() };
 	auto pCharacterMovement{ pCharacter->GetCharacterMovement() };
 
+	// Set gravity to 0
+	pCharacterMovement->GravityScale = 0;
+
 	// Cooldown
 	// --------
 	if (m_HasSetCooldown == false)
@@ -82,26 +85,16 @@ void UDashState::OnEnter(AActor* pStateOwner)
 
 	if (negligibleXValue && negligibleYValue) m_WasInput = false;
 	else									  m_WasInput = true;
-
-	//// Subscribe to inputEvents
-	//// ------------------------
-	//auto pController{ GetPlayerController() };
-	//if (pController)
-	//{
-
-	//}
 }
 void UDashState::OnExit()
 {
+	auto pCharacterMovement{ GetCharacter()->GetCharacterMovement() };
+
 	// Reset friction
-	GetCharacter()->GetCharacterMovement()->GroundFriction = m_StartFriction;
+	pCharacterMovement->GroundFriction = m_StartFriction;
 
-	//// Unsubscribe from inputEvents
-	//auto pController{ GetPlayerController() };
-	//if (pController)
-	//{
-
-	//}
+	// Reset gravity
+	pCharacterMovement->GravityScale = 1;
 }
 void UDashState::Tick(float deltaTime)
 {

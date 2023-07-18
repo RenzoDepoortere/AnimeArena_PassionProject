@@ -105,22 +105,25 @@ void ABaseCharacter::IsActiveHit(bool isActiveHit)
 	}
 }
 
-void ABaseCharacter::SetHealth(float amount)
+float ABaseCharacter::SetPlayerHealth(float newHealthAmount, float currentPlayerHealth)
 {
-	CurrentHealth = amount;
-}
-bool ABaseCharacter::DealDamage(float amount, ABaseCharacter* pDamageDealer)
-{
-	CurrentHealth -= amount;
-	if (CurrentHealth <= 0)
-	{
-		CurrentHealth = 0;
-		OnDeath(amount, pDamageDealer);
-		return true;
-	}
+	currentPlayerHealth = newHealthAmount;
+	if (MaxHealth < currentPlayerHealth) currentPlayerHealth = MaxHealth;
 
-	OnDamage(amount, pDamageDealer);
-	return true;
+	return currentPlayerHealth;
+}
+float ABaseCharacter::DealPlayerDamage(float damageAmount, ABaseCharacter* pDamageDealer, float currentPlayerHealth)
+{
+	currentPlayerHealth -= damageAmount;
+	if (currentPlayerHealth <= 0)
+	{
+		currentPlayerHealth = 0;
+
+		OnDeath(damageAmount, pDamageDealer);
+	}
+	else OnDamage(damageAmount, pDamageDealer);
+
+	return currentPlayerHealth;
 }
 
 // Called when the game starts or when spawned
@@ -135,7 +138,7 @@ void ABaseCharacter::BeginPlay()
 	if (CanBeControlled == false) return;
 
 	// Set health to max
-	SetHealth(MaxHealth);
+	CurrentHealth = MaxHealth;
 
 	// Add Input Mapping Context
 	// ------------------------

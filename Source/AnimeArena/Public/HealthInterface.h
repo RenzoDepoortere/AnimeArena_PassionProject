@@ -9,7 +9,7 @@
 class ABaseCharacter;
 
 // This class does not need to be modified.
-UINTERFACE(MinimalAPI)
+UINTERFACE(MinimalAPI, meta = (CannotImplementInterfaceInBlueprint))
 class UHealthInterface : public UInterface
 {
 	GENERATED_BODY()
@@ -24,9 +24,9 @@ class ANIMEARENA_API IHealthInterface
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
-	UFUNCTION(Category = Health)
+	UFUNCTION(BlueprintCallable, Category = Health)
 		virtual void SetHealth(float amount) = 0;
 
-	UFUNCTION(Category = Health)
-		virtual bool DealDamage(float amount, ABaseCharacter* pDamageDealer) = 0;
+	UFUNCTION(BlueprintCallable, Category = Health)
+		virtual void DealDamage(float amount, ABaseCharacter* pDamageDealer) = 0;
 };

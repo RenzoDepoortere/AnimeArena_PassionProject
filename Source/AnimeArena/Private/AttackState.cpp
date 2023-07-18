@@ -42,8 +42,6 @@ void UAttackState::OnEnter(AActor* pStateOwner)
 	m_CurrentAttackString += ConvertInputToString(lastMovementInput, attackLetter);
 	m_CurrentAttackString += attackLetter;
 
-	GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Green, m_CurrentAttackString);
-
 	// Loop through attacks
 	TArray<FAttackString> possibleAttacks{};
 	const bool isInAir{ pCharMovement->IsFalling() };
@@ -138,8 +136,6 @@ void UAttackState::AttackInput(const FString& attackLetter)
 	// Make currentAttackString
 	m_CurrentAttackString += ConvertInputToString(lastMovementInput, attackLetter);
 	m_CurrentAttackString += attackLetter;
-
-	GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Green, m_CurrentAttackString);
 
 	// Check if attackString is in possibilities
 	TArray<FAttackString> possibleAttacks{};

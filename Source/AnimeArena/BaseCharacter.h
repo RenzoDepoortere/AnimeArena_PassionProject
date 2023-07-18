@@ -9,11 +9,12 @@
 #include "BaseCharacter.generated.h"
 
 DECLARE_MULTICAST_DELEGATE(FAttackEndEvent);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSetHealth, float, amount);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnDamageDeal, float, amount, ABaseCharacter*, damageDealer);
 
 class ABasePlayerController;
 class UStateMachineComponent;
 class UBoxComponent;
-//class UHealthComponent;
 
 #pragma region Objects
 
@@ -116,7 +117,7 @@ public:
 		bool CanBeControlled = true;
 
 	// Health
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Settings)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Settings)
 		float MaxHealth = 100;
 
 	// Movement
@@ -190,10 +191,16 @@ public:
 	UFUNCTION(BlueprintCallable, Category = Combat)
 		void IsActiveHit(bool isActiveHit);
 
+	// Health
 	UFUNCTION(BlueprintCallable, Category = Health)
-		virtual void SetHealth(float amount) override;
+		float SetPlayerHealth(float newHealthAmount, float currentPlayerHealth);
 	UFUNCTION(BlueprintCallable, Category = Health)
-		virtual bool DealDamage(float amount, ABaseCharacter* pDamageDealer) override;
+		float DealPlayerDamage(float damageAmount, ABaseCharacter* pDamageDealer, float currentPlayerHealth);
+
+	UPROPERTY(BlueprintAssignable, Category = Health)
+		FOnSetHealth OnSetHealth;
+	UPROPERTY(BlueprintAssignable, Category = Health)
+		FOnDamageDeal OnDamageDeal;
 
 protected:
 	ABasePlayerController* const GetPlayerController() { return m_pController; }
@@ -229,4 +236,7 @@ private:
 	void Look(const FInputActionValue& value);
 	void LockToggle();
 	void FollowLockedCharacter();
+
+	virtual void SetHealth(float amount) override { if (OnSetHealth.IsBound()) OnSetHealth.Broadcast(amount); }
+	virtual void DealDamage(float amount, ABaseCharacter* pDamageDealer) override { if (OnDamageDeal.IsBound()) OnDamageDeal.Broadcast(amount, pDamageDealer); }
 };
