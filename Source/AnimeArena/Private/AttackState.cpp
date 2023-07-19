@@ -77,7 +77,7 @@ void UAttackState::OnEnter(AActor* pStateOwner)
 	pCharacter->GetMesh()->GetAnimInstance()->Montage_Play(pAnimationMontage);
 
 	// Faced lockedChar if lockedOn
-	if (pCharacter->GetIsLocked()) pCharacter->FaceLockedCharacter();
+	if (pCharacter->GetIsLocked()) pCharacter->FaceActor(pCharacter->GetLockedCharacter());
 
 	// Set currentAttack
 	pCharacter->CurrentAttack = m_PossibleAttackStrings[0].attacks[0];
@@ -167,7 +167,7 @@ void UAttackState::AttackInput(const FString& attackLetter)
 	pCharacter->GetMesh()->GetAnimInstance()->Montage_Play(pAnimationMontage);
 
 	// Faced lockedChar if lockedOn
-	if (pCharacter->GetIsLocked()) pCharacter->FaceLockedCharacter();
+	if (pCharacter->GetIsLocked()) pCharacter->FaceActor(pCharacter->GetLockedCharacter());
 
 	// Set currentAttack
 	pCharacter->CurrentAttack = m_PossibleAttackStrings[0].attacks[m_CurrentAttack];

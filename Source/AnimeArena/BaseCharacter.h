@@ -47,6 +47,8 @@ struct FAttack
 		float damage;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Settings)
 		float knockback;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Settings)
+		float HitStunTime;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Settings)
 		EAttackDirectionEnum knockbackDirection;
@@ -100,7 +102,7 @@ public:
 
 	bool GetIsLocked() const { return m_IsLocked; }
 	ABaseCharacter* GetLockedCharacter() const { return m_pLockedCharacter; }
-	void FaceLockedCharacter();
+	void FaceActor(AActor* pActor);
 
 	FAttackEndEvent* const GetAttackEndEvent() { return &m_AttackEndEvent; }
 
@@ -120,6 +122,11 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Settings)
 		UMaterialInterface* FlickerMaterial;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Settings)
+		UAnimMontage* HitMontage;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Settings)
+		UAnimMontage* BigHitMontage;
 
 	// Movement
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Settings)
@@ -170,6 +177,10 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, Category = Combat)
 		FAttack CurrentAttack;
+	UPROPERTY(BlueprintReadOnly, Category = Combat)
+		float LastHitStun;
+	UPROPERTY(BlueprintReadOnly, Category = Combat)
+		bool LastWasFinisher;
 
 	// Functions
 	// ---------

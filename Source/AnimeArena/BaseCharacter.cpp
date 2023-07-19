@@ -211,10 +211,10 @@ void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	}
 }
 
-void ABaseCharacter::FaceLockedCharacter()
+void ABaseCharacter::FaceActor(AActor* pActor)
 {
 	// Face lockedChar
-	const FVector lockedCharPos{ m_pLockedCharacter->GetActorLocation() };
+	const FVector lockedCharPos{ pActor->GetActorLocation() };
 	const FVector toDirection{ FVector::VectorPlaneProject((lockedCharPos - GetActorLocation()), FVector{0.f, 0.f, 1.f}) };
 	const FRotator desiredRotation{ FRotationMatrix::MakeFromX(toDirection).Rotator() };
 
@@ -262,14 +262,18 @@ void ABaseCharacter::OnDamage(float /*amount*/, ABaseCharacter* pDamageDealer)
 	knockbackDirection *= pDamageDealer->CurrentAttack.knockback;
 	GetCharacterMovement()->AddImpulse(knockbackDirection * 1'000);
 
+	// Rotate towards damageDealer
+	FaceActor(pDamageDealer);
+
 	// State
 	// -----
 
-	// If was comboEnder
+	// Store hit variables
+	LastHitStun = pDamageDealer->CurrentAttack.HitStunTime;
+	LastWasFinisher = pDamageDealer->CurrentAttack.isComboEnder;
 
-	// FlungState
-
-	// Else, HitState
+	// Change to hitState
+	StateMachineComponent->SwitchStateByKey("Hit");
 
 	// Materials
 	// ---------
