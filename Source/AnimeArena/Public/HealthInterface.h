@@ -28,5 +28,5 @@ public:
 		virtual void SetHealth(float amount) = 0;
 
 	UFUNCTION(BlueprintCallable, Category = Health)
-		virtual void DealDamage(float amount, ABaseCharacter* pDamageDealer) = 0;
+		virtual bool DealDamage(float amount, ABaseCharacter* pDamageDealer) = 0;
 };

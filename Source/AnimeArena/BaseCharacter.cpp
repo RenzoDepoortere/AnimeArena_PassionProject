@@ -30,6 +30,7 @@ ABaseCharacter::ABaseCharacter()
 	, m_AttackEndEvent{}
 	, m_HitActors{}
 	, m_IsActiveHit{ false }
+	, m_CurrentHealth{}
 {
 	// Init components
 	// ***************
@@ -105,25 +106,26 @@ void ABaseCharacter::IsActiveHit(bool isActiveHit)
 	}
 }
 
-float ABaseCharacter::SetPlayerHealth(float newHealthAmount, float currentPlayerHealth)
+void ABaseCharacter::SetHealth(float amount)
 {
-	currentPlayerHealth = newHealthAmount;
-	if (MaxHealth < currentPlayerHealth) currentPlayerHealth = MaxHealth;
-
-	return currentPlayerHealth;
+	m_CurrentHealth = amount;
+	if (MaxHealth < m_CurrentHealth) m_CurrentHealth = MaxHealth;
 }
-float ABaseCharacter::DealPlayerDamage(float damageAmount, ABaseCharacter* pDamageDealer, float currentPlayerHealth)
+bool ABaseCharacter::DealDamage(float amount, ABaseCharacter* pDamageDealer)
 {
-	currentPlayerHealth -= damageAmount;
-	if (currentPlayerHealth <= 0)
+	// Check if currentState is invincible
+
+
+	m_CurrentHealth -= amount;
+	if (amount <= 0)
 	{
-		currentPlayerHealth = 0;
+		amount = 0;
 
-		OnDeath(damageAmount, pDamageDealer);
+		OnDeath(amount, pDamageDealer);
 	}
-	else OnDamage(damageAmount, pDamageDealer);
+	else OnDamage(amount, pDamageDealer);
 
-	return currentPlayerHealth;
+	return true;
 }
 
 // Called when the game starts or when spawned
@@ -134,11 +136,11 @@ void ABaseCharacter::BeginPlay()
 	// Get controller and stateMachine
 	m_pController = Cast<ABasePlayerController>(UGameplayStatics::GetPlayerController(this, 0));
 
+	// Set health to max
+	m_CurrentHealth = MaxHealth;
+
 	// Return if can't be controlled
 	if (CanBeControlled == false) return;
-
-	// Set health to max
-	CurrentHealth = MaxHealth;
 
 	// Add Input Mapping Context
 	// ------------------------

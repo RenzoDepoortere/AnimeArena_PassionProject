@@ -9,8 +9,6 @@
 #include "BaseCharacter.generated.h"
 
 DECLARE_MULTICAST_DELEGATE(FAttackEndEvent);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSetHealth, float, amount);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnDamageDeal, float, amount, ABaseCharacter*, damageDealer);
 
 class ABasePlayerController;
 class UStateMachineComponent;
@@ -170,10 +168,6 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = Combat)
 		FAttack CurrentAttack;
 
-	// Health
-	UPROPERTY(BlueprintReadOnly, Category = Health)
-		float CurrentHealth;
-
 	// Functions
 	// ---------
 
@@ -193,14 +187,12 @@ public:
 
 	// Health
 	UFUNCTION(BlueprintCallable, Category = Health)
-		float SetPlayerHealth(float newHealthAmount, float currentPlayerHealth);
+		virtual void SetHealth(float amount) override;
 	UFUNCTION(BlueprintCallable, Category = Health)
-		float DealPlayerDamage(float damageAmount, ABaseCharacter* pDamageDealer, float currentPlayerHealth);
+		virtual bool DealDamage(float amount, ABaseCharacter* pDamageDealer) override;
 
-	UPROPERTY(BlueprintAssignable, Category = Health)
-		FOnSetHealth OnSetHealth;
-	UPROPERTY(BlueprintAssignable, Category = Health)
-		FOnDamageDeal OnDamageDeal;
+	UFUNCTION(BlueprintCallable, Category = Health)
+		float GetHealth() const { return m_CurrentHealth; }
 
 protected:
 	ABasePlayerController* const GetPlayerController() { return m_pController; }
@@ -224,6 +216,8 @@ private:
 	TArray<AActor*> m_HitActors;
 	bool m_IsActiveHit;
 
+	float m_CurrentHealth;
+
 	// Member functions
 	// ----------------
 	void Move(const FInputActionValue& value) { m_LastMovementInput = value.Get<FVector2D>(); }
@@ -236,7 +230,4 @@ private:
 	void Look(const FInputActionValue& value);
 	void LockToggle();
 	void FollowLockedCharacter();
-
-	virtual void SetHealth(float amount) override { if (OnSetHealth.IsBound()) OnSetHealth.Broadcast(amount); }
-	virtual void DealDamage(float amount, ABaseCharacter* pDamageDealer) override { if (OnDamageDeal.IsBound()) OnDamageDeal.Broadcast(amount, pDamageDealer); }
 };
