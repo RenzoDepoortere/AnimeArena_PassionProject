@@ -221,8 +221,59 @@ void ABaseCharacter::FaceLockedCharacter()
 	SetActorRotation(desiredRotation);
 }
 
-void ABaseCharacter::OnDamage(float /*amount*/, ABaseCharacter* /*pDamageDealer*/)
+void ABaseCharacter::OnDamage(float /*amount*/, ABaseCharacter* pDamageDealer)
 {
+	// Knockback
+	// ---------
+
+	// Get directions
+	FVector knockbackDirection{};
+	FVector damageDealerToSelf{ (GetActorLocation() - pDamageDealer->GetActorLocation()) };
+	damageDealerToSelf.Normalize();
+
+	switch (pDamageDealer->CurrentAttack.knockbackDirection)
+	{
+	case EAttackDirectionEnum::forward:
+		knockbackDirection = damageDealerToSelf;
+		break;
+
+	case EAttackDirectionEnum::backward:
+		knockbackDirection = -damageDealerToSelf;
+		break;
+
+	case EAttackDirectionEnum::left:
+		knockbackDirection = damageDealerToSelf.Cross({ 0.f, 0.f, 1.f });
+		break;
+
+	case EAttackDirectionEnum::right:
+		knockbackDirection = -damageDealerToSelf.Cross({ 0.f, 0.f, 1.f });
+		break;
+
+	case EAttackDirectionEnum::up:
+		knockbackDirection = FVector{ 0.f, 0.f, 1.f };
+		break;
+
+	case EAttackDirectionEnum::down:
+		knockbackDirection = GetCharacterMovement()->IsFalling() ? FVector{0.f, 0.f, -1.f} : FVector{};
+		break;
+	}
+
+	// Add knockback
+	knockbackDirection *= pDamageDealer->CurrentAttack.knockback;
+	GetCharacterMovement()->AddImpulse(knockbackDirection * 1'000);
+
+	// State
+	// -----
+
+	// If was comboEnder
+
+	// FlungState
+
+	// Else, HitState
+
+	// Materials
+	// ---------
+
 	// Change all materials to white
 	auto pMesh{ GetMesh() };
 	for (int32 idx{}; idx < m_MeshMaterials.Num(); idx++)
