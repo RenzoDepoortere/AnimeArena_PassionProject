@@ -13,12 +13,8 @@
 #include "StateMachineComponent.h"
 #include "BasePlayerState.h"
 #include "Components/BoxComponent.h"
-//#include "HealthComponent.h"
-
 #include <Kismet/GameplayStatics.h>
 
-
-// Sets default values
 ABaseCharacter::ABaseCharacter()
 	: m_pController{ nullptr }
 	, m_LastMovementInput{}
@@ -31,6 +27,7 @@ ABaseCharacter::ABaseCharacter()
 	, m_HitActors{}
 	, m_IsActiveHit{ false }
 	, m_CurrentHealth{}
+	, m_MeshMaterials{}
 {
 	// Init components
 	// ***************
@@ -113,8 +110,8 @@ void ABaseCharacter::SetHealth(float amount)
 }
 bool ABaseCharacter::DealDamage(float amount, ABaseCharacter* pDamageDealer)
 {
-	// Check if currentState is invincible
-
+	// If currentState is invincible, return
+	if (Cast<UBasePlayerState>(StateMachineComponent->CurrentState)->GetExtraStateInfo().isInvincible) return false;
 
 	m_CurrentHealth -= amount;
 	if (amount <= 0)
@@ -128,7 +125,6 @@ bool ABaseCharacter::DealDamage(float amount, ABaseCharacter* pDamageDealer)
 	return true;
 }
 
-// Called when the game starts or when spawned
 void ABaseCharacter::BeginPlay()
 {
 	Super::BeginPlay();
@@ -136,8 +132,14 @@ void ABaseCharacter::BeginPlay()
 	// Get controller and stateMachine
 	m_pController = Cast<ABasePlayerController>(UGameplayStatics::GetPlayerController(this, 0));
 
+	// Health
+	// ------
+
 	// Set health to max
 	m_CurrentHealth = MaxHealth;
+
+	// Store originalMaterials
+	m_MeshMaterials = GetMesh()->GetMaterials();
 
 	// Return if can't be controlled
 	if (CanBeControlled == false) return;
@@ -181,16 +183,20 @@ void ABaseCharacter::Destroyed()
 	}
 }
 
-// Called every frame
 void ABaseCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
 	if (m_IsActiveHit) HandleAttacks();
 	if (m_IsLocked) FollowLockedCharacter();
+
+	if (0 < m_CurrentHitTime)
+	{
+		m_CurrentHitTime -= DeltaTime;
+		if (m_CurrentHitTime <= 0.f) ResetMaterials();
+	}
 }
 
-// Called to bind functionality to input
 void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	// Return if can't be controlled
@@ -217,7 +223,16 @@ void ABaseCharacter::FaceLockedCharacter()
 
 void ABaseCharacter::OnDamage(float /*amount*/, ABaseCharacter* /*pDamageDealer*/)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Blue, "Damage dealt");
+	// Change all materials to white
+	auto pMesh{ GetMesh() };
+	for (int32 idx{}; idx < m_MeshMaterials.Num(); idx++)
+	{
+		pMesh->SetMaterial(idx, FlickerMaterial);
+	}
+
+	// Set currentHitTime
+	const float maxHitTime{ 0.1f };
+	m_CurrentHitTime = maxHitTime;
 }
 void ABaseCharacter::OnDeath(float /*amount*/, ABaseCharacter* /*pKiller*/)
 {
@@ -299,7 +314,6 @@ void ABaseCharacter::Look(const FInputActionValue& value)
 		AddControllerPitchInput(lookAxisVector.Y);
 	}
 }
-
 void ABaseCharacter::LockToggle()
 {
 	// If is locked, unlock
@@ -378,4 +392,14 @@ void ABaseCharacter::FollowLockedCharacter()
 
 	// Add input to controller
 	m_pController->SetControlRotation(controlRotation.Add(rotationToMove.Y, rotationToMove.Z, rotationToMove.X));
+}
+
+void ABaseCharacter::ResetMaterials()
+{
+	// Set each materials back to normal
+	auto pMesh{ GetMesh() };
+	for (int32 idx{}; idx < m_MeshMaterials.Num(); idx++)
+	{
+		pMesh->SetMaterial(idx, m_MeshMaterials[idx]);
+	}
 }

@@ -118,6 +118,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Settings)
 		float MaxHealth = 100;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Settings)
+		UMaterialInterface* FlickerMaterial;
+
 	// Movement
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Settings)
 		float MaxMovementSpeedMult;
@@ -217,6 +220,8 @@ private:
 	bool m_IsActiveHit;
 
 	float m_CurrentHealth;
+	TArray<UMaterialInterface*> m_MeshMaterials;
+	float m_CurrentHitTime;
 
 	// Member functions
 	// ----------------
@@ -230,4 +235,6 @@ private:
 	void Look(const FInputActionValue& value);
 	void LockToggle();
 	void FollowLockedCharacter();
+
+	void ResetMaterials();
 };
