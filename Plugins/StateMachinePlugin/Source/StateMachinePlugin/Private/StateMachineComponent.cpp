@@ -67,9 +67,9 @@ void UStateMachineComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 	{
 		m_HasToSwitchState = false;
 
-		// Switch state
-		PreviousState = m_NewStateKey;
+		PreviousState = CurrentState->StateDisplayName.ToString();
 
+		// Switch state
 		CurrentState->OnExit();
 		CurrentState = m_pNewState;
 		CurrentState->OnEnter(GetOwner());

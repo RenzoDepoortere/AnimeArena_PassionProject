@@ -35,6 +35,9 @@ public:
 private:
 	// Member variables
 	float m_VerticalFlightInput;
+	bool m_WasFlying;
+
+	FName m_PreviousState;
 
 	// Member functions
 	void FlyUp();
@@ -42,4 +45,6 @@ private:
 
 	void FlyDown();
 	void StopFlyDown();
+
+	void OnStateSwitch(const FString& newState);
 };
