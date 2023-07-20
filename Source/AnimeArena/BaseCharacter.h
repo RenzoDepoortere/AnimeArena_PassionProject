@@ -245,6 +245,11 @@ private:
 	void HeavyAttack();
 	void HandleAttacks();
 
+	void Ability1();
+	void Ability2();
+	void Ability3();
+	void Ability4();
+
 	void Look(const FInputActionValue& value);
 	void LockToggle();
 	void FollowLockedCharacter();

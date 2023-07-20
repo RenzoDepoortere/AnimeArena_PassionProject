@@ -165,6 +165,11 @@ void ABaseCharacter::BeginPlay()
 
 		m_pController->GetLightAttackEvent()->AddUObject(this, &ABaseCharacter::LightAttack);
 		m_pController->GetHeavyAttackEvent()->AddUObject(this, &ABaseCharacter::HeavyAttack);
+
+		m_pController->GetAbility1Event()->AddUObject(this, &ABaseCharacter::Ability1);
+		m_pController->GetAbility2Event()->AddUObject(this, &ABaseCharacter::Ability2);
+		m_pController->GetAbility3Event()->AddUObject(this, &ABaseCharacter::Ability3);
+		m_pController->GetAbility4Event()->AddUObject(this, &ABaseCharacter::Ability4);
 	}
 }
 void ABaseCharacter::Destroyed()
@@ -180,6 +185,11 @@ void ABaseCharacter::Destroyed()
 
 		m_pController->GetLightAttackEvent()->RemoveAll(this);
 		m_pController->GetHeavyAttackEvent()->RemoveAll(this);
+
+		m_pController->GetAbility1Event()->RemoveAll(this);
+		m_pController->GetAbility2Event()->RemoveAll(this);
+		m_pController->GetAbility3Event()->RemoveAll(this);
+		m_pController->GetAbility4Event()->RemoveAll(this);
 	}
 }
 
@@ -352,6 +362,23 @@ void ABaseCharacter::HandleAttacks()
 		m_HitActors.Add(currentHitActor);
 		Cast<ABaseCharacter>(currentHitActor)->DealDamage(CurrentAttack.damage, this);
 	}
+}
+
+void ABaseCharacter::Ability1()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Magenta, "Ability 1");
+}
+void ABaseCharacter::Ability2()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Magenta, "Ability 2");
+}
+void ABaseCharacter::Ability3()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Magenta, "Ability 3");
+}
+void ABaseCharacter::Ability4()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Magenta, "Ability 4");
 }
 
 void ABaseCharacter::Look(const FInputActionValue& value)
