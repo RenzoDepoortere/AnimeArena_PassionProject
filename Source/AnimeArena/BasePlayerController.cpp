@@ -35,6 +35,12 @@ void ABasePlayerController::SetupInputComponent()
 		// Attacks
 		enhancedInputComponent->BindAction(LightAttackAction, ETriggerEvent::Started, this, &ABasePlayerController::LightAttack);
 		enhancedInputComponent->BindAction(HeavyAttackAction, ETriggerEvent::Started, this, &ABasePlayerController::HeavyAttack);
+
+		// Abilities
+		enhancedInputComponent->BindAction(Ability1Action, ETriggerEvent::Started, this, &ABasePlayerController::Ability1);
+		enhancedInputComponent->BindAction(Ability2Action, ETriggerEvent::Started, this, &ABasePlayerController::Ability2);
+		enhancedInputComponent->BindAction(Ability3Action, ETriggerEvent::Started, this, &ABasePlayerController::Ability3);
+		enhancedInputComponent->BindAction(Ability4Action, ETriggerEvent::Started, this, &ABasePlayerController::Ability4);
 	}
 }
 

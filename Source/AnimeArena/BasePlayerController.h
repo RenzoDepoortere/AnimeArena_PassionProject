@@ -28,6 +28,11 @@ DECLARE_MULTICAST_DELEGATE(FDashEvent);
 DECLARE_MULTICAST_DELEGATE(FLightAttackEvent);
 DECLARE_MULTICAST_DELEGATE(FHeavyAttackEvent);
 
+DECLARE_MULTICAST_DELEGATE(FAbility1Event);
+DECLARE_MULTICAST_DELEGATE(FAbility2Event);
+DECLARE_MULTICAST_DELEGATE(FAbility3Event);
+DECLARE_MULTICAST_DELEGATE(FAbility4Event);
+
 UCLASS()
 class ANIMEARENA_API ABasePlayerController : public APlayerController
 {
@@ -54,6 +59,11 @@ public:
 	void LightAttack(const FInputActionValue& /*value*/) { if (m_LightAttackEvent.IsBound()) m_LightAttackEvent.Broadcast(); }
 	void HeavyAttack(const FInputActionValue& /*value*/) { if (m_HeavyAttackEvent.IsBound()) m_HeavyAttackEvent.Broadcast(); }
 
+	void Ability1(const FInputActionValue& /*value*/) { if (m_Ability1Event.IsBound()) m_Ability1Event.Broadcast(); }
+	void Ability2(const FInputActionValue& /*value*/) { if (m_Ability2Event.IsBound()) m_Ability2Event.Broadcast(); }
+	void Ability3(const FInputActionValue& /*value*/) { if (m_Ability3Event.IsBound()) m_Ability3Event.Broadcast(); }
+	void Ability4(const FInputActionValue& /*value*/) { if (m_Ability4Event.IsBound()) m_Ability4Event.Broadcast(); }
+
 	// Getters
 	FMoveEvent* const GetMoveEvent() { return &m_MoveEvent; }
 	FMoveStopEvent* const GetMoveStopEvent() { return &m_MoveStopEvent; }
@@ -72,6 +82,11 @@ public:
 	FLightAttackEvent* const GetLightAttackEvent() { return &m_LightAttackEvent; }
 	FHeavyAttackEvent* const GetHeavyAttackEvent() { return &m_HeavyAttackEvent; }
 
+	FAbility1Event* const GetAbility1Event() { return &m_Ability1Event; }
+	FAbility2Event* const GetAbility2Event() { return &m_Ability2Event; }
+	FAbility3Event* const GetAbility3Event() { return &m_Ability3Event; }
+	FAbility4Event* const GetAbility4Event() { return &m_Ability4Event; }
+
 public:
 	// Properties
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
@@ -87,6 +102,15 @@ public:
 		class UInputAction* LightAttackAction;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 		class UInputAction* HeavyAttackAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+		class UInputAction* Ability1Action;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+		class UInputAction* Ability2Action;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+		class UInputAction* Ability3Action;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+		class UInputAction* Ability4Action;
 	
 protected:
 	virtual void SetupInputComponent() override;
@@ -112,6 +136,11 @@ private:
 
 	FLightAttackEvent m_LightAttackEvent;
 	FHeavyAttackEvent m_HeavyAttackEvent;
+
+	FAbility1Event m_Ability1Event;
+	FAbility2Event m_Ability2Event;
+	FAbility3Event m_Ability3Event;
+	FAbility4Event m_Ability4Event;
 
 	// Times
 	float m_LastSprintTapTime;
