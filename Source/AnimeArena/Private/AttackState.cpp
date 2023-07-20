@@ -163,8 +163,8 @@ void UAttackState::AttackInput(const FString& attackLetter)
 	++m_CurrentAttack;
 
 	// Play animation
-	auto pAnimationMontage{ m_PossibleAttackStrings[0].attacks[m_CurrentAttack].attackAnimationMontage };
-	pCharacter->GetMesh()->GetAnimInstance()->Montage_Play(pAnimationMontage);
+	auto currentAttack{ m_PossibleAttackStrings[0].attacks[m_CurrentAttack] };
+	pCharacter->GetMesh()->GetAnimInstance()->Montage_Play(currentAttack.attackAnimationMontage, 1.f, EMontagePlayReturnType::MontageLength, currentAttack.attackDamageStartTime);
 
 	// Faced lockedChar if lockedOn
 	if (pCharacter->GetIsLocked()) pCharacter->FaceActor(pCharacter->GetLockedCharacter());

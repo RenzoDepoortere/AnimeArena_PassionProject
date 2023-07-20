@@ -42,6 +42,8 @@ struct FAttack
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Settings)
 		UAnimMontage* attackAnimationMontage;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Settings)
+		float attackDamageStartTime;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Settings)
 		float damage;
