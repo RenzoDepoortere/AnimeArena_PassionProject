@@ -13,10 +13,12 @@
 #include "StateMachineComponent.h"
 #include "BasePlayerState.h"
 #include "Components/BoxComponent.h"
+#include "BaseAbility.h"
 #include <Kismet/GameplayStatics.h>
 
 ABaseCharacter::ABaseCharacter()
-	: m_pController{ nullptr }
+	: Abilities{}
+	, m_pController{ nullptr }
 	, m_LastMovementInput{}
 	, m_LastAttackWasLight{ false }
 	, m_UsedAirAbility{ false }
@@ -84,45 +86,6 @@ ABaseCharacter::ABaseCharacter()
 
 	// StateMachine
 	StateMachineComponent = CreateDefaultSubobject<UStateMachineComponent>(TEXT("StateMachine"));
-}
-
-void ABaseCharacter::IsActiveHit(bool isActiveHit)
-{
-	m_IsActiveHit = isActiveHit;
-
-	// If should start looking for actors
-	if (isActiveHit)
-	{
-		// Include self, you want to ignore
-		m_HitActors.Add(this);
-	}
-	else
-	{
-		// Clear actors
-		m_HitActors.Empty();
-	}
-}
-
-void ABaseCharacter::SetHealth(float amount)
-{
-	m_CurrentHealth = amount;
-	if (MaxHealth < m_CurrentHealth) m_CurrentHealth = MaxHealth;
-}
-bool ABaseCharacter::DealDamage(float amount, ABaseCharacter* pDamageDealer)
-{
-	// If currentState is invincible, return
-	if (Cast<UBasePlayerState>(StateMachineComponent->CurrentState)->GetExtraStateInfo().isInvincible) return false;
-
-	m_CurrentHealth -= amount;
-	if (amount <= 0)
-	{
-		amount = 0;
-
-		OnDeath(amount, pDamageDealer);
-	}
-	else OnDamage(amount, pDamageDealer);
-
-	return true;
 }
 
 void ABaseCharacter::BeginPlay()
@@ -205,6 +168,11 @@ void ABaseCharacter::Tick(float DeltaTime)
 		m_CurrentHitTime -= DeltaTime;
 		if (m_CurrentHitTime <= 0.f) ResetMaterials();
 	}
+
+	for (const auto& currentAbility : Abilities)
+	{
+		if (currentAbility->GetIsActive()) currentAbility->Update(DeltaTime);
+	}
 }
 
 void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -219,6 +187,45 @@ void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 		enhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ABaseCharacter::Look);
 		enhancedInputComponent->BindAction(LockAction, ETriggerEvent::Started, this, &ABaseCharacter::LockToggle);
 	}
+}
+
+void ABaseCharacter::IsActiveHit(bool isActiveHit)
+{
+	m_IsActiveHit = isActiveHit;
+
+	// If should start looking for actors
+	if (isActiveHit)
+	{
+		// Include self, you want to ignore
+		m_HitActors.Add(this);
+	}
+	else
+	{
+		// Clear actors
+		m_HitActors.Empty();
+	}
+}
+
+void ABaseCharacter::SetHealth(float amount)
+{
+	m_CurrentHealth = amount;
+	if (MaxHealth < m_CurrentHealth) m_CurrentHealth = MaxHealth;
+}
+bool ABaseCharacter::DealDamage(float amount, ABaseCharacter* pDamageDealer)
+{
+	// If currentState is invincible, return
+	if (Cast<UBasePlayerState>(StateMachineComponent->CurrentState)->GetExtraStateInfo().isInvincible) return false;
+
+	m_CurrentHealth -= amount;
+	if (amount <= 0)
+	{
+		amount = 0;
+
+		OnDeath(amount, pDamageDealer);
+	}
+	else OnDamage(amount, pDamageDealer);
+
+	return true;
 }
 
 void ABaseCharacter::FaceActor(AActor* pActor)
@@ -362,23 +369,6 @@ void ABaseCharacter::HandleAttacks()
 		m_HitActors.Add(currentHitActor);
 		Cast<ABaseCharacter>(currentHitActor)->DealDamage(CurrentAttack.damage, this);
 	}
-}
-
-void ABaseCharacter::Ability1()
-{
-	GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Magenta, "Ability 1");
-}
-void ABaseCharacter::Ability2()
-{
-	GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Magenta, "Ability 2");
-}
-void ABaseCharacter::Ability3()
-{
-	GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Magenta, "Ability 3");
-}
-void ABaseCharacter::Ability4()
-{
-	GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Magenta, "Ability 4");
 }
 
 void ABaseCharacter::Look(const FInputActionValue& value)

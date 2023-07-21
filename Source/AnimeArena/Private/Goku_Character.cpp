@@ -3,6 +3,7 @@
 #include "../BasePlayerController.h"
 #include "StateMachineComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Kamehameha_Ability.h"
 
 AGoku_Character::AGoku_Character()
 	: ABaseCharacter()
@@ -15,6 +16,23 @@ AGoku_Character::AGoku_Character()
 void AGoku_Character::BeginPlay()
 {
 	ABaseCharacter::BeginPlay();
+
+	// Abilities
+	// ---------
+
+	// Kamehameha
+	auto pKamehamehaAbility{ CreateDefaultSubobject<UKamehameha_Ability>(TEXT("Kamehameha")) };
+	pKamehamehaAbility->SetCharacter(this);
+	pKamehamehaAbility->MaxCooldownTimer = 10.f;
+
+	Abilities.Add(pKamehamehaAbility);
+
+	// Kaioken
+
+	// Instant transmission
+
+	// Grab
+
 
 	// Subscribe to events
 	// -------------------
@@ -58,29 +76,6 @@ void AGoku_Character::Tick(float DeltaTime)
 	m_PreviousState = StateMachineComponent->CurrentState->StateDisplayName;
 }
 
-void AGoku_Character::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
-{
-	ABaseCharacter::SetupPlayerInputComponent(PlayerInputComponent);
-}
-
-void AGoku_Character::FlyUp()
-{
-	m_VerticalFlightInput = 1;
-}
-void AGoku_Character::StopFlyUp()
-{
-	m_VerticalFlightInput = 0;
-}
-
-void AGoku_Character::FlyDown()
-{
-	m_VerticalFlightInput = -1;
-}
-void AGoku_Character::StopFlyDown()
-{
-	m_VerticalFlightInput = 0;
-}
-
 void AGoku_Character::OnStateSwitch(const FString& newState)
 {
 	const FString attackString{ "Attack" };
@@ -103,4 +98,9 @@ void AGoku_Character::OnStateSwitch(const FString& newState)
 	{
 		m_WasFlying = false;
 	}
+}
+
+void AGoku_Character::Ability1()
+{
+	ABaseCharacter::Ability1();
 }

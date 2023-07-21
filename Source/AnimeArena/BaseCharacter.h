@@ -13,6 +13,7 @@ DECLARE_MULTICAST_DELEGATE(FAttackEndEvent);
 class ABasePlayerController;
 class UStateMachineComponent;
 class UBoxComponent;
+class UBaseAbility;
 
 #pragma region Objects
 
@@ -184,6 +185,10 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = Combat)
 		bool LastWasFinisher;
 
+	// Ability
+	UPROPERTY(BlueprintReadOnly, Category = Ability)
+		TArray<UBaseAbility*> Abilities;
+
 	// Functions
 	// ---------
 
@@ -216,6 +221,11 @@ protected:
 	virtual void OnDamage(float amount, ABaseCharacter* pDamageDealer);
 	virtual void OnDeath(float amount, ABaseCharacter* pKiller);
 
+	virtual void Ability1() { GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Magenta, "Ability 1"); }
+	virtual void Ability2() { GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Magenta, "Ability 2"); }
+	virtual void Ability3() { GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Magenta, "Ability 3"); }
+	virtual void Ability4()	{ GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Magenta, "Ability 4"); }
+
 private:
 	// Member variables
 	ABasePlayerController* m_pController;
@@ -244,11 +254,6 @@ private:
 	void LightAttack();
 	void HeavyAttack();
 	void HandleAttacks();
-
-	void Ability1();
-	void Ability2();
-	void Ability3();
-	void Ability4();
 
 	void Look(const FInputActionValue& value);
 	void LockToggle();

@@ -29,22 +29,22 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
 private:
 	// Member variables
+	// ----------------
 	float m_VerticalFlightInput;
 	bool m_WasFlying;
 
 	FName m_PreviousState;
 
 	// Member functions
-	void FlyUp();
-	void StopFlyUp();
-
-	void FlyDown();
-	void StopFlyDown();
+	// ----------------
+	void FlyUp() { m_VerticalFlightInput = 1; }
+	void StopFlyUp() { m_VerticalFlightInput = 0; }
+	void FlyDown() { m_VerticalFlightInput = -1; }
+	void StopFlyDown() { m_VerticalFlightInput = 0; }
 
 	void OnStateSwitch(const FString& newState);
+
+	virtual void Ability1() override;
 };
