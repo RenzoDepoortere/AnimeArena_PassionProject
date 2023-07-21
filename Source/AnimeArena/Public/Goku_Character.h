@@ -17,17 +17,16 @@ class ANIMEARENA_API AGoku_Character : public ABaseCharacter
 public:
 	AGoku_Character();
 
-	// Publics
-	UFUNCTION(BlueprintCallable, Category = Movement)
-	float GetVerticalFlightInput() const { return m_VerticalFlightInput; }
-
-public:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	virtual void Destroyed() override;
-
-	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability")
+		class TSubclassOf<AActor> Kamehameha;
+
+	UFUNCTION(BlueprintCallable, Category = "Movement")
+		float GetVerticalFlightInput() const { return m_VerticalFlightInput; }
 
 private:
 	// Member variables
@@ -47,4 +46,5 @@ private:
 	void OnStateSwitch(const FString& newState);
 
 	virtual void Ability1() override;
+	virtual void Ability1Stop() override;
 };

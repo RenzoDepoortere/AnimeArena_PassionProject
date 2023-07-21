@@ -116,103 +116,113 @@ public:
 	// --------
 
 	// Controllability
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Settings)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Controllability")
 		bool CanBeControlled = true;
 
 	// Health
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Settings)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings|Health")
 		float MaxHealth = 100;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Settings)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Health")
 		UMaterialInterface* FlickerMaterial;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Settings)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Health")
 		UAnimMontage* HitMontage;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Settings)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Health")
 		UAnimMontage* BigHitMontage;
 
 	// Movement
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Settings)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Movement")
 		float MaxMovementSpeedMult;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Settings)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Movement")
 		float SprintBoost;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Settings)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Movement")
 		float DashBoost;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Settings)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Movement")
 		float DashCooldown;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Settings)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Movement")
 		bool HasAirOption;
+
+	// Ability
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Ability")
+		float Ability1_Cooldown;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Ability")
+		float Ability2_Cooldown;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Ability")
+		float Ability3_Cooldown;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Ability")
+		float Ability4_Cooldown;
 
 	// Components
 	// ----------
 
 	// Camera
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Component|Camera")
 		class USpringArmComponent* CameraBoom;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Component|Camera")
 		class UCameraComponent* FollowCamera;
 
 	// Others
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Collision)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Component|Collision")
 		class UBoxComponent* DamageBoxCollision;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = States)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Component|States")
 		class UStateMachineComponent* StateMachineComponent;
 
 	// Input
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 		class UInputMappingContext* DefaultMappingContext;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 		class UInputAction* LookAction;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 		class UInputAction* LockAction;
 
 	// Other variables
 	// ---------------
 
 	// Attack
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Combat)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat")
 		TArray<FAttackString> Attacks;
-	UPROPERTY(BlueprintReadOnly, Category = Combat)
+	UPROPERTY(BlueprintReadOnly, Category = "Combat")
 		EAttackEnum CurrentAttackState;
 
-	UPROPERTY(BlueprintReadOnly, Category = Combat)
+	UPROPERTY(BlueprintReadOnly, Category = "Combat")
 		FAttack CurrentAttack;
-	UPROPERTY(BlueprintReadOnly, Category = Combat)
+	UPROPERTY(BlueprintReadOnly, Category = "Combat")
 		float LastHitStun;
-	UPROPERTY(BlueprintReadOnly, Category = Combat)
+	UPROPERTY(BlueprintReadOnly, Category = "Combat")
 		bool LastWasFinisher;
 
 	// Ability
-	UPROPERTY(BlueprintReadOnly, Category = Ability)
+	UPROPERTY(BlueprintReadOnly, Category = "Ability")
 		TArray<UBaseAbility*> Abilities;
 
 	// Functions
 	// ---------
 
-	UFUNCTION(BlueprintCallable, Category = Movement)
+	UFUNCTION(BlueprintCallable, Category = "Movement")
 		const FVector2D& GetLastMovementInput() const { return m_LastMovementInput; }
-	UFUNCTION(BlueprintCallable, Category = Combat)
+	UFUNCTION(BlueprintCallable, Category = "Combat")
 		bool GetLastAttackInput() const { return m_LastAttackWasLight; }
 
 	// Combat
-	UFUNCTION(BlueprintCallable, Category = Combat)
+	UFUNCTION(BlueprintCallable, Category = "Combat")
 		void SetAttackState(EAttackEnum newAttackState) { CurrentAttackState = newAttackState; }
-	UFUNCTION(BlueprintCallable, Category = Combat)
+	UFUNCTION(BlueprintCallable, Category = "Combat")
 		void AttackEnded() { if (m_AttackEndEvent.IsBound()) m_AttackEndEvent.Broadcast(); }
 
 	UFUNCTION(BlueprintCallable, Category = Combat)
 		void IsActiveHit(bool isActiveHit);
 
 	// Health
-	UFUNCTION(BlueprintCallable, Category = Health)
+	UFUNCTION(BlueprintCallable, Category = "Health")
 		virtual void SetHealth(float amount) override;
-	UFUNCTION(BlueprintCallable, Category = Health)
+	UFUNCTION(BlueprintCallable, Category = "Health")
 		virtual bool DealDamage(float amount, ABaseCharacter* pDamageDealer) override;
 
-	UFUNCTION(BlueprintCallable, Category = Health)
+	UFUNCTION(BlueprintCallable, Category = "Health")
 		float GetHealth() const { return m_CurrentHealth; }
 
 protected:
@@ -222,9 +232,17 @@ protected:
 	virtual void OnDeath(float amount, ABaseCharacter* pKiller);
 
 	virtual void Ability1() { GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Magenta, "Ability 1"); }
+	virtual void Ability1Stop() {};
+
 	virtual void Ability2() { GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Magenta, "Ability 2"); }
+	virtual void Ability2Stop() {};
+
 	virtual void Ability3() { GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Magenta, "Ability 3"); }
-	virtual void Ability4()	{ GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Magenta, "Ability 4"); }
+	virtual void Ability3Stop() {};
+
+	virtual void Ability4() { GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Magenta, "Ability 4"); }
+	virtual void Ability4Stop() {};
+
 
 private:
 	// Member variables

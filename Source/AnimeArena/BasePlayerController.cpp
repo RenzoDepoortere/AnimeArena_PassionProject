@@ -38,9 +38,16 @@ void ABasePlayerController::SetupInputComponent()
 
 		// Abilities
 		enhancedInputComponent->BindAction(Ability1Action, ETriggerEvent::Started, this, &ABasePlayerController::Ability1);
+		enhancedInputComponent->BindAction(Ability1Action, ETriggerEvent::Completed, this, &ABasePlayerController::Ability1Stop);
+
 		enhancedInputComponent->BindAction(Ability2Action, ETriggerEvent::Started, this, &ABasePlayerController::Ability2);
+		enhancedInputComponent->BindAction(Ability2Action, ETriggerEvent::Completed, this, &ABasePlayerController::Ability2Stop);
+
 		enhancedInputComponent->BindAction(Ability3Action, ETriggerEvent::Started, this, &ABasePlayerController::Ability3);
+		enhancedInputComponent->BindAction(Ability3Action, ETriggerEvent::Completed, this, &ABasePlayerController::Ability3Stop);
+
 		enhancedInputComponent->BindAction(Ability4Action, ETriggerEvent::Started, this, &ABasePlayerController::Ability4);
+		enhancedInputComponent->BindAction(Ability4Action, ETriggerEvent::Completed, this, &ABasePlayerController::Ability4Stop);
 	}
 }
 

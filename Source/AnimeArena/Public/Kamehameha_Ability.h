@@ -15,7 +15,7 @@ class ANIMEARENA_API UKamehameha_Ability : public UBaseAbility
 	GENERATED_BODY()
 	
 public:
-	UKamehameha_Ability() = default;
+	UKamehameha_Ability();
 	virtual ~UKamehameha_Ability() = default;
 
 	virtual void Update(float deltaTime) override;
@@ -23,4 +23,9 @@ public:
 public:
 		virtual void ActivateAbility() override;
 		virtual void StopAbility() override;
+
+private:
+	// Member functions
+	// ----------------
+	void AbilityEnd();
 };

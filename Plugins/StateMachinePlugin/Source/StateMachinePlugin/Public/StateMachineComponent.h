@@ -14,41 +14,47 @@ class STATEMACHINEPLUGIN_API UStateMachineComponent : public UActorComponent
 	GENERATED_BODY()
 
 public:	
-	// Sets default values for this component's properties
 	UStateMachineComponent();
 
-protected:
-	// Called when the game starts	
 	virtual void BeginPlay() override;
-
-public:	
-	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 public:
 	// Properties
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "StateMachine")
+	// ----------
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = StateMachine)
 	TMap<FString, TSubclassOf<UStateBase>> States;
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "StateMachine")
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = StateMachine)
 	FString InitialState;
 
 	UPROPERTY()
 	TMap<FString, UStateBase*> StateMap;
-	
+
 	UPROPERTY(BlueprintReadOnly)
 	UStateBase* CurrentState = nullptr;
 	UPROPERTY(BluePrintReadOnly)
 	FString PreviousState;
 
-	UPROPERTY(BlueprintAssignable, Category = "StateMachine")
+	UPROPERTY(BlueprintAssignable, Category = StateMachine)
 	FOnStateSwitch OnStateSwitch;
 
-	UFUNCTION(BlueprintCallable, Category = "StateMachine")
+	// Functions
+	// ---------
+
+	UFUNCTION(BlueprintCallable, Category = StateMachine)
 	void SwitchStateByKey(const FString& stateKey);
+
+	UFUNCTION(BlueprintCallable, Category = StateMachine)
+		void BlacklistKey(const FString& stateKey) { m_Blacklist.Add(stateKey); }
+	UFUNCTION(BlueprintCallable, Category = StateMachine)
+		void RemoveKeyFromBlacklist(const FString& stateKey) { m_Blacklist.Remove(stateKey); }
 
 private:
 	// Member variables
 	bool m_HasToSwitchState;
 	UStateBase* m_pNewState;
 	FString m_NewStateKey;
+
+	TArray<FString> m_Blacklist;
 };

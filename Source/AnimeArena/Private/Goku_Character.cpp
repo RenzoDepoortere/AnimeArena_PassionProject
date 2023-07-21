@@ -4,6 +4,7 @@
 #include "StateMachineComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kamehameha_Ability.h"
+#include "BasePlayerState.h"
 
 AGoku_Character::AGoku_Character()
 	: ABaseCharacter()
@@ -11,19 +12,13 @@ AGoku_Character::AGoku_Character()
 	, m_WasFlying{ false }
 	, m_PreviousState{}
 {
-}
-
-void AGoku_Character::BeginPlay()
-{
-	ABaseCharacter::BeginPlay();
-
 	// Abilities
 	// ---------
 
 	// Kamehameha
 	auto pKamehamehaAbility{ CreateDefaultSubobject<UKamehameha_Ability>(TEXT("Kamehameha")) };
 	pKamehamehaAbility->SetCharacter(this);
-	pKamehamehaAbility->MaxCooldownTimer = 10.f;
+	pKamehamehaAbility->MaxCooldownTimer = Ability1_Cooldown;
 
 	Abilities.Add(pKamehamehaAbility);
 
@@ -32,7 +27,11 @@ void AGoku_Character::BeginPlay()
 	// Instant transmission
 
 	// Grab
+}
 
+void AGoku_Character::BeginPlay()
+{
+	ABaseCharacter::BeginPlay();
 
 	// Subscribe to events
 	// -------------------
@@ -102,5 +101,22 @@ void AGoku_Character::OnStateSwitch(const FString& newState)
 
 void AGoku_Character::Ability1()
 {
-	ABaseCharacter::Ability1();
+	// Check if is in cooldown
+	if (0 < Abilities[0]->CurrentCooldown) return;
+
+	auto pCurrentState{ Cast<UBasePlayerState>(StateMachineComponent->CurrentState) };
+
+	// Check if currentState can be canceled
+	if (pCurrentState->GetExtraStateInfo().canBeAttackCanceled == false) return;
+
+	// If in attackState, go to idle
+	if (pCurrentState->StateDisplayName == "Attack") StateMachineComponent->SwitchStateByKey("Idle");
+
+	// Activate ability
+	Abilities[0]->ActivateAbility();
+}
+void AGoku_Character::Ability1Stop()
+{
+	// Stop ability
+	Abilities[0]->StopAbility();
 }

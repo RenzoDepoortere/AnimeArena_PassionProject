@@ -126,13 +126,23 @@ void ABaseCharacter::BeginPlay()
 		m_pController->GetMoveEvent()->AddUObject(this, &ABaseCharacter::Move);
 		m_pController->GetMoveStopEvent()->AddUObject(this, &ABaseCharacter::StopMove);
 
+		
 		m_pController->GetLightAttackEvent()->AddUObject(this, &ABaseCharacter::LightAttack);
 		m_pController->GetHeavyAttackEvent()->AddUObject(this, &ABaseCharacter::HeavyAttack);
 
+		
 		m_pController->GetAbility1Event()->AddUObject(this, &ABaseCharacter::Ability1);
+		m_pController->GetAbility1StopEvent()->AddUObject(this, &ABaseCharacter::Ability1Stop);
+
 		m_pController->GetAbility2Event()->AddUObject(this, &ABaseCharacter::Ability2);
+		m_pController->GetAbility2StopEvent()->AddUObject(this, &ABaseCharacter::Ability2Stop);
+
 		m_pController->GetAbility3Event()->AddUObject(this, &ABaseCharacter::Ability3);
+		m_pController->GetAbility3StopEvent()->AddUObject(this, &ABaseCharacter::Ability3Stop);
+
 		m_pController->GetAbility4Event()->AddUObject(this, &ABaseCharacter::Ability4);
+		m_pController->GetAbility4StopEvent()->AddUObject(this, &ABaseCharacter::Ability4Stop);
+
 	}
 }
 void ABaseCharacter::Destroyed()
@@ -146,13 +156,22 @@ void ABaseCharacter::Destroyed()
 		m_pController->GetMoveEvent()->RemoveAll(this);
 		m_pController->GetMoveStopEvent()->RemoveAll(this);
 
+
 		m_pController->GetLightAttackEvent()->RemoveAll(this);
 		m_pController->GetHeavyAttackEvent()->RemoveAll(this);
 
+		
 		m_pController->GetAbility1Event()->RemoveAll(this);
+		m_pController->GetAbility1StopEvent()->RemoveAll(this);
+
 		m_pController->GetAbility2Event()->RemoveAll(this);
+		m_pController->GetAbility2StopEvent()->RemoveAll(this);
+
 		m_pController->GetAbility3Event()->RemoveAll(this);
+		m_pController->GetAbility3StopEvent()->RemoveAll(this);
+
 		m_pController->GetAbility4Event()->RemoveAll(this);
+		m_pController->GetAbility4StopEvent()->RemoveAll(this);
 	}
 }
 
