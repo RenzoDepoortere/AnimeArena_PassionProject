@@ -30,6 +30,8 @@ public:
 		float KamehamehaAnimationStopTime;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability|Kamehameha")
 		float TimeToReachMaxKamehameha;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability|Kamehameha")
+		float KamehamehaFlySpeed;
 
 	UFUNCTION(BlueprintCallable, Category = "Movement")
 		float GetVerticalFlightInput() const { return m_VerticalFlightInput; }

@@ -12,6 +12,7 @@ AGoku_Character::AGoku_Character()
 	, KamehamehaAnimation{ nullptr }
 	, KamehamehaAnimationStopTime{}
 	, TimeToReachMaxKamehameha{ 3.f }
+	, KamehamehaFlySpeed{ 300 }
 	, m_VerticalFlightInput{}
 	, m_WasFlying{ false }
 	, m_PreviousState{}
@@ -124,9 +125,6 @@ void AGoku_Character::Ability1()
 
 	// Check if currentState can be canceled
 	if (pCurrentState->GetExtraStateInfo().canBeAttackCanceled == false) return;
-
-	// If in attackState, go to idle
-	if (pCurrentState->StateDisplayName == "Attack") StateMachineComponent->SwitchStateByKey("Idle");
 
 	// Activate ability
 	Abilities[0]->ActivateAbility();

@@ -10,6 +10,7 @@ UKamehameha_Ability::UKamehameha_Ability()
 	, m_IsFiring{ false }
 	, m_CurrentHoldTime{}
 	, m_AnimationRunTime{}
+	, m_MaxFlySpeed{}
 {
 }
 
@@ -27,16 +28,24 @@ void UKamehameha_Ability::ActivateAbility()
 {
 	UBaseAbility::ActivateAbility();
 
-	// Blacklist all states except for fly
+	// Blacklist idleState
 	m_pCharacter = Cast<AGoku_Character>(GetCharacter());
-	m_pCharacter->StateMachineComponent->BlacklistKey("Attack");
+	m_pCharacter->StateMachineComponent->BlacklistKey("Idle");
+
+	// Switch to flyState
+	m_pCharacter->StateMachineComponent->SwitchStateByKey("AirOption");
+
+	// Limit flySpeed
+	auto pCharMovement{ m_pCharacter->GetCharacterMovement() };
+	m_MaxFlySpeed = pCharMovement->MaxFlySpeed;
+	pCharMovement->MaxFlySpeed = m_pCharacter->KamehamehaFlySpeed;
 
 	// Set variables
 	m_IsFiring = false;
 	m_CurrentHoldTime = m_pCharacter->TimeToReachMaxKamehameha;
 
 	// Stop auto rotation
-	m_pCharacter->GetCharacterMovement()->bOrientRotationToMovement = false;
+	pCharMovement->bOrientRotationToMovement = false;
 
 	// Start kamehameha animation
 	auto pAnimInstance{ m_pCharacter->GetMesh()->GetAnimInstance() };
@@ -84,13 +93,18 @@ void UKamehameha_Ability::StartBeam()
 
 void UKamehameha_Ability::AbilityEnd()
 {
-	// Remove states from blacklist
-	m_pCharacter->StateMachineComponent->RemoveKeyFromBlacklist("Attack");
+	// Remove idleState from blacklist
+	m_pCharacter->StateMachineComponent->RemoveKeyFromBlacklist("Idle");
 
 	// Switch to idle
+	m_pCharacter->StateMachineComponent->SwitchStateByKey("Idle");
+
+	// Reset flySpeed
+	auto pCharMovement{ m_pCharacter->GetCharacterMovement() };
+	pCharMovement->MaxFlySpeed = m_MaxFlySpeed;
 
 	// Reset rotation
-	m_pCharacter->GetCharacterMovement()->bOrientRotationToMovement = true;
+	pCharMovement->bOrientRotationToMovement = true;
 
 	FRotator newRotation{ m_pCharacter->GetActorRotation() };
 	newRotation.Pitch = 0;

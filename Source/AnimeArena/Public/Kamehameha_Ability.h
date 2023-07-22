@@ -35,6 +35,8 @@ private:
 	float m_CurrentHoldTime;
 	float m_AnimationRunTime;
 
+	float m_MaxFlySpeed;
+
 	// Member functions
 	// ----------------
 	void HoldTimeCountdown(float deltaTime);
