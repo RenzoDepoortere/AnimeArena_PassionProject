@@ -22,12 +22,30 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 public:
+	// Properties
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
 		USceneComponent* DefaultSceneRoot;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
 		UCapsuleComponent* CapsuleCollision;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
 		UStaticMeshComponent* Beam;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Damage")
+		float Damage;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Damage")
+		float DamageFrequency;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Movement")
+		float MovementSpeed;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Movement")
+		float MaxDistance;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Other")
+		float DisappearSpeed;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Other")
+		UMaterialInstance* BeamMaterial;
+
+	// Functions
+	UFUNCTION(BlueprintCallable, Category = "Beam")
+		void StopMove();
 
 public:
 	void SetCharacter(ABaseCharacter* pCharacter) { m_pCharacter = pCharacter; }
@@ -36,4 +54,13 @@ private:
 	// Member variables
 	// ----------------
 	ABaseCharacter* m_pCharacter;
+	float m_CurrentDamageTime;
+	bool m_CanMove;
+	float m_MovedDistance;
+
+	// Member functions
+	// ----------------
+	void DealDamage();
+	void Move(float deltaTime);
+	void ScaleDown(float deltaTime);
 };

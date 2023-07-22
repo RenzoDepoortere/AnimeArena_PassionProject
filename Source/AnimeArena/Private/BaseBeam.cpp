@@ -4,7 +4,15 @@
 #include "Components/CapsuleComponent.h"
 
 ABaseBeam::ABaseBeam()
-	: m_pCharacter{ nullptr }
+	: Damage{}
+	, DamageFrequency{ 0.1f }
+	, MovementSpeed{ 0.1f }
+	, MaxDistance{ 500 }
+	, DisappearSpeed{ 0.1f }
+	, m_pCharacter{ nullptr }
+	, m_CurrentDamageTime{}
+	, m_CanMove{ true }
+	, m_MovedDistance{}
 {
 	PrimaryActorTick.bCanEverTick = true;
 
@@ -22,18 +30,72 @@ ABaseBeam::ABaseBeam()
 
 	// Beam
 	Beam = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Beam"));
-	Beam->SetupAttachment(CapsuleCollision);
+	Beam->SetupAttachment(DefaultSceneRoot);
 }
 
 void ABaseBeam::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	// Set material
+	Beam->SetMaterial(0, BeamMaterial);
+
+	// Subscribe to beginOverlap
+
 }
 
 void ABaseBeam::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	m_CurrentDamageTime -= DeltaTime;
+	if (m_CurrentDamageTime <= 0) DealDamage();
+
+	if (m_CanMove) Move(DeltaTime);
+	else		   ScaleDown(DeltaTime);
 }
 
+void ABaseBeam::StopMove()
+{
+	m_CanMove = false;
+
+	// Stop ability of owner
+}
+
+void ABaseBeam::DealDamage()
+{
+	m_CurrentDamageTime = DamageFrequency;
+
+}
+void ABaseBeam::Move(float deltaTime)
+{
+	// Calculate movement
+	const float movement{ MovementSpeed * deltaTime };
+
+	// Scale
+	FVector scale{ GetActorScale3D() };
+	scale.Z += movement;
+	SetActorScale3D(scale);
+
+	// Check if exceeded treshold
+	m_MovedDistance += movement;
+	if (MaxDistance <= m_MovedDistance) StopMove();
+}
+void ABaseBeam::ScaleDown(float deltaTime)
+{
+	// Calculate movement
+	const float movement{ DisappearSpeed * deltaTime };
+
+	// Scale
+	FVector scale{ GetActorScale3D() };
+	scale.X -= movement;
+	scale.Y -= movement;
+	SetActorScale3D(scale);
+
+	// Check if exceeded treshold
+	if (scale.X <= 0)
+	{
+		// Delete self
+		Destroy();
+	}
+}
