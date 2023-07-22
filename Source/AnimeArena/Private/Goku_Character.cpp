@@ -9,7 +9,7 @@
 AGoku_Character::AGoku_Character()
 	: ABaseCharacter()
 	, Kamehameha{}
-	, KamehamehaAnimation{ nullptr }
+	, KamehamehaAttack{}
 	, KamehamehaAnimationStopTime{}
 	, TimeToReachMaxKamehameha{ 3.f }
 	, KamehamehaFlySpeed{ 300 }

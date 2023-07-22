@@ -53,8 +53,8 @@ void UKamehameha_Ability::ActivateAbility()
 
 	// Start kamehameha animation
 	auto pAnimInstance{ m_pCharacter->GetMesh()->GetAnimInstance() };
-	pAnimInstance->Montage_Play(m_pCharacter->KamehamehaAnimation);
-	pAnimInstance->Montage_Pause(m_pCharacter->KamehamehaAnimation);
+	pAnimInstance->Montage_Play(m_pCharacter->KamehamehaAttack.attackAnimationMontage);
+	pAnimInstance->Montage_Pause(m_pCharacter->KamehamehaAttack.attackAnimationMontage);
 }
 void UKamehameha_Ability::StopAbility()
 {
@@ -76,7 +76,7 @@ void UKamehameha_Ability::HandleKamehameha(float deltaTime)
 	if (0 < m_AnimationRunTime)
 	{
 		m_AnimationRunTime -= deltaTime;
-		if (m_AnimationRunTime <= 0) m_pCharacter->GetMesh()->GetAnimInstance()->Montage_Pause(m_pCharacter->KamehamehaAnimation);
+		if (m_AnimationRunTime <= 0) m_pCharacter->GetMesh()->GetAnimInstance()->Montage_Pause(m_pCharacter->KamehamehaAttack.attackAnimationMontage);
 	}
 
 
@@ -87,12 +87,14 @@ void UKamehameha_Ability::StartBeam()
 	m_IsFiring = true;
 
 	// Start animation
-	m_pCharacter->GetMesh()->GetAnimInstance()->Montage_Resume(m_pCharacter->KamehamehaAnimation);
-
+	m_pCharacter->GetMesh()->GetAnimInstance()->Montage_Resume(m_pCharacter->KamehamehaAttack.attackAnimationMontage);
 	m_AnimationRunTime = m_pCharacter->KamehamehaAnimationStopTime;
 
 	// Spawn beam
 	GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Purple, "Could shoot beam");
+
+	// Set currentAttack
+	m_pCharacter->CurrentAttack = m_pCharacter->KamehamehaAttack;
 }
 
 void UKamehameha_Ability::AbilityEnd()
@@ -118,7 +120,7 @@ void UKamehameha_Ability::AbilityEnd()
 	m_pCharacter->SetActorRotation(newRotation);
 
 	// Stop animation
-	m_pCharacter->GetMesh()->GetAnimInstance()->Montage_Stop(0.2f, m_pCharacter->KamehamehaAnimation);
+	m_pCharacter->GetMesh()->GetAnimInstance()->Montage_Stop(0.2f, m_pCharacter->KamehamehaAttack.attackAnimationMontage);
 
 	// Set inactive
 	SetIsActive(false);
