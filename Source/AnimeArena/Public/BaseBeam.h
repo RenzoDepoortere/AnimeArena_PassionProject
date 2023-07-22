@@ -19,6 +19,7 @@ public:
 	ABaseBeam();
 
 	virtual void BeginPlay() override;
+	virtual void Destroyed() override;
 	virtual void Tick(float DeltaTime) override;
 
 public:
@@ -46,6 +47,10 @@ public:
 	// Functions
 	UFUNCTION(BlueprintCallable, Category = "Beam")
 		void StopMove();
+
+	UFUNCTION()
+	void OnOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 public:
 	void SetCharacter(ABaseCharacter* pCharacter) { m_pCharacter = pCharacter; }

@@ -41,7 +41,12 @@ void ABaseBeam::BeginPlay()
 	Beam->SetMaterial(0, BeamMaterial);
 
 	// Subscribe to beginOverlap
-
+	CapsuleCollision->OnComponentBeginOverlap.AddDynamic(this, &ABaseBeam::OnOverlap);
+}
+void ABaseBeam::Destroyed()
+{
+	// Unsubscribe to beginOverlap
+	CapsuleCollision->OnComponentBeginOverlap.RemoveAll(this);
 }
 
 void ABaseBeam::Tick(float DeltaTime)
@@ -60,6 +65,13 @@ void ABaseBeam::StopMove()
 	m_CanMove = false;
 
 	// Stop ability of owner
+}
+
+void ABaseBeam::OnOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* /*OtherComp*/,
+	int32 /*OtherBodyIndex*/, bool /*bFromSweep*/, const FHitResult& /*SweepResult*/)
+{
+	// Check if otherActor has Wall tag
+	if (OtherActor->ActorHasTag("Wall")) StopMove();
 }
 
 void ABaseBeam::DealDamage()
@@ -93,9 +105,5 @@ void ABaseBeam::ScaleDown(float deltaTime)
 	SetActorScale3D(scale);
 
 	// Check if exceeded treshold
-	if (scale.X <= 0)
-	{
-		// Delete self
-		Destroy();
-	}
+	if (scale.X <= 0) Destroy();
 }
