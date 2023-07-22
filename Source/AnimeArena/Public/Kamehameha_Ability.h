@@ -25,7 +25,17 @@ public:
 		virtual void StopAbility() override;
 
 private:
+	// Member variables
+	// ----------------
+	bool m_IsFiring;
+	float m_CurrentHoldTime;
+	float m_AnimationRunTime;
+
 	// Member functions
 	// ----------------
+	void HoldTimeCountdown(float deltaTime);
+	void HandleKamehameha(float deltaTime);
+
+	void StartBeam();
 	void AbilityEnd();
 };

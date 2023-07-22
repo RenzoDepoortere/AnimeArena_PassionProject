@@ -7,16 +7,26 @@
 #include "BasePlayerState.h"
 
 AGoku_Character::AGoku_Character()
-	: ABaseCharacter()
+	: ABaseCharacter{}
+	, Kamehameha{}
+	, KamehamehaAnimation{ nullptr }
+	, KamehamehaAnimationStopTime{}
+	, TimeToReachMaxKamehameha{ 3.f }
 	, m_VerticalFlightInput{}
 	, m_WasFlying{ false }
 	, m_PreviousState{}
 {
+}
+
+void AGoku_Character::BeginPlay()
+{
+	ABaseCharacter::BeginPlay();
+
 	// Abilities
 	// ---------
 
 	// Kamehameha
-	auto pKamehamehaAbility{ CreateDefaultSubobject<UKamehameha_Ability>(TEXT("Kamehameha")) };
+	auto pKamehamehaAbility{ NewObject<UKamehameha_Ability>(this, TEXT("Kamehameha")) };
 	pKamehamehaAbility->SetCharacter(this);
 	pKamehamehaAbility->MaxCooldownTimer = Ability1_Cooldown;
 
@@ -26,12 +36,8 @@ AGoku_Character::AGoku_Character()
 
 	// Instant transmission
 
-	// Grab
-}
+	// Rush-Grab
 
-void AGoku_Character::BeginPlay()
-{
-	ABaseCharacter::BeginPlay();
 
 	// Subscribe to events
 	// -------------------
@@ -101,8 +107,18 @@ void AGoku_Character::OnStateSwitch(const FString& newState)
 
 void AGoku_Character::Ability1()
 {
+	// Check if contains ability
+	if (Abilities.Num() < 1)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, "Failed to use ability 1! Wasn't in the abilities array");
+		return;
+	}
+
 	// Check if is in cooldown
 	if (0 < Abilities[0]->CurrentCooldown) return;
+
+	// Check if is active
+	if (Abilities[0]->GetIsActive()) return;
 
 	auto pCurrentState{ Cast<UBasePlayerState>(StateMachineComponent->CurrentState) };
 
@@ -117,6 +133,12 @@ void AGoku_Character::Ability1()
 }
 void AGoku_Character::Ability1Stop()
 {
+	// Check if contains ability
+	if (Abilities.Num() < 1) return;
+
+	// Check if is active
+	if (Abilities[0]->GetIsActive() == false) return;
+
 	// Stop ability
 	Abilities[0]->StopAbility();
 }

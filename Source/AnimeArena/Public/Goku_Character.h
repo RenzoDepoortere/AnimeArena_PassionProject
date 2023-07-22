@@ -22,8 +22,14 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability|Kamehameha")
 		class TSubclassOf<AActor> Kamehameha;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability|Kamehameha")
+		class UAnimMontage* KamehamehaAnimation;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability|Kamehameha")
+		float KamehamehaAnimationStopTime;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability|Kamehameha")
+		float TimeToReachMaxKamehameha;
 
 	UFUNCTION(BlueprintCallable, Category = "Movement")
 		float GetVerticalFlightInput() const { return m_VerticalFlightInput; }

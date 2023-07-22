@@ -17,8 +17,7 @@
 #include <Kismet/GameplayStatics.h>
 
 ABaseCharacter::ABaseCharacter()
-	: Abilities{}
-	, m_pController{ nullptr }
+	: m_pController{ nullptr }
 	, m_LastMovementInput{}
 	, m_LastAttackWasLight{ false }
 	, m_UsedAirAbility{ false }
