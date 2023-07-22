@@ -17,7 +17,8 @@
 #include <Kismet/GameplayStatics.h>
 
 ABaseCharacter::ABaseCharacter()
-	: m_pController{ nullptr }
+	: CameraRotationMultiplier{ 1.f }
+	, m_pController{ nullptr }
 	, m_LastMovementInput{}
 	, m_LastAttackWasLight{ false }
 	, m_UsedAirAbility{ false }
@@ -232,7 +233,7 @@ void ABaseCharacter::SetHealth(float amount)
 bool ABaseCharacter::DealDamage(float amount, ABaseCharacter* pDamageDealer)
 {
 	// If currentState is invincible, return
-	if (Cast<UBasePlayerState>(StateMachineComponent->CurrentState)->GetExtraStateInfo().isInvincible) return false;
+	if (Cast<UBasePlayerState>(StateMachineComponent->CurrentState)->GetExtraStateInfo()->isInvincible) return false;
 
 	m_CurrentHealth -= amount;
 	if (amount <= 0)
@@ -344,7 +345,7 @@ void ABaseCharacter::LightAttack()
 	if (StateMachineComponent->CurrentState->StateDisplayName == "Attack") return;
 
 	// Check if currentState can be attackCancelable
-	if (Cast<UBasePlayerState>(StateMachineComponent->CurrentState)->GetExtraStateInfo().canBeAttackCanceled)
+	if (Cast<UBasePlayerState>(StateMachineComponent->CurrentState)->GetExtraStateInfo()->canBeAttackCanceled)
 	{
 		// Switch to attackState
 		StateMachineComponent->SwitchStateByKey("Attack");
@@ -359,7 +360,7 @@ void ABaseCharacter::HeavyAttack()
 	if (StateMachineComponent->CurrentState->StateDisplayName == "Attack") return;
 
 	// Check if currentState can be attackCancelable
-	if (Cast<UBasePlayerState>(StateMachineComponent->CurrentState)->GetExtraStateInfo().canBeAttackCanceled)
+	if (Cast<UBasePlayerState>(StateMachineComponent->CurrentState)->GetExtraStateInfo()->canBeAttackCanceled)
 	{
 		// Switch to attackState
 		StateMachineComponent->SwitchStateByKey("Attack");
@@ -402,6 +403,7 @@ void ABaseCharacter::Look(const FInputActionValue& value)
 
 	// Input is a Vector2D
 	FVector2D lookAxisVector = value.Get<FVector2D>();
+	lookAxisVector *= CameraRotationMultiplier;
 
 	if (Controller != nullptr)
 	{

@@ -147,6 +147,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Movement")
 		bool HasAirOption;
 
+	// Other
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Other")
+		float CameraRotationMultiplier;
+
 	// Ability
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Ability")
 		float Ability1_Cooldown;

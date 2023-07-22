@@ -18,7 +18,7 @@ UDashState::UDashState()
 	SetHasCooldown(true);
 
 	// Set invincible
-	GetExtraStateInfoPointer()->isInvincible = true;
+	GetExtraStateInfo()->isInvincible = true;
 }
 
 void UDashState::OnEnter(AActor* pStateOwner) 

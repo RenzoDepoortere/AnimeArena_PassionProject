@@ -124,7 +124,7 @@ void AGoku_Character::Ability1()
 	auto pCurrentState{ Cast<UBasePlayerState>(StateMachineComponent->CurrentState) };
 
 	// Check if currentState can be canceled
-	if (pCurrentState->GetExtraStateInfo().canBeAttackCanceled == false) return;
+	if (pCurrentState->GetExtraStateInfo()->canBeAttackCanceled == false) return;
 
 	// Activate ability
 	Abilities[0]->ActivateAbility();

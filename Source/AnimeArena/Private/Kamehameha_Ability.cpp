@@ -3,6 +3,7 @@
 #include "Goku_Character.h"
 #include "StateMachineComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "BasePlayerState.h"
 
 UKamehameha_Ability::UKamehameha_Ability()
 	: UBaseAbility()
@@ -33,7 +34,9 @@ void UKamehameha_Ability::ActivateAbility()
 	m_pCharacter->StateMachineComponent->BlacklistKey("Idle");
 
 	// Switch to flyState
-	m_pCharacter->StateMachineComponent->SwitchStateByKey("AirOption");
+	const FString flyString{ "AirOption" };
+	m_pCharacter->StateMachineComponent->SwitchStateByKey(flyString);
+	Cast<UBasePlayerState>(m_pCharacter->StateMachineComponent->StateMap[flyString])->GetExtraStateInfo()->canBeAttackCanceled = false;
 
 	// Limit flySpeed
 	auto pCharMovement{ m_pCharacter->GetCharacterMovement() };
@@ -44,7 +47,8 @@ void UKamehameha_Ability::ActivateAbility()
 	m_IsFiring = false;
 	m_CurrentHoldTime = m_pCharacter->TimeToReachMaxKamehameha;
 
-	// Stop auto rotation
+	// Limit rotation
+	m_pCharacter->CameraRotationMultiplier = 0.25f;
 	pCharMovement->bOrientRotationToMovement = false;
 
 	// Start kamehameha animation
@@ -98,12 +102,14 @@ void UKamehameha_Ability::AbilityEnd()
 
 	// Switch to idle
 	m_pCharacter->StateMachineComponent->SwitchStateByKey("Idle");
+	Cast<UBasePlayerState>(m_pCharacter->StateMachineComponent->StateMap["AirOption"])->GetExtraStateInfo()->canBeAttackCanceled = true;
 
 	// Reset flySpeed
 	auto pCharMovement{ m_pCharacter->GetCharacterMovement() };
 	pCharMovement->MaxFlySpeed = m_MaxFlySpeed;
 
 	// Reset rotation
+	m_pCharacter->CameraRotationMultiplier = 1.f;
 	pCharMovement->bOrientRotationToMovement = true;
 
 	FRotator newRotation{ m_pCharacter->GetActorRotation() };
