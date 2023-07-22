@@ -256,6 +256,12 @@ void ABaseCharacter::FaceActor(AActor* pActor)
 	SetActorRotation(desiredRotation);
 }
 
+void ABaseCharacter::RotateTowardsCamera()
+{
+	const FRotator cameraRotation{ GetViewRotation() };
+	SetActorRotation(cameraRotation);
+}
+
 void ABaseCharacter::OnDamage(float /*amount*/, ABaseCharacter* pDamageDealer)
 {
 	// Knockback

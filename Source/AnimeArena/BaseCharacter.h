@@ -107,6 +107,8 @@ public:
 	ABaseCharacter* GetLockedCharacter() const { return m_pLockedCharacter; }
 	void FaceActor(AActor* pActor);
 
+	void RotateTowardsCamera();
+
 	FAttackEndEvent* const GetAttackEndEvent() { return &m_AttackEndEvent; }
 
 public:

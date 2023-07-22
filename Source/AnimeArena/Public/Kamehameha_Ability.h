@@ -6,6 +6,8 @@
 #include "BaseAbility.h"
 #include "Kamehameha_Ability.generated.h"
 
+class AGoku_Character;
+
 /**
  * 
  */
@@ -27,6 +29,8 @@ public:
 private:
 	// Member variables
 	// ----------------
+	AGoku_Character* m_pCharacter;
+
 	bool m_IsFiring;
 	float m_CurrentHoldTime;
 	float m_AnimationRunTime;

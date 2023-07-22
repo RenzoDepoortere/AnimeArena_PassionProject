@@ -2,9 +2,11 @@
 #include "Kamehameha_Ability.h"
 #include "Goku_Character.h"
 #include "StateMachineComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 UKamehameha_Ability::UKamehameha_Ability()
 	: UBaseAbility()
+	, m_pCharacter{ nullptr }
 	, m_IsFiring{ false }
 	, m_CurrentHoldTime{}
 	, m_AnimationRunTime{}
@@ -17,22 +19,29 @@ void UKamehameha_Ability::Update(float deltaTime)
 
 	if (m_IsFiring) HandleKamehameha(deltaTime);
 	else			HoldTimeCountdown(deltaTime);
+
+	m_pCharacter->RotateTowardsCamera();
 }
 
 void UKamehameha_Ability::ActivateAbility()
 {
 	UBaseAbility::ActivateAbility();
 
-	// Blacklist attackState
-	auto pCharacter{ Cast<AGoku_Character>(GetCharacter()) };
-	pCharacter->StateMachineComponent->BlacklistKey("Attack");
+	// Blacklist all states except for fly
+	m_pCharacter = Cast<AGoku_Character>(GetCharacter());
+	m_pCharacter->StateMachineComponent->BlacklistKey("Attack");
 
 	// Set variables
 	m_IsFiring = false;
-	m_CurrentHoldTime = pCharacter->TimeToReachMaxKamehameha;
+	m_CurrentHoldTime = m_pCharacter->TimeToReachMaxKamehameha;
+
+	// Stop auto rotation
+	m_pCharacter->GetCharacterMovement()->bOrientRotationToMovement = false;
 
 	// Start kamehameha animation
-	pCharacter->GetMesh()->GetAnimInstance()->Montage_Play(pCharacter->KamehamehaAnimation, 0.f);
+	auto pAnimInstance{ m_pCharacter->GetMesh()->GetAnimInstance() };
+	pAnimInstance->Montage_Play(m_pCharacter->KamehamehaAnimation);
+	pAnimInstance->Montage_Pause(m_pCharacter->KamehamehaAnimation);
 }
 void UKamehameha_Ability::StopAbility()
 {
@@ -50,13 +59,11 @@ void UKamehameha_Ability::HoldTimeCountdown(float deltaTime)
 }
 void UKamehameha_Ability::HandleKamehameha(float deltaTime)
 {
-	auto pCharacter{ Cast<AGoku_Character>(GetCharacter()) };
-
 	// Pause animation at last second
 	if (0 < m_AnimationRunTime)
 	{
 		m_AnimationRunTime -= deltaTime;
-		if (m_AnimationRunTime <= 0) pCharacter->GetMesh()->GetAnimInstance()->Montage_Pause(pCharacter->KamehamehaAnimation);
+		if (m_AnimationRunTime <= 0) m_pCharacter->GetMesh()->GetAnimInstance()->Montage_Pause(m_pCharacter->KamehamehaAnimation);
 	}
 
 
@@ -67,10 +74,9 @@ void UKamehameha_Ability::StartBeam()
 	m_IsFiring = true;
 
 	// Start animation
-	auto pCharacter{ Cast<AGoku_Character>(GetCharacter()) };
-	pCharacter->GetMesh()->GetAnimInstance()->Montage_SetPlayRate(pCharacter->KamehamehaAnimation, 1.f);
+	m_pCharacter->GetMesh()->GetAnimInstance()->Montage_Resume(m_pCharacter->KamehamehaAnimation);
 
-	m_AnimationRunTime = pCharacter->KamehamehaAnimationStopTime;
+	m_AnimationRunTime = m_pCharacter->KamehamehaAnimationStopTime;
 
 	// Spawn beam
 	GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Purple, "Could shoot beam");
@@ -78,12 +84,21 @@ void UKamehameha_Ability::StartBeam()
 
 void UKamehameha_Ability::AbilityEnd()
 {
-	// Remove attackState from blacklist
-	auto pCharacter{ Cast<AGoku_Character>(GetCharacter()) };
-	pCharacter->StateMachineComponent->RemoveKeyFromBlacklist("Attack");
+	// Remove states from blacklist
+	m_pCharacter->StateMachineComponent->RemoveKeyFromBlacklist("Attack");
+
+	// Switch to idle
+
+	// Reset rotation
+	m_pCharacter->GetCharacterMovement()->bOrientRotationToMovement = true;
+
+	FRotator newRotation{ m_pCharacter->GetActorRotation() };
+	newRotation.Pitch = 0;
+	newRotation.Roll = 0;
+	m_pCharacter->SetActorRotation(newRotation);
 
 	// Stop animation
-	pCharacter->GetMesh()->GetAnimInstance()->Montage_Stop(0.2f, pCharacter->KamehamehaAnimation);
+	m_pCharacter->GetMesh()->GetAnimInstance()->Montage_Stop(0.2f, m_pCharacter->KamehamehaAnimation);
 
 	// Set inactive
 	SetIsActive(false);

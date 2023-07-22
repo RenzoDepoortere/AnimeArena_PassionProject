@@ -7,7 +7,7 @@
 #include "BasePlayerState.h"
 
 AGoku_Character::AGoku_Character()
-	: ABaseCharacter{}
+	: ABaseCharacter()
 	, Kamehameha{}
 	, KamehamehaAnimation{ nullptr }
 	, KamehamehaAnimationStopTime{}
