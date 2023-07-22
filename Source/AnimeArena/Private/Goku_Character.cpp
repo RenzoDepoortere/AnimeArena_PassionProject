@@ -8,7 +8,6 @@
 
 AGoku_Character::AGoku_Character()
 	: ABaseCharacter()
-	, Kamehameha{}
 	, KamehamehaAttack{}
 	, KamehamehaAnimationStopTime{}
 	, TimeToReachMaxKamehameha{ 3.f }

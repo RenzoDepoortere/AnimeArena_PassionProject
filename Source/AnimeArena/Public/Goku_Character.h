@@ -23,8 +23,6 @@ public:
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability|Kamehameha")
-		class TSubclassOf<AActor> Kamehameha;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability|Kamehameha")
 		FAttack KamehamehaAttack;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability|Kamehameha")
 		float KamehamehaAnimationStopTime;
