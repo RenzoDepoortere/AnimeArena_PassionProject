@@ -191,6 +191,7 @@ void ABaseCharacter::Tick(float DeltaTime)
 	for (const auto& currentAbility : Abilities)
 	{
 		if (currentAbility->GetIsActive()) currentAbility->Update(DeltaTime);
+		else							   currentAbility->Cooldown(DeltaTime);
 	}
 }
 
@@ -265,6 +266,8 @@ void ABaseCharacter::RotateTowardsCamera()
 
 void ABaseCharacter::OnDamage(float /*amount*/, ABaseCharacter* pDamageDealer)
 {
+	if (pDamageDealer == nullptr) return;
+
 	// Knockback
 	// ---------
 
@@ -374,9 +377,6 @@ void ABaseCharacter::HandleAttacks()
 
 	TArray<AActor*> overlappingActors{};
 	DamageBoxCollision->GetOverlappingActors(overlappingActors, ABaseCharacter::StaticClass());
-
-	// Return if not overlappingActors
-	if (overlappingActors.Num() == 0) return;
 
 	// Go through overlappingActors
 	bool hasAlreadyBeenHit{ false };

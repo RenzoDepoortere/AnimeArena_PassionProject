@@ -4,10 +4,12 @@
 #include "StateMachineComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "BasePlayerState.h"
+#include "BaseBeam.h"
 
 UKamehameha_Ability::UKamehameha_Ability()
 	: UBaseAbility()
 	, m_pCharacter{ nullptr }
+	, m_pBeam{ nullptr }
 	, m_IsFiring{ false }
 	, m_CurrentHoldTime{}
 	, m_AnimationRunTime{}
@@ -17,8 +19,6 @@ UKamehameha_Ability::UKamehameha_Ability()
 
 void UKamehameha_Ability::Update(float deltaTime)
 {
-	UBaseAbility::Update(deltaTime);
-
 	if (m_IsFiring) HandleKamehameha(deltaTime);
 	else			HoldTimeCountdown(deltaTime);
 
@@ -62,41 +62,6 @@ void UKamehameha_Ability::StopAbility()
 	if (m_IsFiring == false) StartBeam();
 }
 
-void UKamehameha_Ability::HoldTimeCountdown(float deltaTime)
-{
-	if (0 < m_CurrentHoldTime)
-	{
-		m_CurrentHoldTime -= deltaTime;
-		if (m_CurrentHoldTime <= 0) StartBeam();
-	}
-}
-void UKamehameha_Ability::HandleKamehameha(float deltaTime)
-{
-	// Pause animation at last second
-	if (0 < m_AnimationRunTime)
-	{
-		m_AnimationRunTime -= deltaTime;
-		if (m_AnimationRunTime <= 0) m_pCharacter->GetMesh()->GetAnimInstance()->Montage_Pause(m_pCharacter->KamehamehaAttack.attackAnimationMontage);
-	}
-
-
-}
-
-void UKamehameha_Ability::StartBeam()
-{
-	m_IsFiring = true;
-
-	// Start animation
-	m_pCharacter->GetMesh()->GetAnimInstance()->Montage_Resume(m_pCharacter->KamehamehaAttack.attackAnimationMontage);
-	m_AnimationRunTime = m_pCharacter->KamehamehaAnimationStopTime;
-
-	// Spawn beam
-	GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Purple, "Could shoot beam");
-
-	// Set currentAttack
-	m_pCharacter->CurrentAttack = m_pCharacter->KamehamehaAttack;
-}
-
 void UKamehameha_Ability::AbilityEnd()
 {
 	// Remove idleState from blacklist
@@ -122,6 +87,56 @@ void UKamehameha_Ability::AbilityEnd()
 	// Stop animation
 	m_pCharacter->GetMesh()->GetAnimInstance()->Montage_Stop(0.2f, m_pCharacter->KamehamehaAttack.attackAnimationMontage);
 
+	// Stop beam if isn't deleted
+	if (m_pBeam->IsValidLowLevel())
+	{
+		m_pBeam->StopMove(true);
+	}
+
 	// Set inactive
 	SetIsActive(false);
+}
+
+void UKamehameha_Ability::HoldTimeCountdown(float deltaTime)
+{
+	if (0 < m_CurrentHoldTime)
+	{
+		m_CurrentHoldTime -= deltaTime;
+		if (m_CurrentHoldTime <= 0) StartBeam();
+	}
+}
+void UKamehameha_Ability::HandleKamehameha(float deltaTime)
+{
+	// Pause animation at last second
+	if (0 < m_AnimationRunTime)
+	{
+		m_AnimationRunTime -= deltaTime;
+		if (m_AnimationRunTime <= 0) m_pCharacter->GetMesh()->GetAnimInstance()->Montage_Pause(m_pCharacter->KamehamehaAttack.attackAnimationMontage);
+	}
+}
+
+void UKamehameha_Ability::StartBeam()
+{
+	m_IsFiring = true;
+
+	// Start animation
+	m_pCharacter->GetMesh()->GetAnimInstance()->Montage_Resume(m_pCharacter->KamehamehaAttack.attackAnimationMontage);
+	m_AnimationRunTime = m_pCharacter->KamehamehaAnimationStopTime;
+
+	// Spawn beam
+	m_pBeam = GetWorld()->SpawnActor<ABaseBeam>(m_pCharacter->KamehamehaBeam, FTransform{});
+	m_pBeam->AttachToActor(m_pCharacter, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	m_pBeam->SetCharacter(m_pCharacter);
+
+	m_pBeam->SetActorRotation(FRotator{ 90.f, 0.f, 0.f });
+
+	m_pBeam->Damage = m_pCharacter->KamehamehaAttack.damage;
+	m_pBeam->DamageFrequency = m_pCharacter->KamehamehaDamageFrequency;
+	m_pBeam->MovementSpeed = m_pCharacter->KamehamehaMovementSpeed;
+	m_pBeam->MaxDistance = m_pCharacter->KamehamehaMaxDistance;
+	m_pBeam->DisappearSpeed = m_pCharacter->KamehamehaDisappearSpeed;
+	m_pBeam->BeamMaterial = m_pCharacter->KamehamehaMaterial;
+
+	// Set currentAttack
+	m_pCharacter->CurrentAttack = m_pCharacter->KamehamehaAttack;
 }

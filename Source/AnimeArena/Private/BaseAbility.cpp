@@ -7,7 +7,7 @@ UBaseAbility::UBaseAbility()
 {
 }
 
-void UBaseAbility::Update(float deltaTime)
+void UBaseAbility::Cooldown(float deltaTime)
 {
 	if (0 < CurrentCooldown) CurrentCooldown -= deltaTime;
 }

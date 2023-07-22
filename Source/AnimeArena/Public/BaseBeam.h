@@ -46,7 +46,7 @@ public:
 
 	// Functions
 	UFUNCTION(BlueprintCallable, Category = "Beam")
-		void StopMove();
+		void StopMove(bool charWasHit = false);
 
 	UFUNCTION()
 	void OnOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
@@ -62,6 +62,8 @@ private:
 	float m_CurrentDamageTime;
 	bool m_CanMove;
 	float m_MovedDistance;
+
+	bool m_CharWasHit;
 
 	// Member functions
 	// ----------------

@@ -2,6 +2,7 @@
 #include "BaseBeam.h"
 #include "Components/SphereComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "../BaseCharacter.h"
 
 ABaseBeam::ABaseBeam()
 	: Damage{}
@@ -9,10 +10,12 @@ ABaseBeam::ABaseBeam()
 	, MovementSpeed{ 0.1f }
 	, MaxDistance{ 500 }
 	, DisappearSpeed{ 0.1f }
+	, BeamMaterial{ nullptr }
 	, m_pCharacter{ nullptr }
 	, m_CurrentDamageTime{}
 	, m_CanMove{ true }
 	, m_MovedDistance{}
+	, m_CharWasHit{ false }
 {
 	PrimaryActorTick.bCanEverTick = true;
 
@@ -37,6 +40,8 @@ void ABaseBeam::BeginPlay()
 {
 	Super::BeginPlay();
 
+	GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Blue, "Ello");
+
 	// Set material
 	Beam->SetMaterial(0, BeamMaterial);
 
@@ -60,11 +65,14 @@ void ABaseBeam::Tick(float DeltaTime)
 	else		   ScaleDown(DeltaTime);
 }
 
-void ABaseBeam::StopMove()
+void ABaseBeam::StopMove(bool charWasHit)
 {
 	m_CanMove = false;
+	m_CharWasHit = charWasHit;
 
 	// Stop ability of owner
+	if (m_CharWasHit) return;
+	m_pCharacter->BeamStop();
 }
 
 void ABaseBeam::OnOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* /*OtherComp*/,
@@ -78,6 +86,15 @@ void ABaseBeam::DealDamage()
 {
 	m_CurrentDamageTime = DamageFrequency;
 
+	// Loop through overlapping actors
+	TArray<AActor*> overlappingActors{};
+	CapsuleCollision->GetOverlappingActors(overlappingActors, ABaseCharacter::StaticClass());
+	for (const auto& currentChar : overlappingActors)
+	{
+		// Deal damage if not self
+		if (currentChar == m_pCharacter) continue;
+		Cast<ABaseCharacter>(currentChar)->DealDamage(Damage, m_pCharacter);
+	}
 }
 void ABaseBeam::Move(float deltaTime)
 {

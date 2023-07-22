@@ -7,6 +7,7 @@
 #include "Kamehameha_Ability.generated.h"
 
 class AGoku_Character;
+class ABaseBeam;
 
 /**
  * 
@@ -26,10 +27,13 @@ public:
 		virtual void ActivateAbility() override;
 		virtual void StopAbility() override;
 
+		void AbilityEnd();
+
 private:
 	// Member variables
 	// ----------------
 	AGoku_Character* m_pCharacter;
+	ABaseBeam* m_pBeam;
 
 	bool m_IsFiring;
 	float m_CurrentHoldTime;
@@ -43,5 +47,4 @@ private:
 	void HandleKamehameha(float deltaTime);
 
 	void StartBeam();
-	void AbilityEnd();
 };

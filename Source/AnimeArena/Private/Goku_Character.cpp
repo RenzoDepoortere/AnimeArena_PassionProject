@@ -9,12 +9,17 @@
 AGoku_Character::AGoku_Character()
 	: ABaseCharacter()
 	, KamehamehaAttack{}
+	, KamehamehaBeam{}
+	, KamehamehaDamageFrequency{ 0.1f }
+	, KamehamehaMovementSpeed{ 10.f }
+	, KamehamehaMaxDistance{ 100.f }
+	, KamehamehaDisappearSpeed{ 0.1f }
+	, KamehamehaMaterial{ nullptr }
 	, KamehamehaAnimationStopTime{}
 	, TimeToReachMaxKamehameha{ 3.f }
 	, KamehamehaFlySpeed{ 300 }
 	, m_VerticalFlightInput{}
 	, m_WasFlying{ false }
-	, m_PreviousState{}
 {
 }
 
@@ -42,6 +47,9 @@ void AGoku_Character::BeginPlay()
 	// Subscribe to events
 	// -------------------
 
+	// StateSwitch
+	StateMachineComponent->OnStateSwitch.AddDynamic(this, &AGoku_Character::OnStateSwitch);
+
 	// Input
 	auto pController{ GetPlayerController() };
 	if (pController)
@@ -60,6 +68,9 @@ void AGoku_Character::Destroyed()
 	// Unsubscribe from events
 	// -----------------------
 
+	// StateSwitch
+	StateMachineComponent->OnStateSwitch.RemoveAll(this);
+
 	// Input
 	auto pController{ GetPlayerController() };
 	if (pController)
@@ -75,14 +86,13 @@ void AGoku_Character::Destroyed()
 void AGoku_Character::Tick(float DeltaTime)
 {
 	ABaseCharacter::Tick(DeltaTime);
-
-	// Manual onStateSwitch (not optimal)
-	if (m_PreviousState != StateMachineComponent->CurrentState->StateDisplayName) OnStateSwitch(StateMachineComponent->CurrentState->StateDisplayName.ToString());
-	m_PreviousState = StateMachineComponent->CurrentState->StateDisplayName;
 }
 
 void AGoku_Character::OnStateSwitch(const FString& newState)
 {
+	// Handle attacking in air
+	// -----------------------
+
 	const FString attackString{ "Attack" };
 	const FString flyString{ "Flying" };
 
@@ -103,17 +113,22 @@ void AGoku_Character::OnStateSwitch(const FString& newState)
 	{
 		m_WasFlying = false;
 	}
+
+	// Handle getting hit
+	// ------------------
+
+	if (newState != "Hit") return;
+	
+	// Stop kamehameha
+	if (Abilities[0]->GetIsActive())
+	{
+		auto pKamehameha{ Cast<UKamehameha_Ability>(Abilities[0]) };
+		pKamehameha->AbilityEnd();
+	}
 }
 
 void AGoku_Character::Ability1()
 {
-	// Check if contains ability
-	if (Abilities.Num() < 1)
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, "Failed to use ability 1! Wasn't in the abilities array");
-		return;
-	}
-
 	// Check if is in cooldown
 	if (0 < Abilities[0]->CurrentCooldown) return;
 
@@ -130,12 +145,19 @@ void AGoku_Character::Ability1()
 }
 void AGoku_Character::Ability1Stop()
 {
-	// Check if contains ability
-	if (Abilities.Num() < 1) return;
-
 	// Check if is active
 	if (Abilities[0]->GetIsActive() == false) return;
 
 	// Stop ability
 	Abilities[0]->StopAbility();
+}
+
+void AGoku_Character::BeamStop()
+{
+	// Check if is active
+	if (Abilities[0]->GetIsActive() == false) return;
+
+	// End ability
+	auto pKamehameha{ Cast<UKamehameha_Ability>(Abilities[0]) };
+	pKamehameha->AbilityEnd();
 }

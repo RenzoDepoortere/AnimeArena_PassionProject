@@ -111,6 +111,8 @@ public:
 
 	FAttackEndEvent* const GetAttackEndEvent() { return &m_AttackEndEvent; }
 
+	virtual void BeamStop() {}
+
 public:
 	ABaseCharacter();
 

@@ -20,7 +20,8 @@ public:
 	UBaseAbility();
 	virtual ~UBaseAbility() = default;
 
-	virtual void Update(float deltaTime);
+	virtual void Update(float deltaTime) {};
+	void Cooldown(float deltaTime);
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Settings)
