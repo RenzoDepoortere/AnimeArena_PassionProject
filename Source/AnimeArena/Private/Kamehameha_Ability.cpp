@@ -144,13 +144,18 @@ void UKamehameha_Ability::StartBeam()
 
 	// Beam settings
 	const float damage{ m_pCharacter->KamehamehaAttack.damage * chargeMultiplier };
+	const float maxDistance = (chargeMultiplier <= 2.f) ? m_pCharacter->KamehamehaExistTime : m_pCharacter->KamehamehaExistTime * chargeMultiplier / 2.f;
+	const float existTime = (chargeMultiplier <= 1.1f) ? m_pCharacter->KamehamehaExistTime : m_pCharacter->KamehamehaExistTime * chargeMultiplier;
 
 	m_pBeam->Damage = damage;
 	m_pBeam->DamageFrequency = m_pCharacter->KamehamehaDamageFrequency;
 	m_pBeam->MovementSpeed = m_pCharacter->KamehamehaMovementSpeed;
 	m_pBeam->MaxDistance = m_pCharacter->KamehamehaMaxDistance;
+	m_pBeam->MaxExistTime = existTime;
 	m_pBeam->DisappearSpeed = m_pCharacter->KamehamehaDisappearSpeed;
 	m_pBeam->BeamMaterial = m_pCharacter->KamehamehaMaterial;
+
+	m_pBeam->SetVariables();
 
 	// Set currentAttack
 	// -----------------

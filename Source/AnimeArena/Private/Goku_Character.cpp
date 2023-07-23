@@ -13,6 +13,7 @@ AGoku_Character::AGoku_Character()
 	, KamehamehaDamageFrequency{ 0.1f }
 	, KamehamehaMovementSpeed{ 10.f }
 	, KamehamehaMaxDistance{ 100.f }
+	, KamehamehaExistTime{ 2.5f }
 	, KamehamehaDisappearSpeed{ 0.1f }
 	, KamehamehaMaterial{ nullptr }
 	, KamehamehaAnimationStopTime{}

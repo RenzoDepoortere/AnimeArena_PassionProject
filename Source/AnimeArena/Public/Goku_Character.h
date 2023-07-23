@@ -33,6 +33,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability|Kamehameha|Beam")
 		float KamehamehaMaxDistance;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability|Kamehameha|Beam")
+		float KamehamehaExistTime;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability|Kamehameha|Beam")
 		float KamehamehaDisappearSpeed;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability|Kamehameha|Beam")
 		UMaterialInstance* KamehamehaMaterial;

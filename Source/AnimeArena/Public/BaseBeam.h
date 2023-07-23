@@ -40,11 +40,16 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Movement")
 		float MaxDistance;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Other")
+		float MaxExistTime;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Other")
 		float DisappearSpeed;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Other")
 		UMaterialInstance* BeamMaterial;
 
 	// Functions
+	UFUNCTION(BlueprintCallable, Category = "Beam")
+		void SetVariables();
+
 	UFUNCTION(BlueprintCallable, Category = "Beam")
 		void StopMove(bool charWasHit = false);
 
@@ -61,6 +66,7 @@ private:
 	ABaseCharacter* m_pCharacter;
 	float m_CurrentDamageTime;
 	bool m_CanMove;
+	float m_CurrentExistTime;
 	float m_MovedDistance;
 
 	bool m_CharWasHit;

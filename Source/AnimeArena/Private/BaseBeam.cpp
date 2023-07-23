@@ -9,6 +9,7 @@ ABaseBeam::ABaseBeam()
 	, DamageFrequency{ 0.1f }
 	, MovementSpeed{ 0.1f }
 	, MaxDistance{ 500 }
+	, MaxExistTime{ 2.5f }
 	, DisappearSpeed{ 0.1f }
 	, BeamMaterial{ nullptr }
 	, m_pCharacter{ nullptr }
@@ -40,9 +41,6 @@ void ABaseBeam::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// Set material
-	Beam->SetMaterial(0, BeamMaterial);
-
 	// Subscribe to beginOverlap
 	CapsuleCollision->OnComponentBeginOverlap.AddDynamic(this, &ABaseBeam::OnOverlap);
 }
@@ -60,7 +58,23 @@ void ABaseBeam::Tick(float DeltaTime)
 	if (m_CurrentDamageTime <= 0) DealDamage();
 
 	if (m_CanMove) Move(DeltaTime);
-	else		   ScaleDown(DeltaTime);
+	
+	if (0 < m_CurrentExistTime)
+	{
+		m_CurrentExistTime -= DeltaTime;
+		if (m_CurrentExistTime <= 0) StopMove();
+	}
+
+	if (m_CurrentExistTime <= 0) ScaleDown(DeltaTime);
+}
+
+void ABaseBeam::SetVariables()
+{
+	// Set material
+	Beam->SetMaterial(0, BeamMaterial);
+
+	// Set currentExistTime to max
+	m_CurrentExistTime = MaxExistTime;
 }
 
 void ABaseBeam::StopMove(bool charWasHit)
@@ -109,7 +123,7 @@ void ABaseBeam::Move(float deltaTime)
 
 	// Check if exceeded treshold
 	m_MovedDistance += movement;
-	if (MaxDistance <= m_MovedDistance) StopMove();
+	if (MaxDistance <= m_MovedDistance) m_CanMove = false;
 }
 void ABaseBeam::ScaleDown(float deltaTime)
 {
