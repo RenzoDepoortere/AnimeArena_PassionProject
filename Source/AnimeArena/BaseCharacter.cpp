@@ -14,6 +14,7 @@
 #include "BasePlayerState.h"
 #include "Components/BoxComponent.h"
 #include "BaseAbility.h"
+#include "AttackState.h"
 #include <Kismet/GameplayStatics.h>
 
 ABaseCharacter::ABaseCharacter()
@@ -224,6 +225,10 @@ void ABaseCharacter::IsActiveHit(bool isActiveHit)
 	{
 		// Clear actors
 		m_HitActors.Empty();
+
+		// Launch stored attack
+		auto pAttackState{ Cast<UAttackState>(StateMachineComponent->StateMap["Attack"]) };
+		if (pAttackState) pAttackState->LaunchAttack();
 	}
 }
 

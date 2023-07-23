@@ -9,6 +9,8 @@ UAttackState::UAttackState()
 	: m_CurrentAttackString{}
 	, m_PossibleAttackStrings{}
 	, m_CurrentAttack{}
+	, m_PreppingAttack{ false }
+	, m_AttackToUse{}
 	, m_OriginalFriction{}
 {
 	StateDisplayName = "Attack";
@@ -27,10 +29,11 @@ void UAttackState::OnEnter(AActor* pStateOwner)
 	// AttackString
 	// ------------
 
-	// Set currentAttackState to start
+	// Reset variables
 	pCharacter->SetAttackState(EAttackEnum::start);
-
 	m_CurrentAttack = 0;
+	m_PreppingAttack = false;
+	m_AttackToUse = {};
 
 	// Check data
 	const FVector2D lastMovementInput{ pCharacter->GetLastMovementInput() };
@@ -124,10 +127,30 @@ void UAttackState::OnExit()
 	pCharacter->GetAttackEndEvent()->RemoveAll(this);
 }
 
+void UAttackState::LaunchAttack()
+{
+	if (m_PreppingAttack == false) return;
+	m_PreppingAttack = false;
+
+	// Start animation
+	auto pCharacter{ GetCharacter() };
+	pCharacter->GetMesh()->GetAnimInstance()->Montage_Play(m_AttackToUse.attackAnimationMontage, 1.f, EMontagePlayReturnType::MontageLength, m_AttackToUse.attackStartTime);
+
+	// Set currentAttackState to start
+	pCharacter->SetAttackState(EAttackEnum::start);
+	pCharacter->CurrentAttack = m_AttackToUse;
+
+	// Faced lockedChar if lockedOn
+	if (pCharacter->GetIsLocked()) pCharacter->FaceActor(pCharacter->GetLockedCharacter());
+}
+
 void UAttackState::AttackInput(const FString& attackLetter)
 {
 	// Conditions
 	// ----------
+
+	// Check if already doing attack
+	if (m_PreppingAttack) return;
 
 	// Check if can process input
 	auto pCharacter{ GetCharacter() };
@@ -171,13 +194,12 @@ void UAttackState::AttackInput(const FString& attackLetter)
 	}
 
 
-	// Play attack
-	// -----------
+	// Prepare attack
+	// --------------
 
 	// Update index
 	++m_CurrentAttack;
 
-	// Play animation
 	int32 attackIdx{ m_CurrentAttack };
 	attackIdx = FMath::Clamp(attackIdx, 0, m_PossibleAttackStrings[0].attacks.Num() - 1);
 	if (attackIdx <= -1)
@@ -186,17 +208,9 @@ void UAttackState::AttackInput(const FString& attackLetter)
 		return;
 	}
 
-	auto currentAttack{ m_PossibleAttackStrings[0].attacks[attackIdx] };
-	pCharacter->GetMesh()->GetAnimInstance()->Montage_Play(currentAttack.attackAnimationMontage, 1.f, EMontagePlayReturnType::MontageLength, currentAttack.attackStartTime);
-
-	// Set currentAttackState to start
-	pCharacter->SetAttackState(EAttackEnum::start);
-
-	// Faced lockedChar if lockedOn
-	if (pCharacter->GetIsLocked()) pCharacter->FaceActor(pCharacter->GetLockedCharacter());
-
-	// Set currentAttack
-	pCharacter->CurrentAttack = m_PossibleAttackStrings[0].attacks[attackIdx];
+	// Store attack for later
+	m_PreppingAttack = true;
+	m_AttackToUse = m_PossibleAttackStrings[0].attacks[attackIdx];
 }
 void UAttackState::AttackEnded()
 {

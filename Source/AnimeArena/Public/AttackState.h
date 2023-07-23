@@ -21,11 +21,16 @@ public:
 	virtual void OnEnter(AActor* pStateOwner) override;
 	virtual void OnExit() override;
 
+	void LaunchAttack();
+
 private:
 	// Member variables
 	FString m_CurrentAttackString;
 	TArray<FAttackString> m_PossibleAttackStrings;
+	
 	int m_CurrentAttack;
+	bool m_PreppingAttack;
+	FAttack m_AttackToUse;
 
 	float m_OriginalFriction;
 
