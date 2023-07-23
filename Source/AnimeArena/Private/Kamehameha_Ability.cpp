@@ -157,7 +157,12 @@ void UKamehameha_Ability::StartBeam()
 
 	m_pBeam->SetVariables();
 
-	// Set currentAttack
-	// -----------------
+	// Set character variables
+	// -----------------------
+
+	// Attack
 	m_pCharacter->CurrentAttack = m_pCharacter->KamehamehaAttack;
+
+	// Rotation
+	m_pCharacter->CameraRotationMultiplier = 0.f;
 }
