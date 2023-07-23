@@ -164,5 +164,5 @@ void UKamehameha_Ability::StartBeam()
 	m_pCharacter->CurrentAttack = m_pCharacter->KamehamehaAttack;
 
 	// Rotation
-	m_pCharacter->CameraRotationMultiplier = 0.f;
+	m_pCharacter->CameraRotationMultiplier = 0.01f;
 }
