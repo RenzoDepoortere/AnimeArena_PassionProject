@@ -55,7 +55,7 @@ void ABaseBeam::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	m_CurrentDamageTime -= DeltaTime;
-	if (m_CurrentDamageTime <= 0) DealDamage();
+	if (m_CurrentDamageTime <= 0 && 0 < m_CurrentExistTime) DealDamage();
 
 	if (m_CanMove) Move(DeltaTime);
 	
