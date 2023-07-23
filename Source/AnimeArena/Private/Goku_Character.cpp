@@ -21,7 +21,7 @@ AGoku_Character::AGoku_Character()
 	, MaxKamehamehaScale{ 3.f }
 	, KamehamehaFlySpeed{ 300 }
 	, m_VerticalFlightInput{}
-	, m_WasFlying{ false }
+	, m_ShouldStopVelocity{ false }
 {
 }
 
@@ -88,6 +88,12 @@ void AGoku_Character::Destroyed()
 void AGoku_Character::Tick(float DeltaTime)
 {
 	ABaseCharacter::Tick(DeltaTime);
+
+	if (m_ShouldStopVelocity)
+	{
+		auto pCharMovement{ GetCharacterMovement() };
+		pCharMovement->Velocity.Z = 0;
+	}
 }
 
 void AGoku_Character::OnStateSwitch(const FString& newState)
@@ -95,25 +101,24 @@ void AGoku_Character::OnStateSwitch(const FString& newState)
 	// Handle attacking in air
 	// -----------------------
 
-	const FString attackString{ "Attack" };
-	const FString flyString{ "Flying" };
-
-	// If switching from attack to idle and was flying before, go to flying instead
-	if (StateMachineComponent->PreviousState == attackString && m_WasFlying)
+	// If going to attack and is in air
+	if (newState == "Attack" && StateMachineComponent->CurrentState->StateDisplayName == "Flying")
 	{
-		StateMachineComponent->SwitchStateByKey("AirOption");
-		m_WasFlying = false;
-	}
-	// If is going to attack and was flying, let player fly
-	else if (StateMachineComponent->PreviousState == flyString && newState == attackString)
-	{
+		// Let player fly
 		auto pCharMovement{ GetCharacterMovement() };
 		pCharMovement->MovementMode = EMovementMode::MOVE_Flying;
-		m_WasFlying = true;
+
+		m_ShouldStopVelocity = true;
+	}
+	// If going to idle and was attacking in air
+	else if (newState == "Idle" && StateMachineComponent->CurrentState->StateDisplayName == "Attack" && StateMachineComponent->PreviousState == "Flying")
+	{
+		// Go to flyState instead
+		StateMachineComponent->SwitchStateByKey("AirOption");
 	}
 	else
 	{
-		m_WasFlying = false;
+		m_ShouldStopVelocity = false;
 	}
 
 	// Handle getting hit

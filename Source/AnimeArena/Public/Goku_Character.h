@@ -58,7 +58,7 @@ private:
 	// Member variables
 	// ----------------
 	float m_VerticalFlightInput;
-	bool m_WasFlying;
+	bool m_ShouldStopVelocity;
 
 	// Member functions
 	// ----------------
