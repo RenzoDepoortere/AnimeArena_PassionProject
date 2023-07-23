@@ -35,7 +35,7 @@ void UAttackState::OnEnter(AActor* pStateOwner)
 	// Check data
 	const FVector2D lastMovementInput{ pCharacter->GetLastMovementInput() };
 	const bool wasLightAttack{ pCharacter->GetLastAttackInput() };
-	const FString attackLetter{ (wasLightAttack) ? "X " : "Y " };
+	const FString attackLetter{ (wasLightAttack) ? "X" : "Y" };
 
 	// Make currentAttackString
 	m_CurrentAttackString = {};
@@ -71,6 +71,9 @@ void UAttackState::OnEnter(AActor* pStateOwner)
 		pStateMachine->SwitchStateByKey({ "Idle" });
 		return;
 	}
+
+	// Update string
+	m_CurrentAttackString += " ";
 
 	// Play animation
 	auto pAnimationMontage{ m_PossibleAttackStrings[0].attacks[0].attackAnimationMontage };
@@ -123,12 +126,16 @@ void UAttackState::OnExit()
 
 void UAttackState::AttackInput(const FString& attackLetter)
 {
+	// Conditions
+	// ----------
+
 	// Check if can process input
 	auto pCharacter{ GetCharacter() };
 	if (pCharacter->CanProcessAttackInput == false) return;
 
-	// Set currentAttackState to start
-	pCharacter->SetAttackState(EAttackEnum::start);
+
+	// Make attackString
+	// -----------------
 
 	// Check data
 	const FVector2D lastMovementInput{ pCharacter->GetLastMovementInput() };
@@ -136,6 +143,10 @@ void UAttackState::AttackInput(const FString& attackLetter)
 	// Make currentAttackString
 	m_CurrentAttackString += ConvertInputToString(lastMovementInput, attackLetter);
 	m_CurrentAttackString += attackLetter;
+
+
+	// Search string
+	// -------------
 
 	// Check if attackString is in possibilities
 	TArray<FAttackString> possibleAttacks{};
@@ -148,6 +159,9 @@ void UAttackState::AttackInput(const FString& attackLetter)
 		}
 	}
 
+	// Update string
+	m_CurrentAttackString += " ";
+
 	// Store attackStrings
 	m_PossibleAttackStrings = possibleAttacks;
 	if (m_PossibleAttackStrings.Num() == 0)
@@ -156,18 +170,33 @@ void UAttackState::AttackInput(const FString& attackLetter)
 		return;
 	}
 
+
+	// Play attack
+	// -----------
+
 	// Update index
 	++m_CurrentAttack;
 
 	// Play animation
-	auto currentAttack{ m_PossibleAttackStrings[0].attacks[m_CurrentAttack] };
+	int32 attackIdx{ m_CurrentAttack };
+	attackIdx = FMath::Clamp(attackIdx, 0, m_PossibleAttackStrings[0].attacks.Num() - 1);
+	if (attackIdx <= -1)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, "Failed trying to play new attackAnimation");
+		return;
+	}
+
+	auto currentAttack{ m_PossibleAttackStrings[0].attacks[attackIdx] };
 	pCharacter->GetMesh()->GetAnimInstance()->Montage_Play(currentAttack.attackAnimationMontage, 1.f, EMontagePlayReturnType::MontageLength, currentAttack.attackStartTime);
+
+	// Set currentAttackState to start
+	pCharacter->SetAttackState(EAttackEnum::start);
 
 	// Faced lockedChar if lockedOn
 	if (pCharacter->GetIsLocked()) pCharacter->FaceActor(pCharacter->GetLockedCharacter());
 
 	// Set currentAttack
-	pCharacter->CurrentAttack = m_PossibleAttackStrings[0].attacks[m_CurrentAttack];
+	pCharacter->CurrentAttack = m_PossibleAttackStrings[0].attacks[attackIdx];
 }
 void UAttackState::AttackEnded()
 {

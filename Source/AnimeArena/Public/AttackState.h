@@ -30,8 +30,8 @@ private:
 	float m_OriginalFriction;
 
 	// Member functions
-	void LightAttack() { AttackInput("X "); }
-	void HeavyAttack() { AttackInput("Y "); }
+	void LightAttack() { AttackInput("X"); }
+	void HeavyAttack() { AttackInput("Y"); }
 
 	void AttackInput(const FString& attackLetter);
 	void AttackEnded();
