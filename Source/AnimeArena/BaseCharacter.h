@@ -44,7 +44,7 @@ struct FAttack
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Settings)
 		UAnimMontage* attackAnimationMontage;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Settings)
-		float attackDamageStartTime;
+		float attackStartTime;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Settings)
 		float damage;
@@ -202,6 +202,8 @@ public:
 		float LastHitStun;
 	UPROPERTY(BlueprintReadOnly, Category = "Combat")
 		bool LastWasFinisher;
+	UPROPERTY(BlueprintReadWrite, Category = "Combat")
+		bool CanProcessAttackInput;
 
 	// Ability
 	UPROPERTY(BlueprintReadOnly, Category = "Ability")
@@ -221,7 +223,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 		void AttackEnded() { if (m_AttackEndEvent.IsBound()) m_AttackEndEvent.Broadcast(); }
 
-	UFUNCTION(BlueprintCallable, Category = Combat)
+	UFUNCTION(BlueprintCallable, Category = "Combat")
 		void IsActiveHit(bool isActiveHit);
 
 	// Health

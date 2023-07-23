@@ -123,9 +123,9 @@ void UAttackState::OnExit()
 
 void UAttackState::AttackInput(const FString& attackLetter)
 {
-	// Check if in activeState
+	// Check if can process input
 	auto pCharacter{ GetCharacter() };
-	if (pCharacter->CurrentAttackState != EAttackEnum::active) return;
+	if (pCharacter->CanProcessAttackInput == false) return;
 
 	// Set currentAttackState to start
 	pCharacter->SetAttackState(EAttackEnum::start);
@@ -156,15 +156,12 @@ void UAttackState::AttackInput(const FString& attackLetter)
 		return;
 	}
 
-	// Set currentAttackState to start
-	pCharacter->SetAttackState(EAttackEnum::start);
-
 	// Update index
 	++m_CurrentAttack;
 
 	// Play animation
 	auto currentAttack{ m_PossibleAttackStrings[0].attacks[m_CurrentAttack] };
-	pCharacter->GetMesh()->GetAnimInstance()->Montage_Play(currentAttack.attackAnimationMontage, 1.f, EMontagePlayReturnType::MontageLength, currentAttack.attackDamageStartTime);
+	pCharacter->GetMesh()->GetAnimInstance()->Montage_Play(currentAttack.attackAnimationMontage, 1.f, EMontagePlayReturnType::MontageLength, currentAttack.attackStartTime);
 
 	// Faced lockedChar if lockedOn
 	if (pCharacter->GetIsLocked()) pCharacter->FaceActor(pCharacter->GetLockedCharacter());

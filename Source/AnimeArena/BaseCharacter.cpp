@@ -18,6 +18,7 @@
 
 ABaseCharacter::ABaseCharacter()
 	: CameraRotationMultiplier{ 1.f }
+	, CanProcessAttackInput{ false }
 	, m_pController{ nullptr }
 	, m_LastMovementInput{}
 	, m_LastAttackWasLight{ false }
