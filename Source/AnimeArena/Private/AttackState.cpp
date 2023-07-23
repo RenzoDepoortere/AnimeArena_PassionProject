@@ -149,9 +149,6 @@ void UAttackState::AttackInput(const FString& attackLetter)
 	// Conditions
 	// ----------
 
-	// Check if already doing attack
-	if (m_PreppingAttack) return;
-
 	// Check if can process input
 	auto pCharacter{ GetCharacter() };
 	if (pCharacter->CanProcessAttackInput == false) return;

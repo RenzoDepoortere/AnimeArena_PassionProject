@@ -305,7 +305,7 @@ void ABaseCharacter::OnDamage(float /*amount*/, ABaseCharacter* pDamageDealer)
 			break;
 
 		case EAttackDirectionEnum::down:
-			knockbackDirection = GetCharacterMovement()->IsFalling() ? FVector{0.f, 0.f, -1.f} : FVector{};
+			knockbackDirection = GetCharacterMovement()->IsFalling() ? FVector{0.f, 0.f, -1.f} : FVector{ 0.f, 0.f, 0.5f };
 			break;
 		}
 
