@@ -17,6 +17,7 @@ AGoku_Character::AGoku_Character()
 	, KamehamehaMaterial{ nullptr }
 	, KamehamehaAnimationStopTime{}
 	, TimeToReachMaxKamehameha{ 3.f }
+	, MaxKamehamehaScale{ 3.f }
 	, KamehamehaFlySpeed{ 300 }
 	, m_VerticalFlightInput{}
 	, m_WasFlying{ false }

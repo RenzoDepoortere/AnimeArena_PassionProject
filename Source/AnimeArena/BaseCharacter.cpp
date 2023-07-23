@@ -266,56 +266,60 @@ void ABaseCharacter::RotateTowardsCamera()
 
 void ABaseCharacter::OnDamage(float /*amount*/, ABaseCharacter* pDamageDealer)
 {
-	if (pDamageDealer == nullptr) return;
-
 	// Knockback
 	// ---------
 
-	// Get directions
-	FVector knockbackDirection{};
-	FVector damageDealerToSelf{ (GetActorLocation() - pDamageDealer->GetActorLocation()) };
-	damageDealerToSelf.Normalize();
-
-	switch (pDamageDealer->CurrentAttack.knockbackDirection)
+	if (pDamageDealer)
 	{
-	case EAttackDirectionEnum::forward:
-		knockbackDirection = damageDealerToSelf;
-		break;
+		// Get directions
+		FVector knockbackDirection{};
+		FVector damageDealerToSelf{ (GetActorLocation() - pDamageDealer->GetActorLocation()) };
+		damageDealerToSelf.Normalize();
 
-	case EAttackDirectionEnum::backward:
-		knockbackDirection = -damageDealerToSelf;
-		break;
+		switch (pDamageDealer->CurrentAttack.knockbackDirection)
+		{
+		case EAttackDirectionEnum::forward:
+			knockbackDirection = damageDealerToSelf;
+			break;
 
-	case EAttackDirectionEnum::left:
-		knockbackDirection = damageDealerToSelf.Cross({ 0.f, 0.f, 1.f });
-		break;
+		case EAttackDirectionEnum::backward:
+			knockbackDirection = -damageDealerToSelf;
+			break;
 
-	case EAttackDirectionEnum::right:
-		knockbackDirection = -damageDealerToSelf.Cross({ 0.f, 0.f, 1.f });
-		break;
+		case EAttackDirectionEnum::left:
+			knockbackDirection = damageDealerToSelf.Cross({ 0.f, 0.f, 1.f });
+			break;
 
-	case EAttackDirectionEnum::up:
-		knockbackDirection = FVector{ 0.f, 0.f, 1.f };
-		break;
+		case EAttackDirectionEnum::right:
+			knockbackDirection = -damageDealerToSelf.Cross({ 0.f, 0.f, 1.f });
+			break;
 
-	case EAttackDirectionEnum::down:
-		knockbackDirection = GetCharacterMovement()->IsFalling() ? FVector{0.f, 0.f, -1.f} : FVector{};
-		break;
+		case EAttackDirectionEnum::up:
+			knockbackDirection = FVector{ 0.f, 0.f, 1.f };
+			break;
+
+		case EAttackDirectionEnum::down:
+			knockbackDirection = GetCharacterMovement()->IsFalling() ? FVector{0.f, 0.f, -1.f} : FVector{};
+			break;
+		}
+
+		// Add knockback
+		knockbackDirection *= pDamageDealer->CurrentAttack.knockback;
+		GetCharacterMovement()->AddImpulse(knockbackDirection * 1'000);
+
+		// Rotate towards damageDealer
+		FaceActor(pDamageDealer);
 	}
-
-	// Add knockback
-	knockbackDirection *= pDamageDealer->CurrentAttack.knockback;
-	GetCharacterMovement()->AddImpulse(knockbackDirection * 1'000);
-
-	// Rotate towards damageDealer
-	FaceActor(pDamageDealer);
 
 	// State
 	// -----
 
 	// Store hit variables
-	LastHitStun = pDamageDealer->CurrentAttack.HitStunTime;
-	LastWasFinisher = pDamageDealer->CurrentAttack.isComboEnder;
+	const float hitStunTime = pDamageDealer ? pDamageDealer->CurrentAttack.HitStunTime : 0.2f;
+	const bool wasFinisher = pDamageDealer ? pDamageDealer->CurrentAttack.isComboEnder : false;
+
+	LastHitStun = hitStunTime;
+	LastWasFinisher = wasFinisher;
 
 	// Change to hitState
 	StateMachineComponent->SwitchStateByKey("Hit");

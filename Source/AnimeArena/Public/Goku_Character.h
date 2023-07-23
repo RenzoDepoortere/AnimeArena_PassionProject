@@ -42,6 +42,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability|Kamehameha")
 		float TimeToReachMaxKamehameha;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability|Kamehameha")
+		float MaxKamehamehaScale;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability|Kamehameha")
 		float KamehamehaFlySpeed;
 
 	UFUNCTION(BlueprintCallable, Category = "Movement")

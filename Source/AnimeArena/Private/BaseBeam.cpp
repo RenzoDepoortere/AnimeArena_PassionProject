@@ -40,8 +40,6 @@ void ABaseBeam::BeginPlay()
 {
 	Super::BeginPlay();
 
-	GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Blue, "Ello");
-
 	// Set material
 	Beam->SetMaterial(0, BeamMaterial);
 
@@ -69,6 +67,9 @@ void ABaseBeam::StopMove(bool charWasHit)
 {
 	m_CanMove = false;
 	m_CharWasHit = charWasHit;
+
+	// Detach from owner
+	DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 
 	// Stop ability of owner
 	if (m_CharWasHit) return;
