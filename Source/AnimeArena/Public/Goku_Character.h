@@ -22,6 +22,10 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 public:
+	// Abilities
+	// ---------
+
+	// Kamehameha
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability|Kamehameha")
 		FAttack KamehamehaAttack;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability|Kamehameha|Beam")
@@ -48,8 +52,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability|Kamehameha")
 		float KamehamehaFlySpeed;
 
+	// Movement
 	UFUNCTION(BlueprintCallable, Category = "Movement")
 		float GetVerticalFlightInput() const { return m_VerticalFlightInput; }
+	virtual bool GetIsInAir() const override;
 
 	UFUNCTION()
 		void OnStateSwitch(const FString& newState);

@@ -32,6 +32,8 @@ ABaseCharacter::ABaseCharacter()
 	, m_IsActiveHit{ false }
 	, m_CurrentHealth{}
 	, m_MeshMaterials{}
+	, m_CurrentHitTime{}
+	, m_StartFriction{}
 {
 	// Init components
 	// ***************
@@ -97,14 +99,18 @@ void ABaseCharacter::BeginPlay()
 	// Get controller and stateMachine
 	m_pController = Cast<ABasePlayerController>(UGameplayStatics::GetPlayerController(this, 0));
 
-	// Health
-	// ------
+	// Variables
+	// ---------
 
 	// Set health to max
 	m_CurrentHealth = MaxHealth;
 
 	// Store originalMaterials
 	m_MeshMaterials = GetMesh()->GetMaterials();
+
+	// Store friction
+	auto pCharMovement{ GetCharacterMovement() };
+	m_StartFriction = pCharMovement->GroundFriction;
 
 	// Return if can't be controlled
 	if (CanBeControlled == false) return;
@@ -211,6 +217,12 @@ void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	}
 }
 
+bool ABaseCharacter::GetIsInAir() const
+{
+	auto pCharMovement{ GetCharacterMovement() };
+	return pCharMovement->IsFalling();
+}
+
 void ABaseCharacter::IsActiveHit(bool isActiveHit)
 {
 	m_IsActiveHit = isActiveHit;
@@ -309,9 +321,16 @@ void ABaseCharacter::OnDamage(float /*amount*/, ABaseCharacter* pDamageDealer)
 			break;
 		}
 
+		// Remove friction
+		auto pCharMovement{ GetCharacterMovement() };
+		pCharMovement->GroundFriction = 0.f;
+
+		// If is falling, remove velocity
+		if (pCharMovement->IsFalling()) pCharMovement->Velocity.Z = 0.f;
+
 		// Add knockback
-		knockbackDirection *= pDamageDealer->CurrentAttack.knockback;
-		GetCharacterMovement()->AddImpulse(knockbackDirection * 1'000);
+		knockbackDirection *= pDamageDealer->CurrentAttack.knockback * 1'000.f;
+		GetCharacterMovement()->AddImpulse(knockbackDirection);
 
 		// Rotate towards damageDealer
 		FaceActor(pDamageDealer);

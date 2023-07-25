@@ -47,7 +47,7 @@ void UAttackState::OnEnter(AActor* pStateOwner)
 
 	// Loop through attacks
 	TArray<FAttackString> possibleAttacks{};
-	const bool isInAir{ pCharMovement->IsFalling() };
+	const bool isInAir{ pCharacter->GetIsInAir() };
 	for (const auto& currentAttack : pCharacter->Attacks)
 	{
 		// If doesn't contain attackString, continue

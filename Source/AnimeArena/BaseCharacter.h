@@ -113,6 +113,8 @@ public:
 
 	virtual void BeamStop() {}
 
+	float GetStartGroundFriction() const { return m_StartFriction; }
+
 public:
 	ABaseCharacter();
 
@@ -212,10 +214,15 @@ public:
 	// Functions
 	// ---------
 
-	UFUNCTION(BlueprintCallable, Category = "Movement")
+	// Input
+	UFUNCTION(BlueprintCallable, Category = "Input")
 		const FVector2D& GetLastMovementInput() const { return m_LastMovementInput; }
-	UFUNCTION(BlueprintCallable, Category = "Combat")
+	UFUNCTION(BlueprintCallable, Category = "Input")
 		bool GetLastAttackInput() const { return m_LastAttackWasLight; }
+
+	// Movement
+	UFUNCTION(BlueprintCallable, Category = "Movement")
+		virtual bool GetIsInAir() const;
 
 	// Combat
 	UFUNCTION(BlueprintCallable, Category = "Combat")
@@ -273,6 +280,8 @@ private:
 	float m_CurrentHealth;
 	TArray<UMaterialInterface*> m_MeshMaterials;
 	float m_CurrentHitTime;
+
+	float m_StartFriction;
 
 	// Member functions
 	// ----------------

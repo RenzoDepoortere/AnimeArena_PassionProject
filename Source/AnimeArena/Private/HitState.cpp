@@ -2,6 +2,7 @@
 #include "HitState.h"
 #include "../BaseCharacter.h"
 #include "StateMachineComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 UHitState::UHitState()
 	: m_CurrentStunTime{}
@@ -26,8 +27,13 @@ void UHitState::OnEnter(AActor* pStateOwner)
 }
 void UHitState::OnExit()
 {
+	// Stop montage
 	auto pCharacter{ GetCharacter() };
 	pCharacter->GetMesh()->GetAnimInstance()->Montage_Stop(0.1f);
+
+	// Reset friction
+	auto pCharMovement{ pCharacter->GetCharacterMovement() };
+	pCharMovement->GroundFriction = pCharacter->GetStartGroundFriction();
 }
 void UHitState::Tick(float deltaTime)
 {

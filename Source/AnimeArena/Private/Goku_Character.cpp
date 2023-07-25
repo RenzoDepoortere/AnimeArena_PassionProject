@@ -96,22 +96,20 @@ void AGoku_Character::Tick(float DeltaTime)
 	}
 }
 
+bool AGoku_Character::GetIsInAir() const
+{
+	const bool isFalling{ ABaseCharacter::GetIsInAir() };
+	const bool isFlying{ StateMachineComponent->PreviousState == "Flying" };
+
+	return isFlying || isFalling;
+}
+
 void AGoku_Character::OnStateSwitch(const FString& newState)
 {
 	// Handle attacking in air
 	// -----------------------
 
-	// If going to attack and is in air
-	if (newState == "Attack" && StateMachineComponent->CurrentState->StateDisplayName == "Flying")
-	{
-		// Let player fly
-		auto pCharMovement{ GetCharacterMovement() };
-		pCharMovement->MovementMode = EMovementMode::MOVE_Flying;
-
-		m_ShouldStopVelocity = true;
-	}
-	// If going to idle and was attacking in air
-	else if (newState == "Idle" && StateMachineComponent->CurrentState->StateDisplayName == "Attack" && StateMachineComponent->PreviousState == "Flying")
+	if (newState == "Idle" && StateMachineComponent->CurrentState->StateDisplayName == "Attack" && StateMachineComponent->PreviousState == "Flying")
 	{
 		// Go to flyState instead
 		StateMachineComponent->SwitchStateByKey("AirOption");
