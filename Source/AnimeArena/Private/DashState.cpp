@@ -53,7 +53,7 @@ void UDashState::OnEnter(AActor* pStateOwner)
 	// ----------
 
 	// Find out which way is forward
-	const FRotator rotation = GetCharacter()->Controller->GetControlRotation();
+	const FRotator rotation = GetCharacter()->GetController()->GetControlRotation();
 	const FRotator yawRotation{ 0, rotation.Yaw, 0 };
 
 	// Get direction

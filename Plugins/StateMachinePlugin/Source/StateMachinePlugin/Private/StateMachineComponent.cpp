@@ -82,7 +82,7 @@ void UStateMachineComponent::SwitchStateByKey(const FString& stateKey)
 	UStateBase* pNewState = StateMap.FindRef(stateKey);
 	if (pNewState->IsValidLowLevel() == false)
 	{
- 		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Red, this->GetOwner()->GetName() + "'s state switch failed. Invalid state!");
+ 		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Red, "State switch failed. Invalid state!");
 		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Red, "Tried to change from " + CurrentState->StateDisplayName.ToString() + " to " + stateKey);
 		return;
 	}

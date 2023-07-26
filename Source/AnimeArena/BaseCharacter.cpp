@@ -96,8 +96,8 @@ void ABaseCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// Get controller and stateMachine
-	m_pController = Cast<ABasePlayerController>(UGameplayStatics::GetPlayerController(this, 0));
+	// Get controller
+	m_pController = Cast<ABasePlayerController>(Controller);
 
 	// Variables
 	// ---------
