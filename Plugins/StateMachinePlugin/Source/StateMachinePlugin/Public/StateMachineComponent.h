@@ -31,9 +31,9 @@ public:
 	UPROPERTY()
 	TMap<FString, UStateBase*> StateMap;
 
-	UPROPERTY(BlueprintReadOnly)
-	UStateBase* CurrentState = nullptr;
-	UPROPERTY(BluePrintReadOnly)
+	UPROPERTY(Replicated, BlueprintReadOnly)
+	UStateBase* CurrentState;
+	UPROPERTY(Replicated, BluePrintReadOnly)
 	FString PreviousState;
 
 	UPROPERTY(BlueprintAssignable, Category = StateMachine)
@@ -43,7 +43,11 @@ public:
 	// ---------
 
 	UFUNCTION(BlueprintCallable, Category = StateMachine)
-	void SwitchStateByKey(const FString& stateKey);
+		void SwitchStateByKey(const FString& stateKey);
+	UFUNCTION(Server, Reliable, BlueprintCallable, Category = StateMachine)
+		void ServerSwitchStateByKey(const FString& stateKey);
+	UFUNCTION(NetMulticast, Reliable, BlueprintCallable, Category = StateMachine)
+		void MulticastSwitchStateByKey(const FString& stateKey);
 
 	UFUNCTION(BlueprintCallable, Category = StateMachine)
 		void BlacklistKey(const FString& stateKey) { m_Blacklist.Add(stateKey); }
@@ -57,4 +61,7 @@ private:
 	FString m_NewStateKey;
 
 	TArray<FString> m_Blacklist;
+
+	// Member functions
+	virtual void GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& OutLifetimeProps) const override;
 };
