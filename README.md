@@ -17,4 +17,4 @@ where I can try out some Unreal Engine features every now and then.
 # Experiences
 I've learned (and am still learning) quite a lot while working on this project
 and I feel like I've barely scratched the surface of Unreal Engine. 
-But I'm determined to discover more of its features and get quite adept in being able to use Unreal Engine.
+But I'm determined to discover more of its features and get quite adept in being able to use the engine.
