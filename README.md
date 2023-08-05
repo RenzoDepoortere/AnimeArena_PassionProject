@@ -1,0 +1,3 @@
+# AnimeArena
+
+main readme
