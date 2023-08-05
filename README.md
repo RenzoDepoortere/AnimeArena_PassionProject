@@ -12,7 +12,7 @@ I want the game to be played like a fast-paced FPS game: multiple players and re
 I'd also like to have each character feel totally different, instead of them typically being the same character but with just different abilities.
 
 The game won't be finished any time soon, so I plan to have this game more as a passion project
-where I can try some Unreal Engine features out every now and then.  
+where I can try out some Unreal Engine features every now and then.  
 
 # Experiences
 I've learned (and am still learning) quite a lot while working on this project
