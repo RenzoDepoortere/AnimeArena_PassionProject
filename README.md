@@ -9,7 +9,7 @@ since it helped out quite a lot. But I'd still want to become more adept in Unre
 # 3D Arena "Fragging" Fighting Game
 Due to my love for anime, fighting games and the (in my opinion) lack of interesting 3D arena fighting games, I decided to make one myself.
 I want the game to be played like a fast-paced FPS game: multiple players and relatively fast deaths.
-I'd also like to have each character feel totally different, instead of them being the same character but with just different abilities.
+I'd also like to have each character feel totally different, instead of them typically being the same character but with just different abilities.
 
 The game won't be finished any time soon, so I plan to have this game more as a passion project
 where I can try some Unreal Engine features out every now and then.  
