@@ -28,9 +28,9 @@ void UFlyState::OnEnter(AActor* pStateOwner)
 		pController->GetJumpHoldEvent()->AddUObject(this, &UFlyState::FlyUp);
 		pController->GetJumpStopEvent()->AddUObject(this, &UFlyState::StopFlyUp);
 
-		pController->GetSprintDoubleTapEvent()->AddUObject(this, &UFlyState::StopFly);
+		/*pController->GetSprintDoubleTapEvent()->AddUObject(this, &UFlyState::StopFly);
 		pController->GetSprintEvent()->AddUObject(this, &UFlyState::FlyDown);
-		pController->GetSprintStopEvent()->AddUObject(this, &UFlyState::StopFlyDown);
+		pController->GetSprintStopEvent()->AddUObject(this, &UFlyState::StopFlyDown);*/
 	}
 }
 void UFlyState::OnExit()
@@ -49,9 +49,9 @@ void UFlyState::OnExit()
 		pController->GetJumpHoldEvent()->RemoveAll(this);
 		pController->GetJumpStopEvent()->RemoveAll(this);
 
-		pController->GetSprintDoubleTapEvent()->RemoveAll(this);
+		/*pController->GetSprintDoubleTapEvent()->RemoveAll(this);
 		pController->GetSprintEvent()->RemoveAll(this);
-		pController->GetSprintStopEvent()->RemoveAll(this);
+		pController->GetSprintStopEvent()->RemoveAll(this);*/
 	}
 }
 

@@ -4,7 +4,6 @@
 #include "EnhancedInputSubsystems.h"
 
 ABasePlayerController::ABasePlayerController()
-	: m_LastSprintTapTime{}
 {
 }
 
@@ -18,11 +17,6 @@ void ABasePlayerController::SetupInputComponent()
 		// Moving
 		enhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ABasePlayerController::Move);
 		enhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Completed, this, &ABasePlayerController::StopMoving);
-
-		// Sprinting
-		enhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Started, this, &ABasePlayerController::SprintTap);
-		enhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Triggered, this, &ABasePlayerController::Sprint);
-		enhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Completed, this, &ABasePlayerController::StopSprinting);
 
 		// Jumping
 		enhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ABasePlayerController::Jump);
@@ -48,31 +42,5 @@ void ABasePlayerController::SetupInputComponent()
 
 		enhancedInputComponent->BindAction(Ability4Action, ETriggerEvent::Started, this, &ABasePlayerController::Ability4);
 		enhancedInputComponent->BindAction(Ability4Action, ETriggerEvent::Completed, this, &ABasePlayerController::Ability4Stop);
-	}
-}
-
-void ABasePlayerController::SprintTap(const FInputActionValue& /*value*/)
-{
-	// Single tap
-	if (m_SprintTapEvent.IsBound())
-	{
-		m_SprintTapEvent.Broadcast();
-	}
-
-	// Double tap
-	if (m_SprintDoubleTapEvent.IsBound())
-	{
-		const float tapDelay{ 0.3f };
-		const float currentTime{ static_cast<float>(GetWorld()->GetRealTimeSeconds()) };
-
-		// Check if doubleTapped
-		if (currentTime - m_LastSprintTapTime <= tapDelay)
-		{
-			// Send event
-			m_SprintDoubleTapEvent.Broadcast();
-		}
-
-		// Store time
-		m_LastSprintTapTime = currentTime;
 	}
 }

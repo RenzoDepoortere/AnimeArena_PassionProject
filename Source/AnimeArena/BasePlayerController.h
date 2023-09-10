@@ -14,11 +14,6 @@
 DECLARE_MULTICAST_DELEGATE_OneParam(FMoveEvent, const FInputActionValue&);
 DECLARE_MULTICAST_DELEGATE(FMoveStopEvent);
 
-DECLARE_MULTICAST_DELEGATE(FSprintEvent);
-DECLARE_MULTICAST_DELEGATE(FSprintTapEvent);
-DECLARE_MULTICAST_DELEGATE(FSprintDoubleTapEvent);
-DECLARE_MULTICAST_DELEGATE(FSprintStopEvent);
-
 DECLARE_MULTICAST_DELEGATE(FJumpEvent);
 DECLARE_MULTICAST_DELEGATE(FJumpHoldEvent);
 DECLARE_MULTICAST_DELEGATE(FJumpStopEvent);
@@ -56,10 +51,6 @@ public:
 	void Move(const FInputActionValue& value) { if (m_MoveEvent.IsBound()) m_MoveEvent.Broadcast(value); }
 	void StopMoving(const FInputActionValue& /*value*/) { if (m_MoveStopEvent.IsBound()) m_MoveStopEvent.Broadcast(); }
 
-	void Sprint(const FInputActionValue& /*value*/) { if (m_SprintEvent.IsBound()) m_SprintEvent.Broadcast(); }
-	void SprintTap(const FInputActionValue& /*value*/);
-	void StopSprinting(const FInputActionValue& /*value*/) { if (m_SprintStopEvent.IsBound()) m_SprintStopEvent.Broadcast(); }
-
 	void Jump(const FInputActionValue& /*value*/) { if (m_JumpEvent.IsBound()) m_JumpEvent.Broadcast(); }
 	void JumpHold(const FInputActionValue& /*value*/) { if (m_JumpHoldEvent.IsBound()) m_JumpHoldEvent.Broadcast(); }
 	void StopJumping(const FInputActionValue& /*value*/) { if (m_JumpStopEvent.IsBound()) m_JumpStopEvent.Broadcast(); }
@@ -75,7 +66,7 @@ public:
 	void Ability1Stop(const FInputActionValue& /*value*/) { if (m_Ability1StopEvent.IsBound()) m_Ability1StopEvent.Broadcast(); }
 
 	void Ability2(const FInputActionValue& /*value*/) { if (m_Ability2Event.IsBound()) m_Ability2Event.Broadcast(); }
-	void Ability2Stop(const FInputActionValue& /*value*/ ) {if(m_Ability2StopEvent.IsBound()) m_Ability2StopEvent.Broadcast();}
+	void Ability2Stop(const FInputActionValue& /*value*/) { if (m_Ability2StopEvent.IsBound()) m_Ability2StopEvent.Broadcast(); }
 
 	void Ability3(const FInputActionValue& /*value*/) { if (m_Ability3Event.IsBound()) m_Ability3Event.Broadcast(); }
 	void Ability3Stop(const FInputActionValue& /*value*/) { if (m_Ability3StopEvent.IsBound()) m_Ability3StopEvent.Broadcast(); }
@@ -89,11 +80,6 @@ public:
 	// Movement
 	FMoveEvent* const GetMoveEvent() { return &m_MoveEvent; }
 	FMoveStopEvent* const GetMoveStopEvent() { return &m_MoveStopEvent; }
-
-	FSprintEvent* const GetSprintEvent() { return &m_SprintEvent; }
-	FSprintTapEvent* const GetSprintTapEvent() { return &m_SprintTapEvent; }
-	FSprintDoubleTapEvent* const GetSprintDoubleTapEvent() { return &m_SprintDoubleTapEvent; }
-	FSprintStopEvent* const GetSprintStopEvent() { return &m_SprintStopEvent; }
 
 	FJumpEvent* const GetJumpEvent() { return &m_JumpEvent; }
 	FJumpHoldEvent* const GetJumpHoldEvent() { return &m_JumpHoldEvent; }
@@ -122,8 +108,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input|Movement")
 		class UInputAction* MoveAction;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input|Movement")
-		class UInputAction* SprintAction;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input|Movement")
 		class UInputAction* JumpAction;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input|Movement")
 		class UInputAction* DashAction;
@@ -141,7 +125,7 @@ public:
 		class UInputAction* Ability3Action;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input|Ability")
 		class UInputAction* Ability4Action;
-	
+
 protected:
 	virtual void SetupInputComponent() override;
 
@@ -152,11 +136,6 @@ private:
 	// Events
 	FMoveEvent m_MoveEvent;
 	FMoveStopEvent m_MoveStopEvent;
-
-	FSprintEvent m_SprintEvent;
-	FSprintTapEvent m_SprintTapEvent;
-	FSprintDoubleTapEvent m_SprintDoubleTapEvent;
-	FSprintStopEvent m_SprintStopEvent;
 
 	FJumpEvent m_JumpEvent;
 	FJumpHoldEvent m_JumpHoldEvent;
@@ -178,7 +157,4 @@ private:
 
 	FAbility4Event m_Ability4Event;
 	FAbility4StopEvent m_Ability4StopEvent;
-
-	// Times
-	float m_LastSprintTapTime;
 };

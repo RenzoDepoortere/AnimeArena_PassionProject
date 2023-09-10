@@ -27,7 +27,6 @@ private:
 	void Move(const FInputActionValue& value);
 	void StopMove();
 
-	void Sprint();
 	void Jump();
 	void Dash();
 };

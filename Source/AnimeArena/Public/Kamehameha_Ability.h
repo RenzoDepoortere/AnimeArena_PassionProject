@@ -6,7 +6,7 @@
 #include "BaseAbility.h"
 #include "Kamehameha_Ability.generated.h"
 
-class AGoku_Character;
+class ABaseCharacter;
 class ABaseBeam;
 
 /**
@@ -32,7 +32,7 @@ public:
 private:
 	// Member variables
 	// ----------------
-	AGoku_Character* m_pCharacter;
+	ABaseCharacter* m_pCharacter;
 	ABaseBeam* m_pBeam;
 
 	bool m_IsFiring;

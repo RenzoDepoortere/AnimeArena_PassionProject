@@ -1,10 +1,10 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 #include "Kamehameha_Ability.h"
-#include "Goku_Character.h"
 #include "StateMachineComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "BasePlayerState.h"
 #include "BaseBeam.h"
+#include "../BaseCharacter.h"
 
 UKamehameha_Ability::UKamehameha_Ability()
 	: UBaseAbility()
@@ -30,7 +30,7 @@ void UKamehameha_Ability::ActivateAbility()
 	UBaseAbility::ActivateAbility();
 
 	// Blacklist idleState
-	m_pCharacter = Cast<AGoku_Character>(GetCharacter());
+	m_pCharacter = GetCharacter();
 	m_pCharacter->StateMachineComponent->BlacklistKey("Idle");
 
 	// Switch to flyState
@@ -38,23 +38,23 @@ void UKamehameha_Ability::ActivateAbility()
 	m_pCharacter->StateMachineComponent->SwitchStateByKey(flyString);
 	Cast<UBasePlayerState>(m_pCharacter->StateMachineComponent->StateMap[flyString])->GetExtraStateInfo()->canBeAttackCanceled = false;
 
-	// Limit flySpeed
-	auto pCharMovement{ m_pCharacter->GetCharacterMovement() };
-	m_MaxFlySpeed = pCharMovement->MaxFlySpeed;
-	pCharMovement->MaxFlySpeed = m_pCharacter->KamehamehaFlySpeed;
+	//// Limit flySpeed
+	//auto pCharMovement{ m_pCharacter->GetCharacterMovement() };
+	//m_MaxFlySpeed = pCharMovement->MaxFlySpeed;
+	//pCharMovement->MaxFlySpeed = m_pCharacter->KamehamehaFlySpeed;
 
-	// Set variables
-	m_IsFiring = false;
-	m_CurrentHoldTime = m_pCharacter->TimeToReachMaxKamehameha;
+	//// Set variables
+	//m_IsFiring = false;
+	//m_CurrentHoldTime = m_pCharacter->TimeToReachMaxKamehameha;
 
-	// Limit rotation
-	m_pCharacter->CameraRotationMultiplier = 0.25f;
-	pCharMovement->bOrientRotationToMovement = false;
+	//// Limit rotation
+	//m_pCharacter->CameraRotationMultiplier = 0.25f;
+	//pCharMovement->bOrientRotationToMovement = false;
 
-	// Start kamehameha animation
-	auto pAnimInstance{ m_pCharacter->GetMesh()->GetAnimInstance() };
-	pAnimInstance->Montage_Play(m_pCharacter->KamehamehaAttack.attackAnimationMontage);
-	pAnimInstance->Montage_Pause(m_pCharacter->KamehamehaAttack.attackAnimationMontage);
+	//// Start kamehameha animation
+	//auto pAnimInstance{ m_pCharacter->GetMesh()->GetAnimInstance() };
+	//pAnimInstance->Montage_Play(m_pCharacter->KamehamehaAttack.attackAnimationMontage);
+	//pAnimInstance->Montage_Pause(m_pCharacter->KamehamehaAttack.attackAnimationMontage);
 }
 void UKamehameha_Ability::StopAbility()
 {
@@ -84,8 +84,8 @@ void UKamehameha_Ability::AbilityEnd()
 	newRotation.Roll = 0;
 	m_pCharacter->SetActorRotation(newRotation);
 
-	// Stop animation
-	m_pCharacter->GetMesh()->GetAnimInstance()->Montage_Stop(0.2f, m_pCharacter->KamehamehaAttack.attackAnimationMontage);
+	//// Stop animation
+	//m_pCharacter->GetMesh()->GetAnimInstance()->Montage_Stop(0.2f, m_pCharacter->KamehamehaAttack.attackAnimationMontage);
 
 	// Stop beam if isn't deleted
 	if (m_pBeam->IsValidLowLevel())
@@ -107,62 +107,62 @@ void UKamehameha_Ability::HoldTimeCountdown(float deltaTime)
 }
 void UKamehameha_Ability::HandleKamehameha(float deltaTime)
 {
-	// Pause animation at last second
-	if (0 < m_AnimationRunTime)
-	{
-		m_AnimationRunTime -= deltaTime;
-		if (m_AnimationRunTime <= 0) m_pCharacter->GetMesh()->GetAnimInstance()->Montage_Pause(m_pCharacter->KamehamehaAttack.attackAnimationMontage);
-	}
+	//// Pause animation at last second
+	//if (0 < m_AnimationRunTime)
+	//{
+	//	m_AnimationRunTime -= deltaTime;
+	//	if (m_AnimationRunTime <= 0) m_pCharacter->GetMesh()->GetAnimInstance()->Montage_Pause(m_pCharacter->KamehamehaAttack.attackAnimationMontage);
+	//}
 }
 
 void UKamehameha_Ability::StartBeam()
 {
-	m_IsFiring = true;
+	//m_IsFiring = true;
 
-	// Start animation
-	// ---------------
-	m_pCharacter->GetMesh()->GetAnimInstance()->Montage_Resume(m_pCharacter->KamehamehaAttack.attackAnimationMontage);
-	m_AnimationRunTime = m_pCharacter->KamehamehaAnimationStopTime;
+	//// Start animation
+	//// ---------------
+	//m_pCharacter->GetMesh()->GetAnimInstance()->Montage_Resume(m_pCharacter->KamehamehaAttack.attackAnimationMontage);
+	//m_AnimationRunTime = m_pCharacter->KamehamehaAnimationStopTime;
 
-	// Spawn beam
-	// ----------
+	//// Spawn beam
+	//// ----------
 
-	// Create
-	m_pBeam = GetWorld()->SpawnActor<ABaseBeam>(m_pCharacter->KamehamehaBeam, FTransform{});
-	m_pBeam->AttachToActor(m_pCharacter, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
-	m_pBeam->SetCharacter(m_pCharacter);
+	//// Create
+	//m_pBeam = GetWorld()->SpawnActor<ABaseBeam>(m_pCharacter->KamehamehaBeam, FTransform{});
+	//m_pBeam->AttachToActor(m_pCharacter, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	//m_pBeam->SetCharacter(m_pCharacter);
 
-	// Transform
-	const float chargeMultiplier{ ((m_pCharacter->TimeToReachMaxKamehameha - m_CurrentHoldTime) / m_pCharacter->TimeToReachMaxKamehameha) * m_pCharacter->MaxKamehamehaScale + 1 };
-	FVector scale{ m_pBeam->GetActorScale3D() };
-	scale.X *= chargeMultiplier;
-	scale.Y *= chargeMultiplier;
+	//// Transform
+	//const float chargeMultiplier{ ((m_pCharacter->TimeToReachMaxKamehameha - m_CurrentHoldTime) / m_pCharacter->TimeToReachMaxKamehameha) * m_pCharacter->MaxKamehamehaScale + 1 };
+	//FVector scale{ m_pBeam->GetActorScale3D() };
+	//scale.X *= chargeMultiplier;
+	//scale.Y *= chargeMultiplier;
 
-	m_pBeam->SetActorRelativeLocation(FVector{ 100.f, 0.f, 0.f });
-	m_pBeam->SetActorRelativeRotation(FRotator{ -90.f, 0.f, 0.f });
-	m_pBeam->SetActorScale3D(scale);
+	//m_pBeam->SetActorRelativeLocation(FVector{ 100.f, 0.f, 0.f });
+	//m_pBeam->SetActorRelativeRotation(FRotator{ -90.f, 0.f, 0.f });
+	//m_pBeam->SetActorScale3D(scale);
 
-	// Beam settings
-	const float damage{ m_pCharacter->KamehamehaAttack.damage * chargeMultiplier };
-	const float maxDistance = (chargeMultiplier <= 2.f) ? m_pCharacter->KamehamehaExistTime : m_pCharacter->KamehamehaExistTime * chargeMultiplier / 2.f;
-	const float existTime = (chargeMultiplier <= 1.1f) ? m_pCharacter->KamehamehaExistTime : m_pCharacter->KamehamehaExistTime * chargeMultiplier;
+	//// Beam settings
+	//const float damage{ m_pCharacter->KamehamehaAttack.damage * chargeMultiplier };
+	//const float maxDistance = (chargeMultiplier <= 2.f) ? m_pCharacter->KamehamehaExistTime : m_pCharacter->KamehamehaExistTime * chargeMultiplier / 2.f;
+	//const float existTime = (chargeMultiplier <= 1.1f) ? m_pCharacter->KamehamehaExistTime : m_pCharacter->KamehamehaExistTime * chargeMultiplier;
 
-	m_pBeam->Damage = damage;
-	m_pBeam->DamageFrequency = m_pCharacter->KamehamehaDamageFrequency;
-	m_pBeam->MovementSpeed = m_pCharacter->KamehamehaMovementSpeed;
-	m_pBeam->MaxDistance = m_pCharacter->KamehamehaMaxDistance;
-	m_pBeam->MaxExistTime = existTime;
-	m_pBeam->DisappearSpeed = m_pCharacter->KamehamehaDisappearSpeed;
-	m_pBeam->BeamMaterial = m_pCharacter->KamehamehaMaterial;
+	//m_pBeam->Damage = damage;
+	//m_pBeam->DamageFrequency = m_pCharacter->KamehamehaDamageFrequency;
+	//m_pBeam->MovementSpeed = m_pCharacter->KamehamehaMovementSpeed;
+	//m_pBeam->MaxDistance = m_pCharacter->KamehamehaMaxDistance;
+	//m_pBeam->MaxExistTime = existTime;
+	//m_pBeam->DisappearSpeed = m_pCharacter->KamehamehaDisappearSpeed;
+	//m_pBeam->BeamMaterial = m_pCharacter->KamehamehaMaterial;
 
-	m_pBeam->SetVariables();
+	//m_pBeam->SetVariables();
 
-	// Set character variables
-	// -----------------------
+	//// Set character variables
+	//// -----------------------
 
-	// Attack
-	m_pCharacter->CurrentAttack = m_pCharacter->KamehamehaAttack;
+	//// Attack
+	//m_pCharacter->CurrentAttack = m_pCharacter->KamehamehaAttack;
 
-	// Rotation
-	m_pCharacter->CameraRotationMultiplier = 0.01f;
+	//// Rotation
+	//m_pCharacter->CameraRotationMultiplier = 0.01f;
 }
