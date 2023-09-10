@@ -2,8 +2,8 @@
 #include "BaseAbility.h"
 
 UBaseAbility::UBaseAbility()
-	: m_pCharacter{ nullptr }
-	, m_IsActive{ false }
+	: /*m_pCharacter{ nullptr }
+	,*/ m_IsActive{ false }
 {
 }
 

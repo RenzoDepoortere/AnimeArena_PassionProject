@@ -5,7 +5,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/Controller.h"
-#include "../BaseCharacter.h"
+//#include "../BaseCharacter.h"
 
 UMoveState::UMoveState()
 {
@@ -42,13 +42,13 @@ void UMoveState::OnExit()
 }
 void UMoveState::Tick(float /*deltaTime*/)
 {
-	// Check if is falling
-	if (GetCharacter()->GetCharacterMovement()->IsFalling())
-	{
-		// Change to jumpState
-		auto pStateMachine{ GetStateOwner()->GetComponentByClass<UStateMachineComponent>() };
-		pStateMachine->SwitchStateByKey({ "Jump" });
-	}
+	//// Check if is falling
+	//if (GetCharacter()->GetCharacterMovement()->IsFalling())
+	//{
+	//	// Change to jumpState
+	//	auto pStateMachine{ GetStateOwner()->GetComponentByClass<UStateMachineComponent>() };
+	//	pStateMachine->SwitchStateByKey({ "Jump" });
+	//}
 }
 
 void UMoveState::Move(const FInputActionValue& value)
@@ -59,20 +59,20 @@ void UMoveState::Move(const FInputActionValue& value)
 }
 void UMoveState::StopMove()
 {
-	// Change to idleState
-	auto pStateMachine{ GetCharacter()->GetComponentByClass<UStateMachineComponent>()};
-	pStateMachine->SwitchStateByKey({ "Idle" });
+	//// Change to idleState
+	//auto pStateMachine{ GetCharacter()->GetComponentByClass<UStateMachineComponent>()};
+	//pStateMachine->SwitchStateByKey({ "Idle" });
 }
 
 void UMoveState::Jump()
 {
-	// Change to jumpState
-	auto pStateMachine{ GetCharacter()->GetComponentByClass<UStateMachineComponent>() };
-	pStateMachine->SwitchStateByKey({ "Jump" });
+	//// Change to jumpState
+	//auto pStateMachine{ GetCharacter()->GetComponentByClass<UStateMachineComponent>() };
+	//pStateMachine->SwitchStateByKey({ "Jump" });
 }
 void UMoveState::Dash()
 {
-	// Change to dashState
-	auto pStateMachine{ GetCharacter()->GetComponentByClass<UStateMachineComponent>() };
-	pStateMachine->SwitchStateByKey({ "Dash" });
+	//// Change to dashState
+	//auto pStateMachine{ GetCharacter()->GetComponentByClass<UStateMachineComponent>() };
+	//pStateMachine->SwitchStateByKey({ "Dash" });
 }

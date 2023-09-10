@@ -4,7 +4,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "BasePlayerState.h"
 #include "BaseBeam.h"
-#include "../BaseCharacter.h"
+//#include "../BaseCharacter.h"
 
 UKamehameha_Ability::UKamehameha_Ability()
 	: UBaseAbility()
@@ -22,21 +22,21 @@ void UKamehameha_Ability::Update(float deltaTime)
 	if (m_IsFiring) HandleKamehameha(deltaTime);
 	else			HoldTimeCountdown(deltaTime);
 
-	m_pCharacter->RotateTowardsCamera();
+	//m_pCharacter->RotateTowardsCamera();
 }
 
 void UKamehameha_Ability::ActivateAbility()
 {
 	UBaseAbility::ActivateAbility();
 
-	// Blacklist idleState
-	m_pCharacter = GetCharacter();
-	m_pCharacter->StateMachineComponent->BlacklistKey("Idle");
+	//// Blacklist idleState
+	//m_pCharacter = GetCharacter();
+	//m_pCharacter->StateMachineComponent->BlacklistKey("Idle");
 
-	// Switch to flyState
-	const FString flyString{ "AirOption" };
-	m_pCharacter->StateMachineComponent->SwitchStateByKey(flyString);
-	Cast<UBasePlayerState>(m_pCharacter->StateMachineComponent->StateMap[flyString])->GetExtraStateInfo()->canBeAttackCanceled = false;
+	//// Switch to flyState
+	//const FString flyString{ "AirOption" };
+	//m_pCharacter->StateMachineComponent->SwitchStateByKey(flyString);
+	//Cast<UBasePlayerState>(m_pCharacter->StateMachineComponent->StateMap[flyString])->GetExtraStateInfo()->canBeAttackCanceled = false;
 
 	//// Limit flySpeed
 	//auto pCharMovement{ m_pCharacter->GetCharacterMovement() };
@@ -64,25 +64,25 @@ void UKamehameha_Ability::StopAbility()
 
 void UKamehameha_Ability::AbilityEnd()
 {
-	// Remove idleState from blacklist
-	m_pCharacter->StateMachineComponent->RemoveKeyFromBlacklist("Idle");
+	//// Remove idleState from blacklist
+	//m_pCharacter->StateMachineComponent->RemoveKeyFromBlacklist("Idle");
 
-	// Switch to idle
-	m_pCharacter->StateMachineComponent->SwitchStateByKey("Idle");
-	Cast<UBasePlayerState>(m_pCharacter->StateMachineComponent->StateMap["AirOption"])->GetExtraStateInfo()->canBeAttackCanceled = true;
+	//// Switch to idle
+	//m_pCharacter->StateMachineComponent->SwitchStateByKey("Idle");
+	//Cast<UBasePlayerState>(m_pCharacter->StateMachineComponent->StateMap["AirOption"])->GetExtraStateInfo()->canBeAttackCanceled = true;
 
-	// Reset flySpeed
-	auto pCharMovement{ m_pCharacter->GetCharacterMovement() };
-	pCharMovement->MaxFlySpeed = m_MaxFlySpeed;
+	//// Reset flySpeed
+	//auto pCharMovement{ m_pCharacter->GetCharacterMovement() };
+	//pCharMovement->MaxFlySpeed = m_MaxFlySpeed;
 
-	// Reset rotation
-	m_pCharacter->CameraRotationMultiplier = 1.f;
-	pCharMovement->bOrientRotationToMovement = true;
+	//// Reset rotation
+	//m_pCharacter->CameraRotationMultiplier = 1.f;
+	//pCharMovement->bOrientRotationToMovement = true;
 
-	FRotator newRotation{ m_pCharacter->GetActorRotation() };
-	newRotation.Pitch = 0;
-	newRotation.Roll = 0;
-	m_pCharacter->SetActorRotation(newRotation);
+	//FRotator newRotation{ m_pCharacter->GetActorRotation() };
+	//newRotation.Pitch = 0;
+	//newRotation.Roll = 0;
+	//m_pCharacter->SetActorRotation(newRotation);
 
 	//// Stop animation
 	//m_pCharacter->GetMesh()->GetAnimInstance()->Montage_Stop(0.2f, m_pCharacter->KamehamehaAttack.attackAnimationMontage);

@@ -1,6 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 #include "HitState.h"
-#include "../BaseCharacter.h"
+//#include "../BaseCharacter.h"
 #include "StateMachineComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
@@ -15,25 +15,25 @@ void UHitState::OnEnter(AActor* pStateOwner)
 {
 	UBasePlayerState::OnEnter(pStateOwner);
 
-	// Set stunTime
-	auto pCharacter{ GetCharacter() };
-	m_CurrentStunTime = pCharacter->LastHitStun;
+	//// Set stunTime
+	//auto pCharacter{ GetCharacter() };
+	//m_CurrentStunTime = pCharacter->LastHitStun;
 
-	// Play montage
-	UAnimMontage* pMontageToPlay{ pCharacter->HitMontage };
-	if (pCharacter->LastWasFinisher) pMontageToPlay = pCharacter->BigHitMontage;
+	//// Play montage
+	//UAnimMontage* pMontageToPlay{ pCharacter->HitMontage };
+	//if (pCharacter->LastWasFinisher) pMontageToPlay = pCharacter->BigHitMontage;
 
-	pCharacter->GetMesh()->GetAnimInstance()->Montage_Play(pMontageToPlay);
+	//pCharacter->GetMesh()->GetAnimInstance()->Montage_Play(pMontageToPlay);
 }
 void UHitState::OnExit()
 {
-	// Stop montage
-	auto pCharacter{ GetCharacter() };
-	pCharacter->GetMesh()->GetAnimInstance()->Montage_Stop(0.1f);
+	//// Stop montage
+	//auto pCharacter{ GetCharacter() };
+	//pCharacter->GetMesh()->GetAnimInstance()->Montage_Stop(0.1f);
 
-	// Reset friction
-	auto pCharMovement{ pCharacter->GetCharacterMovement() };
-	pCharMovement->GroundFriction = pCharacter->GetStartGroundFriction();
+	//// Reset friction
+	//auto pCharMovement{ pCharacter->GetCharacterMovement() };
+	//pCharMovement->GroundFriction = pCharacter->GetStartGroundFriction();
 }
 void UHitState::Tick(float deltaTime)
 {

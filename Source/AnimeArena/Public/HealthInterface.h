@@ -6,7 +6,7 @@
 #include "UObject/Interface.h"
 #include "HealthInterface.generated.h"
 
-class ABaseCharacter;
+//class ABaseCharacter;
 
 // This class does not need to be modified.
 UINTERFACE(MinimalAPI, meta = (CannotImplementInterfaceInBlueprint))
@@ -27,6 +27,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category = Health)
 		virtual void SetHealth(float amount) = 0;
 
-	UFUNCTION(BlueprintCallable, Category = Health)
-		virtual bool DealDamage(float amount, ABaseCharacter* pDamageDealer) = 0;
+	//UFUNCTION(BlueprintCallable, Category = Health)
+	//	virtual bool DealDamage(float amount, ABaseCharacter* pDamageDealer) = 0;
 };

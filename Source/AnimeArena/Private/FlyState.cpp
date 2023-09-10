@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 #include "FlyState.h"
 #include "StateMachineComponent.h"
-#include "../BaseCharacter.h"
+//#include "../BaseCharacter.h"
 #include "../BasePlayerController.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
@@ -14,9 +14,9 @@ void UFlyState::OnEnter(AActor* pStateOwner)
 {
 	UBasePlayerState::OnEnter(pStateOwner);
 
-	// Set to flying
-	auto pCharMovement{ GetCharacter()->GetCharacterMovement() };
-	pCharMovement->MovementMode = EMovementMode::MOVE_Flying;
+	//// Set to flying
+	//auto pCharMovement{ GetCharacter()->GetCharacterMovement() };
+	//pCharMovement->MovementMode = EMovementMode::MOVE_Flying;
 
 	// Subscribe to inputEvents
 	auto pController{ GetPlayerController() };
@@ -35,9 +35,9 @@ void UFlyState::OnEnter(AActor* pStateOwner)
 }
 void UFlyState::OnExit()
 {
-	// Stop flying
-	auto pCharMovement{ GetCharacter()->GetCharacterMovement() };
-	pCharMovement->MovementMode = EMovementMode::MOVE_Walking;
+	//// Stop flying
+	//auto pCharMovement{ GetCharacter()->GetCharacterMovement() };
+	//pCharMovement->MovementMode = EMovementMode::MOVE_Walking;
 
 	// Unsubscribe from inputEvents
 	auto pController{ GetPlayerController() };
@@ -68,15 +68,15 @@ void UFlyState::StopMove()
 
 void UFlyState::FlyUp()
 {
-	auto pCharacter{ GetCharacter() };
+	//auto pCharacter{ GetCharacter() };
 
-	if (pCharacter->Controller == nullptr) return;
+	//if (pCharacter->Controller == nullptr) return;
 
-	// Get upDirection
-	const FVector upDirection{ 0.f, 0.f, 1.f };
+	//// Get upDirection
+	//const FVector upDirection{ 0.f, 0.f, 1.f };
 
-	// Add movement 
-	pCharacter->AddMovementInput(upDirection);
+	//// Add movement 
+	//pCharacter->AddMovementInput(upDirection);
 }
 void UFlyState::StopFlyUp()
 {
@@ -85,15 +85,15 @@ void UFlyState::StopFlyUp()
 
 void UFlyState::FlyDown()
 {
-	auto pCharacter{ GetCharacter() };
+	//auto pCharacter{ GetCharacter() };
 
-	if (pCharacter->Controller == nullptr) return;
+	//if (pCharacter->Controller == nullptr) return;
 
-	// Get downDirection
-	const FVector upDirection{ 0.f, 0.f, -1.f };
+	//// Get downDirection
+	//const FVector upDirection{ 0.f, 0.f, -1.f };
 
-	// Add movement 
-	pCharacter->AddMovementInput(upDirection);
+	//// Add movement 
+	//pCharacter->AddMovementInput(upDirection);
 }
 void UFlyState::StopFlyDown()
 {

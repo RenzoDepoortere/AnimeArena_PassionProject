@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "BasePlayerState.h"
-#include "../BaseCharacter.h"
+//#include "../BaseCharacter.h"
 #include "AttackState.generated.h"
 
 /**
@@ -26,11 +26,11 @@ public:
 private:
 	// Member variables
 	FString m_CurrentAttackString;
-	TArray<FAttackString> m_PossibleAttackStrings;
+	//TArray<FAttackString> m_PossibleAttackStrings;
 	
 	int m_CurrentAttack;
 	bool m_PreppingAttack;
-	FAttack m_AttackToUse;
+	//FAttack m_AttackToUse;
 
 	float m_OriginalFriction;
 

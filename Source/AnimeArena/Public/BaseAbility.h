@@ -6,7 +6,7 @@
 #include "UObject/NoExportTypes.h"
 #include "BaseAbility.generated.h"
 
-class ABaseCharacter;
+//class ABaseCharacter;
 
 /**
  * 
@@ -29,8 +29,8 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = Ability);
 		float CurrentCooldown;
 
-	UFUNCTION(BlueprintCallable, Category = Other)
-		void SetCharacter(ABaseCharacter* pCharacter) { m_pCharacter = pCharacter; }
+	//UFUNCTION(BlueprintCallable, Category = Other)
+	//	void SetCharacter(ABaseCharacter* pCharacter) { m_pCharacter = pCharacter; }
 	UFUNCTION(BlueprintCallable, Category = Other)
 		bool GetIsActive() const { return m_IsActive; }
 
@@ -40,11 +40,11 @@ public:
 		virtual void StopAbility() {}
 
 protected:
-	ABaseCharacter* const GetCharacter() { return m_pCharacter; }
+	//ABaseCharacter* const GetCharacter() { return m_pCharacter; }
 	void SetIsActive(bool isActive) { m_IsActive = isActive; }
 
 private:
 	// Member variables
-	ABaseCharacter* m_pCharacter;
+	//ABaseCharacter* m_pCharacter;
 	bool m_IsActive;
 };

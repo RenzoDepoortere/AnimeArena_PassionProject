@@ -2,7 +2,7 @@
 #include "BaseBeam.h"
 #include "Components/SphereComponent.h"
 #include "Components/CapsuleComponent.h"
-#include "../BaseCharacter.h"
+//#include "../BaseCharacter.h"
 
 ABaseBeam::ABaseBeam()
 	: Damage{}
@@ -87,7 +87,7 @@ void ABaseBeam::StopMove(bool charWasHit)
 
 	// Stop ability of owner
 	if (m_CharWasHit) return;
-	m_pCharacter->BeamStop();
+	//m_pCharacter->BeamStop();
 }
 
 void ABaseBeam::OnOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* /*OtherComp*/,
@@ -99,17 +99,17 @@ void ABaseBeam::OnOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActo
 
 void ABaseBeam::DealDamage()
 {
-	m_CurrentDamageTime = DamageFrequency;
+	//m_CurrentDamageTime = DamageFrequency;
 
-	// Loop through overlapping actors
-	TArray<AActor*> overlappingActors{};
-	CapsuleCollision->GetOverlappingActors(overlappingActors, ABaseCharacter::StaticClass());
-	for (const auto& currentChar : overlappingActors)
-	{
-		// Deal damage if not self
-		if (currentChar == m_pCharacter) continue;
-		Cast<ABaseCharacter>(currentChar)->DealDamage(Damage, m_pCharacter);
-	}
+	//// Loop through overlapping actors
+	//TArray<AActor*> overlappingActors{};
+	//CapsuleCollision->GetOverlappingActors(overlappingActors, ABaseCharacter::StaticClass());
+	//for (const auto& currentChar : overlappingActors)
+	//{
+	//	// Deal damage if not self
+	//	if (currentChar == m_pCharacter) continue;
+	//	Cast<ABaseCharacter>(currentChar)->DealDamage(Damage, m_pCharacter);
+	//}
 }
 void ABaseBeam::Move(float deltaTime)
 {
