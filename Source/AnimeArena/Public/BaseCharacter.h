@@ -47,27 +47,53 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	class UInputAction* LookAction;
 
+	// Movement
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Movement")
+	float MaxFallSpeed;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Movement")
+	float FallAccelerationTime;
+
 	// Other
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Other")
 	float CameraRotationSpeed;
 
 	// Functions
 	// ---------
+
+	// Movement
 	UFUNCTION(BlueprintCallable, Category = "Movement")
 	FVector2D GetLastMovementInput() const { return m_LastMovementInput; }
+	UFUNCTION(BlueprintCallable, Category = "Movement")
+	bool GetIsInAir() const { return m_IsInAir; }
+	
+	UFUNCTION(BlueprintCallable, Category = "Movement")
+	void SetShouldFall(bool shouldFall) { m_ShouldFall = shouldFall; }
 
 private:
 	// Member variables
 	// ----------------
+
+	// Base
 	ABasePlayerController* m_pController;
 
 	// Movement
 	FVector2D m_LastMovementInput;
+	bool m_IsInAir;
+	bool m_ShouldFall;
+
+	FVector m_TotalVelocity;
 
 	// Member functions
 	// ----------------
 	void Look(const FInputActionValue& value);
 
+	// Movement
 	void Move(const FInputActionValue& value) { m_LastMovementInput = value.Get<FVector2D>(); }
 	void StopMove() { m_LastMovementInput = {}; }
+
+	void HandleGravity(float deltaTime);
+	void HandleDisplacement(float deltaTime);
+
+	void OnCapsuleBeginOverlap(	UPrimitiveComponent* overlappedComp, AActor* otherActor, UPrimitiveComponent* otherComp,
+								int32 otherBodyIndex, bool bFromSweep, const FHitResult& sweepResult);
 };

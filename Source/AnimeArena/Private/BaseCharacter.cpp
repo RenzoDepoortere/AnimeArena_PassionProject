@@ -11,15 +11,38 @@
 #include <Kismet/GameplayStatics.h>
 
 ABaseCharacter::ABaseCharacter()
+	// Components
+	// ----------
+
+	// Base
 	: Collision{}
 	, Mesh{}
+	// Camera
 	, SpringArm{}
 	, Camera{}
+
+	// Variables
+	// ---------
+
+	// Input
 	, DefaultMappingContext{}
 	, LookAction{}
+	// Movement
+	, MaxFallSpeed{ 1000.f }
+	, FallAccelerationTime{ 0.5f }
+	// Other
 	, CameraRotationSpeed{ 1.f }
+
+	// Privates
+	// --------
+
+	// Base
 	, m_pController{}
+	// Movement
 	, m_LastMovementInput{}
+	, m_IsInAir{ true }
+	, m_ShouldFall{ true }
+	, m_TotalVelocity{}
 {
  	// Settings
 	// --------
@@ -34,6 +57,7 @@ ABaseCharacter::ABaseCharacter()
 	// Collision
 	Collision = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Collision"));
 	Collision->SetCollisionProfileName("Pawn");
+	Collision->OnComponentBeginOverlap.AddDynamic(this, &ABaseCharacter::OnCapsuleBeginOverlap);
 
 	RootComponent = Collision;
 
@@ -100,6 +124,8 @@ void ABaseCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	HandleGravity(DeltaTime);
+	HandleDisplacement(DeltaTime);
 }
 void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
@@ -125,5 +151,47 @@ void ABaseCharacter::Look(const FInputActionValue& value)
 		// Add yaw and pitch input to controller
 		AddControllerYawInput(lookAxisVector.X);
 		AddControllerPitchInput(lookAxisVector.Y);
+	}
+}
+
+void ABaseCharacter::HandleGravity(float deltaTime)
+{
+	// Check conditions
+	if (m_ShouldFall == false) return;
+
+	// Apply gravity
+	// -------------
+	
+	// Air
+	if (m_IsInAir)
+	{
+		// Decrease Z component
+		const float fallAcceleration{ MaxFallSpeed / FallAccelerationTime };
+		m_TotalVelocity.Z -= fallAcceleration * deltaTime;
+
+		// Make sure not going faster then max
+		if (m_TotalVelocity.Z < -MaxFallSpeed) m_TotalVelocity.Z = -MaxFallSpeed;
+	}
+	// Grounded
+	else
+	{
+		m_TotalVelocity.Z = -0.1f;
+	}
+}
+void ABaseCharacter::HandleDisplacement(float deltaTime)
+{
+	const FVector displacement{ m_TotalVelocity * deltaTime };
+	AddActorWorldOffset(displacement, true);
+}
+
+void ABaseCharacter::OnCapsuleBeginOverlap(	UPrimitiveComponent* overlappedComp, AActor* otherActor, UPrimitiveComponent* otherComp,
+											int32 otherBodyIndex, bool bFromSweep, const FHitResult& sweepResult)
+{
+	// Check for ground
+	// ----------------
+	const FName floorTag{ "Floor" };
+	if (otherActor->ActorHasTag(floorTag))
+	{
+		m_IsInAir = false;
 	}
 }
