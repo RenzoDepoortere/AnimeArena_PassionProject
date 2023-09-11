@@ -1,6 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
 #include "BasePlayerState.h"
-//#include "../BaseCharacter.h"
 #include "../BasePlayerController.h"
 
 #include <Kismet/GameplayStatics.h>
@@ -10,7 +8,7 @@ void UBasePlayerState::OnEnter(AActor* pStateOwner)
 	Super::OnEnter(pStateOwner);
 
 	// Get owners
-	//m_pCharacter = Cast<ABaseCharacter>(pStateOwner);
+	m_pCharacter = Cast<ABaseCharacter>(pStateOwner);
 	m_pPlayerController = Cast<ABasePlayerController>(UGameplayStatics::GetPlayerController(this, 0));
 }
 

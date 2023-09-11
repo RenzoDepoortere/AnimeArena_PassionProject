@@ -24,7 +24,8 @@ public:
 
 private:
 	// Member functions
+	// ----------------
 	void Move(const FInputActionValue& value);
-	void Jump();
-	void Dash();
+	//void Jump();
+	//void Dash();
 };

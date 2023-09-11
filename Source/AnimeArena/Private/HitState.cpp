@@ -8,7 +8,7 @@ UHitState::UHitState()
 	: m_CurrentStunTime{}
 {
 	StateDisplayName = "Hit";
-	GetExtraStateInfo()->canBeAttackCanceled = false;
+	//GetExtraStateInfo()->canBeAttackCanceled = false;
 }
 
 void UHitState::OnEnter(AActor* pStateOwner)

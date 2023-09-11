@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "StateBase.h"
+#include "BaseCharacter.h"
 #include "BasePlayerState.generated.h"
 
 /**
@@ -23,26 +24,18 @@ public:
 	virtual void OnExit() {}
 	virtual void Tick(float deltaTime) {}
 
-public:
-	struct extraStateInfo
-	{
-		bool isInvincible{ false };
-		bool canBeAttackCanceled{ true };
-	};
-	
-	extraStateInfo* const GetExtraStateInfo() { return &m_ExtraStateInfo; }
-
-protected:
-	void BaseMove(const FVector2D& direction);
-
 protected:
 	ABaseCharacter* GetCharacter() const { return m_pCharacter; }
 	ABasePlayerController* GetPlayerController() const { return m_pPlayerController; }
 
+protected:
+	void BaseMove(const FVector2D& direction);
+
 private:
 	// Member variables
+	// ----------------
+
+	// Base
 	ABaseCharacter* m_pCharacter;
 	ABasePlayerController* m_pPlayerController;
-
-	extraStateInfo m_ExtraStateInfo{};
 };

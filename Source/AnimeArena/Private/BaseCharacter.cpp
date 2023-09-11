@@ -5,6 +5,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
 #include "EnhancedInputComponent.h"
+#include "StateMachineComponent.h"
 
 #include "../BasePlayerController.h"
 #include "EnhancedInputSubsystems.h"
@@ -20,6 +21,8 @@ ABaseCharacter::ABaseCharacter()
 	// Camera
 	, SpringArm{}
 	, Camera{}
+	// Other
+	, StateMachineComponent{}
 
 	// Variables
 	// ---------
@@ -28,6 +31,8 @@ ABaseCharacter::ABaseCharacter()
 	, DefaultMappingContext{}
 	, LookAction{}
 	// Movement
+	, MaxMovementSpeed{ 1000.f }
+	, MoveAccelerationTime{ 0.2f }
 	, MaxFallSpeed{ 1000.f }
 	, FallAccelerationTime{ 0.5f }
 	// Other
@@ -79,6 +84,12 @@ ABaseCharacter::ABaseCharacter()
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(SpringArm, USpringArmComponent::SocketName);
 	Camera->bUsePawnControlRotation = false;
+
+	// Other
+	// =====
+
+	// StateMachine
+	StateMachineComponent = CreateDefaultSubobject<UStateMachineComponent>(TEXT("StateMachine"));
 }
 void ABaseCharacter::BeginPlay()
 {
@@ -193,5 +204,16 @@ void ABaseCharacter::OnCapsuleBeginOverlap(	UPrimitiveComponent* overlappedComp,
 	if (otherActor->ActorHasTag(floorTag))
 	{
 		m_IsInAir = false;
+	}
+}
+void ABaseCharacter::OnCapsuleEndOverlap(	UPrimitiveComponent* overlappedComp, AActor* otherActor, UPrimitiveComponent* otherComp,
+											int32 otherBodyIndex, bool bFromSweep, const FHitResult& sweepResult)
+{
+	// Check for ground
+	// ----------------
+	const FName floorTag{ "Floor" };
+	if (otherActor->ActorHasTag(floorTag))
+	{
+		m_IsInAir = true;
 	}
 }

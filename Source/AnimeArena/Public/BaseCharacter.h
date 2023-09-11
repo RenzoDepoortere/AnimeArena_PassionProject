@@ -38,6 +38,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Component|Camera")
 	class UCameraComponent* Camera;
 
+	// Other
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Component|Other")
+	class UStateMachineComponent* StateMachineComponent;
+
 	// Variables
 	// ---------
 	
@@ -48,6 +52,11 @@ public:
 	class UInputAction* LookAction;
 
 	// Movement
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Movement")
+	float MaxMovementSpeed;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Movement")
+	float MoveAccelerationTime;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Movement")
 	float MaxFallSpeed;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Movement")
@@ -65,6 +74,9 @@ public:
 	FVector2D GetLastMovementInput() const { return m_LastMovementInput; }
 	UFUNCTION(BlueprintCallable, Category = "Movement")
 	bool GetIsInAir() const { return m_IsInAir; }
+
+	UFUNCTION(BlueprintCallable, Category = "Movement")
+	FVector& GetTotalVelocity() { return m_TotalVelocity; }
 	
 	UFUNCTION(BlueprintCallable, Category = "Movement")
 	void SetShouldFall(bool shouldFall) { m_ShouldFall = shouldFall; }
@@ -74,7 +86,7 @@ private:
 	// ----------------
 
 	// Base
-	ABasePlayerController* m_pController;
+	class ABasePlayerController* m_pController;
 
 	// Movement
 	FVector2D m_LastMovementInput;
@@ -94,6 +106,9 @@ private:
 	void HandleGravity(float deltaTime);
 	void HandleDisplacement(float deltaTime);
 
+	// Overlap
 	void OnCapsuleBeginOverlap(	UPrimitiveComponent* overlappedComp, AActor* otherActor, UPrimitiveComponent* otherComp,
+								int32 otherBodyIndex, bool bFromSweep, const FHitResult& sweepResult);
+	void OnCapsuleEndOverlap(	UPrimitiveComponent* overlappedComp, AActor* otherActor, UPrimitiveComponent* otherComp,
 								int32 otherBodyIndex, bool bFromSweep, const FHitResult& sweepResult);
 };
