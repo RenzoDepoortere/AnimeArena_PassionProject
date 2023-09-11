@@ -21,10 +21,18 @@ public:
 public:
 	// Components
 	// ----------
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
+	
+	// Base
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components|Base")
 	class UCapsuleComponent* Collision;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
-	class USkeletalMesh* Mesh;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components|Base")
+	class USkeletalMeshComponent* Mesh;
+
+	// Camera
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Component|Camera")
+	class USpringArmComponent* SpringArm;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Component|Camera")
+	class UCameraComponent* Camera;
 
 protected:
 	virtual void BeginPlay() override;
