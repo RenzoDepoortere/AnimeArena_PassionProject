@@ -7,6 +7,8 @@
 #include "InputActionValue.h"
 #include "BaseCharacter.generated.h"
 
+DECLARE_MULTICAST_DELEGATE(FLandEvent);
+
 UCLASS()
 class ANIMEARENA_API ABaseCharacter : public APawn
 {
@@ -60,6 +62,11 @@ public:
 	float MoveAccelerationTime;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Movement")
+	float JumpSpeed;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Movement")
+	float MaxJumpTime;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Movement")
 	float MaxFallSpeed;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Movement")
 	float FallAccelerationTime;
@@ -82,9 +89,12 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Movement")
 	FVector& GetTotalVelocity() { return m_TotalVelocity; }
-	
+
 	UFUNCTION(BlueprintCallable, Category = "Movement")
 	void SetShouldFall(bool shouldFall) { m_ShouldFall = shouldFall; }
+
+public:
+	FLandEvent* const GetLandEvent() { return &m_LandEvent; }
 
 private:
 	// Member variables
@@ -99,6 +109,8 @@ private:
 	bool m_ShouldFall;
 
 	FVector m_TotalVelocity;
+
+	FLandEvent m_LandEvent;
 
 	// Member functions
 	// ----------------

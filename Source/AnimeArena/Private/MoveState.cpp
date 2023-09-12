@@ -34,7 +34,7 @@ void UMoveState::OnEnter(AActor* pStateOwner)
 		pController->GetMoveEvent()->AddUObject(this, &UMoveState::Move);
 		pController->GetMoveStopEvent()->AddUObject(this, &UMoveState::StopMove);
 
-		//pController->GetJumpEvent()->AddUObject(this, &UMoveState::Jump);
+		pController->GetJumpEvent()->AddUObject(this, &UMoveState::Jump);
 		//pController->GetDashEvent()->AddUObject(this, &UMoveState::Dash);
 	}
 }
@@ -50,8 +50,8 @@ void UMoveState::OnExit()
 		pController->GetMoveEvent()->RemoveAll(this);
 		pController->GetMoveStopEvent()->RemoveAll(this);
 
-		/*pController->GetJumpEvent()->RemoveAll(this);
-		pController->GetDashEvent()->RemoveAll(this);*/
+		pController->GetJumpEvent()->RemoveAll(this);
+		//pController->GetDashEvent()->RemoveAll(this);
 	}
 }
 void UMoveState::Tick(float deltaTime)
@@ -71,6 +71,13 @@ void UMoveState::Move(const FInputActionValue& value)
 {
 	m_IsInput = true;
 	m_LastInput = value.Get<FVector2D>();
+}
+
+void UMoveState::Jump()
+{
+	// Change to jumpState
+	auto pStateMachine{ GetCharacter()->GetComponentByClass<UStateMachineComponent>() };
+	pStateMachine->SwitchStateByKey({ "Jump" });
 }
 
 void UMoveState::HandleInput(float deltaTime)
@@ -139,12 +146,6 @@ void UMoveState::HandleInput(float deltaTime)
 	pPlayer->SetActorRotation(newRotation);
 }
 
-//void UMoveState::Jump()
-//{
-//	//// Change to jumpState
-//	//auto pStateMachine{ GetCharacter()->GetComponentByClass<UStateMachineComponent>() };
-//	//pStateMachine->SwitchStateByKey({ "Jump" });
-//}
 //void UMoveState::Dash()
 //{
 //	//// Change to dashState

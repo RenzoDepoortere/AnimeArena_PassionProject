@@ -36,8 +36,8 @@ private:
 	void Move(const FInputActionValue& value);
 	void StopMove() { m_IsInput = false; }
 
-	void HandleInput(float deltaTime);
+	void Jump();
 
-	//void Jump();
+	void HandleInput(float deltaTime);
 	//void Dash();
 };

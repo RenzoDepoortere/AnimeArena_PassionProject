@@ -34,6 +34,8 @@ ABaseCharacter::ABaseCharacter()
 	// Movement
 	, MaxMovementSpeed{ 1000.f }
 	, MoveAccelerationTime{ 0.2f }
+	, JumpSpeed{ 500.f }
+	, MaxJumpTime{ 0.2f }
 	, MaxFallSpeed{ 981.f }
 	, FallAccelerationTime{ 0.5f }
 	, RotationSpeed{ 20.f }
@@ -50,6 +52,7 @@ ABaseCharacter::ABaseCharacter()
 	, m_IsInAir{ true }
 	, m_ShouldFall{ true }
 	, m_TotalVelocity{}
+	, m_LandEvent{}
 {
  	// Settings
 	// --------
@@ -213,6 +216,9 @@ void ABaseCharacter::OnGroundBeginOverlap(	UPrimitiveComponent* overlappedComp, 
 	if (otherComp->ComponentHasTag(floorTag))
 	{
 		m_IsInAir = false;
+
+		// Send event
+		if (m_LandEvent.IsBound()) m_LandEvent.Broadcast();
 	}
 }
 void ABaseCharacter::OnGroundEndOverlap(	UPrimitiveComponent* overlappedComp, AActor* otherActor, UPrimitiveComponent* otherComp,
@@ -221,7 +227,7 @@ void ABaseCharacter::OnGroundEndOverlap(	UPrimitiveComponent* overlappedComp, AA
 	// Check for ground
 	// ----------------
 	const FName floorTag{ "Floor" };
-	if (otherActor->ActorHasTag(floorTag))
+	if (otherComp->ComponentHasTag(floorTag))
 	{
 		m_IsInAir = true;
 	}

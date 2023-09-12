@@ -6,10 +6,6 @@
 #include "InputActionValue.h"
 #include "BasePlayerController.generated.h"
 
-/**
- * 
- */
-
 // Delegates (= Events)
 DECLARE_MULTICAST_DELEGATE_OneParam(FMoveEvent, const FInputActionValue&);
 DECLARE_MULTICAST_DELEGATE(FMoveStopEvent);

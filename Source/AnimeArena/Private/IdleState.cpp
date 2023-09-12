@@ -19,7 +19,7 @@ void UIdleState::OnEnter(AActor* pStateOwner)
 	if (pController)
 	{
 		pController->GetMoveEvent()->AddUObject(this, &UIdleState::Move);
-		//pController->GetJumpEvent()->AddUObject(this, &UIdleState::Jump);
+		pController->GetJumpEvent()->AddUObject(this, &UIdleState::Jump);
 		//pController->GetDashEvent()->AddUObject(this, &UIdleState::Dash);
 	}
 }
@@ -33,7 +33,7 @@ void UIdleState::OnExit()
 	if (pController)
 	{
 		pController->GetMoveEvent()->RemoveAll(this);
-		//pController->GetJumpEvent()->RemoveAll(this);
+		pController->GetJumpEvent()->RemoveAll(this);
 		//pController->GetDashEvent()->RemoveAll(this);
 	}
 }
@@ -58,12 +58,12 @@ void UIdleState::Move(const FInputActionValue& /*value*/)
 	auto pStateMachine{ GetStateOwner()->GetComponentByClass<UStateMachineComponent>() };
 	pStateMachine->SwitchStateByKey({ "Move" });
 }
-//void UIdleState::Jump()
-//{
-//	// Change to jumpState
-//	auto pStateMachine{ GetStateOwner()->GetComponentByClass<UStateMachineComponent>() };
-//	pStateMachine->SwitchStateByKey({ "Jump" });
-//}
+void UIdleState::Jump()
+{
+	// Change to jumpState
+	auto pStateMachine{ GetStateOwner()->GetComponentByClass<UStateMachineComponent>() };
+	pStateMachine->SwitchStateByKey({ "Jump" });
+}
 //void UIdleState::Dash()
 //{
 //	// Change to dashState
