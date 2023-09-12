@@ -8,6 +8,7 @@ UMoveState::UMoveState()
 	, m_LastInput{}
 	, m_CurrentDirection{}
 	, m_MoveSpeed{}
+	, m_DesiredRotation{}
 {
 	StateDisplayName = "Move";
 }
@@ -99,6 +100,9 @@ void UMoveState::HandleInput(float deltaTime)
 		m_CurrentDirection = forwardDirection * m_LastInput.Y + rightDirection * m_LastInput.X;
 		m_CurrentDirection.Normalize();
 
+		// New rotation
+		m_DesiredRotation = FRotationMatrix::MakeFromX(m_CurrentDirection).Rotator();
+
 		// Speed up
 		m_MoveSpeed += moveAcceleration * deltaTime;
 		if (pPlayer->MaxMovementSpeed < m_MoveSpeed) m_MoveSpeed = pPlayer->MaxMovementSpeed;
@@ -125,6 +129,14 @@ void UMoveState::HandleInput(float deltaTime)
 	FVector& totalVelocity{ pPlayer->GetTotalVelocity() };
 	totalVelocity.X = horizontalVelocity.X;
 	totalVelocity.Y = horizontalVelocity.Y;
+
+	// Set rotation
+	// ------------
+	const FRotator currentRotation{ pPlayer->GetActorRotation() };
+	const float rotationSpeed{ pPlayer->RotationSpeed * deltaTime };
+
+	const FRotator newRotation{ FMath::Lerp(currentRotation, m_DesiredRotation, rotationSpeed) };
+	pPlayer->SetActorRotation(newRotation);
 }
 
 //void UMoveState::Jump()

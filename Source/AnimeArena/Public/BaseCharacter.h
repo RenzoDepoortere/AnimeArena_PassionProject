@@ -64,6 +64,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Movement")
 	float FallAccelerationTime;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Movement")
+	float RotationSpeed;
+
 	// Other
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Other")
 	float CameraRotationSpeed;

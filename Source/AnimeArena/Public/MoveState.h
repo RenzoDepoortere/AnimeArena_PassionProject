@@ -29,6 +29,7 @@ private:
 	FVector m_CurrentDirection;
 
 	float m_MoveSpeed;
+	FRotator m_DesiredRotation;
 
 	// Member functions
 	// ----------------

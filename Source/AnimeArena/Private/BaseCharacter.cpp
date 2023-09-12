@@ -36,6 +36,7 @@ ABaseCharacter::ABaseCharacter()
 	, MoveAccelerationTime{ 0.2f }
 	, MaxFallSpeed{ 981.f }
 	, FallAccelerationTime{ 0.5f }
+	, RotationSpeed{ 20.f }
 	// Other
 	, CameraRotationSpeed{ 1.f }
 
@@ -194,7 +195,7 @@ void ABaseCharacter::HandleGravity(float deltaTime)
 	// Grounded
 	else
 	{
-		m_TotalVelocity.Z = -0.1f;
+		m_TotalVelocity.Z = 0.f;
 	}
 }
 void ABaseCharacter::HandleDisplacement(float deltaTime)
