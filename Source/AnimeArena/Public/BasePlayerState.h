@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "StateBase.h"
 #include "BaseCharacter.h"
+#include "InputActionValue.h"
+#include "StateMachineComponent.h"
 #include "BasePlayerState.generated.h"
 
 /**

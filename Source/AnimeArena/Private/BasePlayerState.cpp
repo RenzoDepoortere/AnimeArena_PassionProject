@@ -14,7 +14,10 @@ void UBasePlayerState::OnEnter(AActor* pStateOwner)
 
 void UBasePlayerState::BaseMove(const FVector2D& direction)
 {
-	//if (m_pCharacter->Controller == nullptr) return;
+	//if (m_pPlayerController == nullptr) return;
+
+	//// Get Directions
+	//// --------------
 
 	//// Find out which way is forward
 	//const FRotator rotation = m_pCharacter->Controller->GetControlRotation();
@@ -25,6 +28,11 @@ void UBasePlayerState::BaseMove(const FVector2D& direction)
 
 	//// Get right vector 
 	//const FVector rightDirection = FRotationMatrix(yawRotation).GetUnitAxis(EAxis::Y);
+
+	//// Calculate movement
+	//// ------------------
+
+
 
 	//// Add movement 
 	//m_pCharacter->AddMovementInput(forwardDirection, direction.Y);

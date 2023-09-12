@@ -6,6 +6,7 @@
 #include "Components/InputComponent.h"
 #include "EnhancedInputComponent.h"
 #include "StateMachineComponent.h"
+#include "Components/BoxComponent.h"
 
 #include "../BasePlayerController.h"
 #include "EnhancedInputSubsystems.h"
@@ -33,7 +34,7 @@ ABaseCharacter::ABaseCharacter()
 	// Movement
 	, MaxMovementSpeed{ 1000.f }
 	, MoveAccelerationTime{ 0.2f }
-	, MaxFallSpeed{ 1000.f }
+	, MaxFallSpeed{ 981.f }
 	, FallAccelerationTime{ 0.5f }
 	// Other
 	, CameraRotationSpeed{ 1.f }
@@ -62,9 +63,15 @@ ABaseCharacter::ABaseCharacter()
 	// Collision
 	Collision = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Collision"));
 	Collision->SetCollisionProfileName("Pawn");
-	Collision->OnComponentBeginOverlap.AddDynamic(this, &ABaseCharacter::OnCapsuleBeginOverlap);
 
 	RootComponent = Collision;
+
+	// Ground collision
+	GroundCollision = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxCollision"));
+	GroundCollision->SetupAttachment(RootComponent);
+	GroundCollision->OnComponentBeginOverlap.AddDynamic(this, &ABaseCharacter::OnGroundBeginOverlap);
+	GroundCollision->OnComponentEndOverlap.AddDynamic(this, &ABaseCharacter::OnGroundEndOverlap);
+
 
 	// Mesh
 	Mesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Mesh"));
@@ -90,6 +97,7 @@ ABaseCharacter::ABaseCharacter()
 
 	// StateMachine
 	StateMachineComponent = CreateDefaultSubobject<UStateMachineComponent>(TEXT("StateMachine"));
+
 }
 void ABaseCharacter::BeginPlay()
 {
@@ -195,19 +203,19 @@ void ABaseCharacter::HandleDisplacement(float deltaTime)
 	AddActorWorldOffset(displacement, true);
 }
 
-void ABaseCharacter::OnCapsuleBeginOverlap(	UPrimitiveComponent* overlappedComp, AActor* otherActor, UPrimitiveComponent* otherComp,
+void ABaseCharacter::OnGroundBeginOverlap(	UPrimitiveComponent* overlappedComp, AActor* otherActor, UPrimitiveComponent* otherComp,
 											int32 otherBodyIndex, bool bFromSweep, const FHitResult& sweepResult)
 {
 	// Check for ground
 	// ----------------
 	const FName floorTag{ "Floor" };
-	if (otherActor->ActorHasTag(floorTag))
+	if (otherComp->ComponentHasTag(floorTag))
 	{
 		m_IsInAir = false;
 	}
 }
-void ABaseCharacter::OnCapsuleEndOverlap(	UPrimitiveComponent* overlappedComp, AActor* otherActor, UPrimitiveComponent* otherComp,
-											int32 otherBodyIndex, bool bFromSweep, const FHitResult& sweepResult)
+void ABaseCharacter::OnGroundEndOverlap(	UPrimitiveComponent* overlappedComp, AActor* otherActor, UPrimitiveComponent* otherComp,
+											int32 otherBodyIndex)
 {
 	// Check for ground
 	// ----------------

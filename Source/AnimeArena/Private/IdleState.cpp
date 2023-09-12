@@ -1,8 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 #include "IdleState.h"
 #include "../BasePlayerController.h"
-#include "StateMachineComponent.h"
-#include "GameFramework/CharacterMovementComponent.h"
 
 UIdleState::UIdleState()
 {

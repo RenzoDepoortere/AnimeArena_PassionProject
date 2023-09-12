@@ -30,6 +30,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components|Base")
 	class UCapsuleComponent* Collision;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components|Base")
+	class UBoxComponent* GroundCollision;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components|Base")
 	class USkeletalMeshComponent* Mesh;
 
 	// Camera
@@ -107,8 +109,10 @@ private:
 	void HandleDisplacement(float deltaTime);
 
 	// Overlap
-	void OnCapsuleBeginOverlap(	UPrimitiveComponent* overlappedComp, AActor* otherActor, UPrimitiveComponent* otherComp,
+	UFUNCTION()
+	void OnGroundBeginOverlap(	UPrimitiveComponent* overlappedComp, AActor* otherActor, UPrimitiveComponent* otherComp,
 								int32 otherBodyIndex, bool bFromSweep, const FHitResult& sweepResult);
-	void OnCapsuleEndOverlap(	UPrimitiveComponent* overlappedComp, AActor* otherActor, UPrimitiveComponent* otherComp,
-								int32 otherBodyIndex, bool bFromSweep, const FHitResult& sweepResult);
+	UFUNCTION()
+	void OnGroundEndOverlap(	UPrimitiveComponent* overlappedComp, AActor* otherActor, UPrimitiveComponent* otherComp,
+								int32 otherBodyIndex);
 };

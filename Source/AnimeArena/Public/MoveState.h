@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "BasePlayerState.h"
-#include "InputActionValue.h"
 #include "MoveState.generated.h"
 
 /**
@@ -23,10 +22,21 @@ public:
 	virtual void Tick(float deltaTime) override;
 
 private:
-	// Member functions
-	void Move(const FInputActionValue& value);
-	void StopMove();
+	// Member variables
+	// ----------------
+	bool m_IsInput;
+	FVector2D m_LastInput;
+	FVector m_CurrentDirection;
 
-	void Jump();
-	void Dash();
+	float m_MoveSpeed;
+
+	// Member functions
+	// ----------------
+	void Move(const FInputActionValue& value);
+	void StopMove() { m_IsInput = false; }
+
+	void HandleInput(float deltaTime);
+
+	//void Jump();
+	//void Dash();
 };

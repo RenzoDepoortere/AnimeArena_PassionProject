@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "BasePlayerState.h"
-#include "InputActionValue.h"
 #include "IdleState.generated.h"
 
 /**
