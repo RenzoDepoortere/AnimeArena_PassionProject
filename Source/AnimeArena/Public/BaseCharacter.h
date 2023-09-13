@@ -66,6 +66,8 @@ public:
 	float JumpSpeed;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Movement")
 	float MaxJumpTime;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Movement", meta = (UIMin = 0.0f, UIMax = 1.0f, ClampMin = 0.0f, ClampMax = 1.0f, SliderExponent = 0.1f))
+	float AirControl;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Movement")
 	float MaxFallSpeed;
@@ -97,7 +99,9 @@ public:
 	void SetShouldMove(bool shouldMove) { m_ShouldMove = shouldMove; }
 
 	UFUNCTION(BlueprintCallable, Category = "Movement")
-	void MoveCharacter(const FVector2D& input);
+	void MoveCharacter(const FVector2D& input, float inputMultiplier = 1.0f, bool rotateCharacter = true);
+	UFUNCTION(BlueprintCallable, Category = "Movement")
+	void RotateCharacter(const FVector2D& input);
 
 public:
 	FLandEvent* const GetLandEvent() { return &m_LandEvent; }
@@ -113,7 +117,6 @@ private:
 	// Movement
 	FVector2D m_LastMovementInput;
 	bool m_ShouldMove;
-	FVector2D m_MoveInput;
 	FVector m_CurrentDirection;
 	FRotator m_DesiredRotation;
 	float m_MoveSpeed;

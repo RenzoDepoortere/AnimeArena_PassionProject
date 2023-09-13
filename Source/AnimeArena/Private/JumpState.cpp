@@ -39,7 +39,8 @@ void UJumpState::OnEnter(AActor* pStateOwner)
 	auto pController{ GetPlayerController() };
 	if (pController)
 	{
-		/*pController->GetMoveEvent()->AddUObject(this, &UJumpState::Move);*/
+		pController->GetMoveEvent()->AddUObject(this, &UJumpState::Move);
+		pController->GetMoveStopEvent()->AddUObject(this, &UJumpState::StopMove);
 
 		pController->GetJumpEvent()->AddUObject(this, &UJumpState::Jump);
 		pController->GetJumpStopEvent()->AddUObject(this, &UJumpState::StopJump);
@@ -60,6 +61,7 @@ void UJumpState::OnExit()
 	if (pController)
 	{
 		pController->GetMoveEvent()->RemoveAll(this);
+		pController->GetMoveStopEvent()->RemoveAll(this);
 
 		pController->GetJumpEvent()->RemoveAll(this);
 		pController->GetJumpStopEvent()->RemoveAll(this);
@@ -76,12 +78,19 @@ void UJumpState::Tick(float deltaTime)
 	HandleInput(deltaTime);
 }
 
-//void UJumpState::Move(const FInputActionValue& value)
-//{
-//	// BaseMove
-//	const FVector2D movementVector{ value.Get<FVector2D>() };
-//	BaseMove(movementVector);
-//}
+void UJumpState::Move(const FInputActionValue& value)
+{
+	const FVector2D input{ value.Get<FVector2D>() };
+
+	auto pCharacter{ GetCharacter() };
+	pCharacter->MoveCharacter(input, pCharacter->AirControl);
+}
+void UJumpState::StopMove()
+{
+	//auto pCharacter{ GetCharacter() };
+	//pCharacter->SetShouldMove(false);
+}
+
 void UJumpState::Jump()
 {
 	// NOTE: This is for doubleJump and such

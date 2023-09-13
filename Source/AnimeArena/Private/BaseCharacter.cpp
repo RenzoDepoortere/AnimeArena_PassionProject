@@ -36,6 +36,7 @@ ABaseCharacter::ABaseCharacter()
 	, MoveAccelerationTime{ 0.2f }
 	, JumpSpeed{ 500.f }
 	, MaxJumpTime{ 0.2f }
+	, AirControl{ 0.5f }
 	, MaxFallSpeed{ 981.f }
 	, FallAccelerationTime{ 0.5f }
 	, RotationSpeed{ 20.f }
@@ -50,7 +51,6 @@ ABaseCharacter::ABaseCharacter()
 	// Movement
 	, m_LastMovementInput{}
 	, m_ShouldMove{ false }
-	, m_MoveInput{}
 	, m_CurrentDirection{}
 	, m_DesiredRotation{}
 	, m_MoveSpeed{}
@@ -170,10 +170,53 @@ void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	}
 }
 
-void ABaseCharacter::MoveCharacter(const FVector2D& input)
+void ABaseCharacter::MoveCharacter(const FVector2D& input, float inputMultiplier, bool rotateCharacter)
 {
+	// Set variables
+	// -------------
 	m_ShouldMove = true;
-	m_MoveInput = input;
+
+	// Calculate direction
+	// -------------------
+
+	// Get rotations
+	const FRotator rotation = m_pController->GetControlRotation();
+	const FRotator yawRotation{ 0, rotation.Yaw, 0 };
+
+	// Get directions
+	const FVector forwardDirection = FRotationMatrix(yawRotation).GetUnitAxis(EAxis::X);
+	const FVector rightDirection = FRotationMatrix(yawRotation).GetUnitAxis(EAxis::Y);
+
+	// Calculate direction
+	m_CurrentDirection = forwardDirection * input.Y + rightDirection * input.X;
+	m_CurrentDirection.Normalize();
+
+	// Calculate desiredRotation
+	// -------------------------
+	if (rotateCharacter) m_DesiredRotation = FRotationMatrix::MakeFromX(m_CurrentDirection).Rotator();
+
+	// Limit input as requested
+	m_CurrentDirection *= inputMultiplier;
+}
+void ABaseCharacter::RotateCharacter(const FVector2D& input)
+{
+	if (input.IsNearlyZero()) return;
+
+	// Get rotations
+	const FRotator rotation = m_pController->GetControlRotation();
+	const FRotator yawRotation{ 0, rotation.Yaw, 0 };
+
+	// Get directions
+	const FVector forwardDirection = FRotationMatrix(yawRotation).GetUnitAxis(EAxis::X);
+	const FVector rightDirection = FRotationMatrix(yawRotation).GetUnitAxis(EAxis::Y);
+
+	// Calculate direction
+	FVector currentDirection{ forwardDirection * input.Y + rightDirection * input.X };
+	currentDirection.Normalize();
+
+	// Calculate desiredRotation
+	// -------------------------
+	m_DesiredRotation = FRotationMatrix::MakeFromX(currentDirection).Rotator();
 }
 
 void ABaseCharacter::Look(const FInputActionValue& value)
@@ -216,17 +259,6 @@ void ABaseCharacter::HandleGravity(float deltaTime)
 }
 void ABaseCharacter::HandleMovement(float deltaTime)
 {
-	// Get Directions
-	// --------------
-
-	// Get rotations
-	const FRotator rotation = m_pController->GetControlRotation();
-	const FRotator yawRotation{ 0, rotation.Yaw, 0 };
-
-	// Get directions
-	const FVector forwardDirection = FRotationMatrix(yawRotation).GetUnitAxis(EAxis::X);
-	const FVector rightDirection = FRotationMatrix(yawRotation).GetUnitAxis(EAxis::Y);
-
 	// Calculate movement
 	// ------------------
 	const float moveAcceleration{ MaxMovementSpeed / MoveAccelerationTime };
@@ -234,13 +266,6 @@ void ABaseCharacter::HandleMovement(float deltaTime)
 	// If input
 	if (m_ShouldMove)
 	{
-		// Calculate currentDirection
-		m_CurrentDirection = forwardDirection * m_MoveInput.Y + rightDirection * m_MoveInput.X;
-		m_CurrentDirection.Normalize();
-
-		// New rotation
-		m_DesiredRotation = FRotationMatrix::MakeFromX(m_CurrentDirection).Rotator();
-
 		// Speed up
 		m_MoveSpeed += moveAcceleration * deltaTime;
 		if (MaxMovementSpeed < m_MoveSpeed) m_MoveSpeed = MaxMovementSpeed;
