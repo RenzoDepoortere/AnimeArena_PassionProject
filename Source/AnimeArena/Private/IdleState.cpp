@@ -11,6 +11,11 @@ void UIdleState::OnEnter(AActor* pStateOwner)
 {
 	UBasePlayerState::OnEnter(pStateOwner);
 
+	// Variables
+	// ---------
+	auto pCharacter{ GetCharacter() };
+	pCharacter->SetShouldMove(false);
+
 	// Subscribe to events
 	// -------------------
 

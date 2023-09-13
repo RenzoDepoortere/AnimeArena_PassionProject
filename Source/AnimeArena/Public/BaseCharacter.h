@@ -8,6 +8,7 @@
 #include "BaseCharacter.generated.h"
 
 DECLARE_MULTICAST_DELEGATE(FLandEvent);
+DECLARE_MULTICAST_DELEGATE(FNoMovement);
 
 UCLASS()
 class ANIMEARENA_API ABaseCharacter : public APawn
@@ -92,9 +93,15 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Movement")
 	void SetShouldFall(bool shouldFall) { m_ShouldFall = shouldFall; }
+	UFUNCTION(BlueprintCallable, Category = "Movement")
+	void SetShouldMove(bool shouldMove) { m_ShouldMove = shouldMove; }
+
+	UFUNCTION(BlueprintCallable, Category = "Movement")
+	void MoveCharacter(const FVector2D& input);
 
 public:
 	FLandEvent* const GetLandEvent() { return &m_LandEvent; }
+	FNoMovement* const GetNoMovementEvent() { return &m_NoMovementEvent; }
 
 private:
 	// Member variables
@@ -105,12 +112,18 @@ private:
 
 	// Movement
 	FVector2D m_LastMovementInput;
+	bool m_ShouldMove;
+	FVector2D m_MoveInput;
+	FVector m_CurrentDirection;
+	FRotator m_DesiredRotation;
+	float m_MoveSpeed;
+	FNoMovement m_NoMovementEvent;
+
 	bool m_IsInAir;
 	bool m_ShouldFall;
+	FLandEvent m_LandEvent;
 
 	FVector m_TotalVelocity;
-
-	FLandEvent m_LandEvent;
 
 	// Member functions
 	// ----------------
@@ -121,6 +134,7 @@ private:
 	void StopMove() { m_LastMovementInput = {}; }
 
 	void HandleGravity(float deltaTime);
+	void HandleMovement(float deltaTime);
 	void HandleDisplacement(float deltaTime);
 
 	// Overlap

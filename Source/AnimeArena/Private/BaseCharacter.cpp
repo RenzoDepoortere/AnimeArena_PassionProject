@@ -49,10 +49,16 @@ ABaseCharacter::ABaseCharacter()
 	, m_pController{}
 	// Movement
 	, m_LastMovementInput{}
+	, m_ShouldMove{ false }
+	, m_MoveInput{}
+	, m_CurrentDirection{}
+	, m_DesiredRotation{}
+	, m_MoveSpeed{}
+	, m_NoMovementEvent{}
 	, m_IsInAir{ true }
 	, m_ShouldFall{ true }
-	, m_TotalVelocity{}
 	, m_LandEvent{}
+	, m_TotalVelocity{}
 {
  	// Settings
 	// --------
@@ -148,6 +154,7 @@ void ABaseCharacter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	HandleGravity(DeltaTime);
+	HandleMovement(DeltaTime);
 	HandleDisplacement(DeltaTime);
 }
 void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -161,6 +168,12 @@ void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 		enhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ABaseCharacter::Look);
 		//enhancedInputComponent->BindAction(LockAction, ETriggerEvent::Started, this, &ABaseCharacter::LockToggle);
 	}
+}
+
+void ABaseCharacter::MoveCharacter(const FVector2D& input)
+{
+	m_ShouldMove = true;
+	m_MoveInput = input;
 }
 
 void ABaseCharacter::Look(const FInputActionValue& value)
@@ -200,6 +213,66 @@ void ABaseCharacter::HandleGravity(float deltaTime)
 	{
 		m_TotalVelocity.Z = 0.f;
 	}
+}
+void ABaseCharacter::HandleMovement(float deltaTime)
+{
+	// Get Directions
+	// --------------
+
+	// Get rotations
+	const FRotator rotation = m_pController->GetControlRotation();
+	const FRotator yawRotation{ 0, rotation.Yaw, 0 };
+
+	// Get directions
+	const FVector forwardDirection = FRotationMatrix(yawRotation).GetUnitAxis(EAxis::X);
+	const FVector rightDirection = FRotationMatrix(yawRotation).GetUnitAxis(EAxis::Y);
+
+	// Calculate movement
+	// ------------------
+	const float moveAcceleration{ MaxMovementSpeed / MoveAccelerationTime };
+
+	// If input
+	if (m_ShouldMove)
+	{
+		// Calculate currentDirection
+		m_CurrentDirection = forwardDirection * m_MoveInput.Y + rightDirection * m_MoveInput.X;
+		m_CurrentDirection.Normalize();
+
+		// New rotation
+		m_DesiredRotation = FRotationMatrix::MakeFromX(m_CurrentDirection).Rotator();
+
+		// Speed up
+		m_MoveSpeed += moveAcceleration * deltaTime;
+		if (MaxMovementSpeed < m_MoveSpeed) m_MoveSpeed = MaxMovementSpeed;
+	}
+	// No input
+	else
+	{
+		// Slow down
+		m_MoveSpeed -= moveAcceleration * deltaTime;
+		if (m_MoveSpeed < 0)
+		{
+			m_MoveSpeed = 0;
+
+			// Send event
+			if (m_NoMovementEvent.IsBound()) m_NoMovementEvent.Broadcast();
+		}
+	}
+
+	// Set total veloctity
+	// -------------------
+	const FVector horizontalVelocity{ m_CurrentDirection * m_MoveSpeed };
+
+	m_TotalVelocity.X = horizontalVelocity.X;
+	m_TotalVelocity.Y = horizontalVelocity.Y;
+
+	// Set rotation
+	// ------------
+	const FRotator currentRotation{ GetActorRotation() };
+	const float rotationSpeed{ RotationSpeed * deltaTime };
+
+	const FRotator newRotation{ FMath::Lerp(currentRotation, m_DesiredRotation, rotationSpeed) };
+	SetActorRotation(newRotation);
 }
 void ABaseCharacter::HandleDisplacement(float deltaTime)
 {

@@ -22,22 +22,13 @@ public:
 	virtual void Tick(float deltaTime) override;
 
 private:
-	// Member variables
-	// ----------------
-	bool m_IsInput;
-	FVector2D m_LastInput;
-	FVector m_CurrentDirection;
-
-	float m_MoveSpeed;
-	FRotator m_DesiredRotation;
-
 	// Member functions
 	// ----------------
 	void Move(const FInputActionValue& value);
-	void StopMove() { m_IsInput = false; }
+	void StopMove();
+	void NoMovement();
 
 	void Jump();
 
-	void HandleInput(float deltaTime);
 	//void Dash();
 };
