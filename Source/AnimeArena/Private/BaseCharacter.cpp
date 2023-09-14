@@ -18,6 +18,7 @@ ABaseCharacter::ABaseCharacter()
 
 	// Base
 	: Collision{}
+	, GroundCollision{}
 	, Mesh{}
 	// Camera
 	, SpringArm{}
@@ -42,6 +43,7 @@ ABaseCharacter::ABaseCharacter()
 	, RotationSpeed{ 20.f }
 	// Other
 	, CameraRotationSpeed{ 1.f }
+	, WallDetectionLength{ 50.f }
 
 	// Privates
 	// --------
@@ -77,11 +79,10 @@ ABaseCharacter::ABaseCharacter()
 	RootComponent = Collision;
 
 	// Ground collision
-	GroundCollision = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxCollision"));
+	GroundCollision = CreateDefaultSubobject<UBoxComponent>(TEXT("GroundCollision"));
 	GroundCollision->SetupAttachment(RootComponent);
 	GroundCollision->OnComponentBeginOverlap.AddDynamic(this, &ABaseCharacter::OnGroundBeginOverlap);
 	GroundCollision->OnComponentEndOverlap.AddDynamic(this, &ABaseCharacter::OnGroundEndOverlap);
-
 
 	// Mesh
 	Mesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Mesh"));
@@ -190,6 +191,25 @@ void ABaseCharacter::MoveCharacter(const FVector2D& input, float inputMultiplier
 	// Calculate direction
 	m_CurrentDirection = forwardDirection * input.Y + rightDirection * input.X;
 	m_CurrentDirection.Normalize();
+
+	// Wall Slide
+	// ----------
+
+	// Raycast params
+	FHitResult hitResult{};
+
+	const FVector startPos{ GetActorLocation() };
+	const FVector endPos{ startPos + m_CurrentDirection * WallDetectionLength };
+
+	const FCollisionQueryParams traceParam{ "Raycast", true, this };
+
+	// Raycast
+	if (GetWorld()->LineTraceSingleByChannel(hitResult, startPos, endPos, ECC_Visibility, traceParam))
+	{
+		// Calculate surface area (= right vector)
+		auto hitSurface{ -FVector::CrossProduct(hitResult.Normal, {0.f, 0.f, 1.f}) };
+		m_CurrentDirection = m_CurrentDirection.ProjectOnToNormal(hitSurface);
+	}
 
 	// Calculate desiredRotation
 	// -------------------------
@@ -310,8 +330,8 @@ void ABaseCharacter::OnGroundBeginOverlap(	UPrimitiveComponent* overlappedComp, 
 {
 	// Check for ground
 	// ----------------
-	const FName floorTag{ "Floor" };
-	if (otherComp->ComponentHasTag(floorTag))
+	//const FName floorTag{ "Floor" };
+	if (otherActor != this)
 	{
 		m_IsInAir = false;
 
@@ -324,8 +344,8 @@ void ABaseCharacter::OnGroundEndOverlap(	UPrimitiveComponent* overlappedComp, AA
 {
 	// Check for ground
 	// ----------------
-	const FName floorTag{ "Floor" };
-	if (otherComp->ComponentHasTag(floorTag))
+	//const FName floorTag{ "Floor" };
+	if (otherActor != this)
 	{
 		m_IsInAir = true;
 	}

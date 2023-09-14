@@ -80,6 +80,8 @@ public:
 	// Other
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Other")
 	float CameraRotationSpeed;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Other")
+	float WallDetectionLength;
 
 	// Functions
 	// ---------
