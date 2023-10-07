@@ -41,9 +41,11 @@ ABaseCharacter::ABaseCharacter()
 	, MaxFallSpeed{ 981.f }
 	, FallAccelerationTime{ 0.5f }
 	, RotationSpeed{ 20.f }
+	, MaxSlopeAngle{ 60.f }
 	// Other
 	, CameraRotationSpeed{ 1.f }
-	, WallDetectionLength{ 50.f }
+	, SkinWidth{ 0.1f }
+	, WallCollisionLength{ 15.f }
 
 	// Privates
 	// --------
@@ -156,6 +158,8 @@ void ABaseCharacter::Tick(float DeltaTime)
 
 	HandleGravity(DeltaTime);
 	HandleMovement(DeltaTime);
+
+	HandleWallCollision(DeltaTime);
 	HandleDisplacement(DeltaTime);
 }
 void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -191,25 +195,6 @@ void ABaseCharacter::MoveCharacter(const FVector2D& input, float inputMultiplier
 	// Calculate direction
 	m_CurrentDirection = forwardDirection * input.Y + rightDirection * input.X;
 	m_CurrentDirection.Normalize();
-
-	// Wall Slide
-	// ----------
-
-	// Raycast params
-	FHitResult hitResult{};
-
-	const FVector startPos{ GetActorLocation() };
-	const FVector endPos{ startPos + m_CurrentDirection * WallDetectionLength };
-
-	const FCollisionQueryParams traceParam{ "Raycast", true, this };
-
-	// Raycast
-	if (GetWorld()->LineTraceSingleByChannel(hitResult, startPos, endPos, ECC_Visibility, traceParam))
-	{
-		// Calculate surface area (= right vector)
-		auto hitSurface{ -FVector::CrossProduct(hitResult.Normal, {0.f, 0.f, 1.f}) };
-		m_CurrentDirection = m_CurrentDirection.ProjectOnToNormal(hitSurface);
-	}
 
 	// Calculate desiredRotation
 	// -------------------------
@@ -319,10 +304,62 @@ void ABaseCharacter::HandleMovement(float deltaTime)
 	const FRotator newRotation{ FMath::Lerp(currentRotation, m_DesiredRotation, rotationSpeed) };
 	SetActorRotation(newRotation);
 }
+
+void ABaseCharacter::HandleWallCollision(float /*deltaTime*/)
+{
+	// Raycast params
+	// --------------
+
+	// Basics
+	const FVector adjustedVelocity{ m_TotalVelocity.X, m_TotalVelocity.Y, 0 };
+	const double velocitySize{ adjustedVelocity.Size() };
+	const FVector velocityDirection{ adjustedVelocity.GetSafeNormal() };
+
+	// Hitresult
+	FHitResult hitResult{};
+
+	// Position
+	const FVector startPos{ GetActorLocation() };
+	const FVector endPos{ startPos + velocityDirection * (WallCollisionLength + SkinWidth) };
+
+	// Params
+	const FCollisionShape capsuleShape{ Collision->GetCollisionShape(SkinWidth) };
+	const FCollisionQueryParams traceParam{ "Raycast", true, this };
+
+	// Raycast
+	// -------
+	if (GetWorld()->SweepSingleByChannel(hitResult, startPos, endPos, FQuat::Identity, ECollisionChannel::ECC_Visibility, capsuleShape, traceParam))
+	{
+		const double surfaceAngle{ FMath::RadiansToDegrees(FMath::Acos(FVector::DotProduct(FVector::UpVector, hitResult.Normal))) };
+		GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Yellow, "SurfaceAngle: " + FString::SanitizeFloat(surfaceAngle));
+
+		// Wall
+		if (MaxSlopeAngle < surfaceAngle)	SlideAlongWall(adjustedVelocity, hitResult.Normal);
+		// Slope
+		else								SlideAlongSlope(adjustedVelocity, hitResult.Normal);
+	}
+}
 void ABaseCharacter::HandleDisplacement(float deltaTime)
 {
 	const FVector displacement{ m_TotalVelocity * deltaTime };
 	AddActorWorldOffset(displacement, true);
+}
+
+void ABaseCharacter::SlideAlongWall(const FVector& velocity, const FVector& hitNormal)
+{
+	FVector hitSurface{ FVector::CrossProduct(FVector::UpVector, hitNormal) };
+	hitSurface.Normalize();
+
+	const FVector desiredVelocity{ velocity.ProjectOnTo(hitSurface) };
+	m_TotalVelocity.X = desiredVelocity.X;
+	m_TotalVelocity.Y = desiredVelocity.Y;
+}
+void ABaseCharacter::SlideAlongSlope(const FVector& velocity, const FVector& hitNormal)
+{
+	const FVector desiredVelocity{ FVector::VectorPlaneProject(velocity, hitNormal) };
+	m_TotalVelocity.X = desiredVelocity.X;
+	m_TotalVelocity.Y = desiredVelocity.Y;
+	m_TotalVelocity.Z = desiredVelocity.Z;
 }
 
 void ABaseCharacter::OnGroundBeginOverlap(	UPrimitiveComponent* overlappedComp, AActor* otherActor, UPrimitiveComponent* otherComp,

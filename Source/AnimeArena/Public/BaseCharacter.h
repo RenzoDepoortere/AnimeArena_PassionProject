@@ -76,12 +76,16 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Movement")
 	float RotationSpeed;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Movement", meta = (UIMin = 0.0f, UIMax = 90.0f, ClampMin = 0.0f, ClampMax = 90.0f, SliderExponent = 1.f))
+	float MaxSlopeAngle;
 
 	// Other
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Other")
 	float CameraRotationSpeed;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Other")
-	float WallDetectionLength;
+	float SkinWidth;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Other")
+	float WallCollisionLength;
 
 	// Functions
 	// ---------
@@ -140,7 +144,12 @@ private:
 
 	void HandleGravity(float deltaTime);
 	void HandleMovement(float deltaTime);
+
+	void HandleWallCollision(float deltaTime);
 	void HandleDisplacement(float deltaTime);
+
+	void SlideAlongWall(const FVector& velocity, const FVector& hitNormal);
+	void SlideAlongSlope(const FVector& velocity, const FVector& hitNormal);
 
 	// Overlap
 	UFUNCTION()
