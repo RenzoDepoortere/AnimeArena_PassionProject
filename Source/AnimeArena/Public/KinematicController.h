@@ -45,6 +45,8 @@ public:
 	float JumpSpeed;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Air")
 	float MaxJumpTime;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Air")
+	float MaxJumpHoldTime;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Air", meta = (UIMin = 0.0f, UIMax = 1.0f, ClampMin = 0.0f, ClampMax = 1.0f, SliderExponent = 0.1f))
 	float AirControl;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Air")
@@ -67,11 +69,18 @@ public:
 	FVector& GetTotalVelocity() { return m_TotalVelocity; }
 	UFUNCTION(BlueprintCallable, Category = "General")
 	void RotateCharacter(const FVector2D& input);
+	UFUNCTION(BlueprintCallable, Category = "General")
+	FVector ConvertInputToWorld(const FVector2D& input);
+
+	UFUNCTION(BlueprintCallable, Category = "General")
+	void AddForce(const FVector& force, bool resetVelocity = false);
 
 	UFUNCTION(BlueprintCallable, Category = "Movement")
 	void MoveCharacter(const FVector2D& input, bool rotateCharacter = true);
 	UFUNCTION(BlueprintCallable, Category = "Movement")
 	void SetShouldMove(bool shouldMove) { m_ShouldMove = shouldMove; }
+	UFUNCTION(BlueprintCallable, Category = "Movement")
+	void SetKeepMomentum(bool keepMomentum) { m_KeepMomentum = keepMomentum; }
 
 	UFUNCTION(BlueprintCallable, Category = "Air")
 	bool GetIsInAir() const { return m_IsInAir; }
@@ -98,6 +107,7 @@ private:
 	// Grounded
 	float m_MoveSpeed;
 	bool m_ShouldMove;
+	bool m_KeepMomentum;
 
 	// Air
 	bool m_IsInAir;
@@ -114,6 +124,7 @@ private:
 	void HandleMovement(float deltaTime);
 	void HandleWallCollision(float deltaTime);
 	void HandleDisplacement(float deltaTime);
+	void HandleRotation(float deltaTime);
 
 	void SlideAlongWall(const FVector& velocity, const FVector& hitNormal);
 	void SlideAlongSlope(const FVector& velocity, const FVector& hitNormal);

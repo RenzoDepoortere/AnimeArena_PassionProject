@@ -24,7 +24,7 @@ public:
 private:
 	// Member variables
 	// ----------------
-	bool m_IsInput;
+	bool m_HasStoppedFall;
 	float m_CurrentJumpTime;
 
 	// Member functions
@@ -35,7 +35,7 @@ private:
 	void Jump();
 	void StopJump();
 
-	void HandleInput(float deltaTime);
+	void HandleJumpTime(float deltaTime);
 	void Landed();
 
 	//void Dash();

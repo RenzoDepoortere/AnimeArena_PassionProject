@@ -30,7 +30,7 @@ void UMoveState::OnEnter(AActor* pStateOwner)
 		pController->GetMoveStopEvent()->AddUObject(this, &UMoveState::StopMove);
 
 		pController->GetJumpEvent()->AddUObject(this, &UMoveState::Jump);
-		//pController->GetDashEvent()->AddUObject(this, &UMoveState::Dash);
+		pController->GetDashEvent()->AddUObject(this, &UMoveState::Dash);
 	}
 
 	// Player
@@ -49,7 +49,7 @@ void UMoveState::OnExit()
 		pController->GetMoveStopEvent()->RemoveAll(this);
 
 		pController->GetJumpEvent()->RemoveAll(this);
-		//pController->GetDashEvent()->RemoveAll(this);
+		pController->GetDashEvent()->RemoveAll(this);
 	}
 
 	// Player
@@ -93,9 +93,7 @@ void UMoveState::Jump()
 	pStateMachine->SwitchStateByKey({ "Jump" });
 }
 
-//void UMoveState::Dash()
-//{
-//	//// Change to dashState
-//	//auto pStateMachine{ GetCharacter()->GetComponentByClass<UStateMachineComponent>() };
-//	//pStateMachine->SwitchStateByKey({ "Dash" });
-//}
+void UMoveState::Dash()
+{
+	GetCharacter()->Dash();
+}

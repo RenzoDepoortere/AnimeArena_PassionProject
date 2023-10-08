@@ -32,6 +32,11 @@ ABaseCharacter::ABaseCharacter()
 	// Input
 	, DefaultMappingContext{}
 	, LookAction{}
+	// Movement
+	, DashSpeed{ 1500.f }
+	, DashPerfectMultiplier{ 1.5f }
+	, DashCooldown{ 0.5f }
+	, DashGraceTime{ 0.1f }
 	// Other
 	, CameraRotationSpeed{ 1.f }
 
@@ -42,6 +47,7 @@ ABaseCharacter::ABaseCharacter()
 	, m_pController{}
 	// Movement
 	, m_LastMovementInput{}
+	, m_CurrentDashTime{}
 {
  	// Settings
 	// --------
@@ -131,6 +137,8 @@ void ABaseCharacter::Destroyed()
 void ABaseCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	HandleDashTimer(DeltaTime);
 }
 void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
@@ -145,6 +153,26 @@ void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	}
 }
 
+void ABaseCharacter::Dash()
+{
+	// On cooldown
+	if (0 < m_CurrentDashTime) return;
+
+	// Calculate dashSpeed
+	const bool isPerfectTimed{  -DashGraceTime <= m_CurrentDashTime };
+	const float dashSpeed = isPerfectTimed ? DashSpeed * DashPerfectMultiplier : DashSpeed;
+
+	// Apply speed
+	const FVector dashDirection{ KinematicController->ConvertInputToWorld(m_LastMovementInput) * dashSpeed };
+	KinematicController->AddForce(dashDirection, true);
+
+	// Reset timer
+	m_CurrentDashTime = DashCooldown;
+
+	// Debug
+	if (isPerfectTimed) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Purple, "PERFECT!");
+}
+
 void ABaseCharacter::Look(const FInputActionValue& value)
 {
 	// Input is a Vector2D
@@ -157,4 +185,10 @@ void ABaseCharacter::Look(const FInputActionValue& value)
 		AddControllerYawInput(lookAxisVector.X);
 		AddControllerPitchInput(lookAxisVector.Y);
 	}
+}
+
+void ABaseCharacter::HandleDashTimer(float deltaTime)
+{
+	if (m_CurrentDashTime <= -DashGraceTime) return;
+	m_CurrentDashTime -= deltaTime;
 }

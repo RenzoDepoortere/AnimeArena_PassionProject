@@ -53,6 +53,16 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	class UInputAction* LookAction;
 
+	// Movement
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Movement")
+	float DashSpeed;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Movement")
+	float DashPerfectMultiplier;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Movement")
+	float DashCooldown;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Movement")
+	float DashGraceTime;
+
 	// Other
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Other")
 	float CameraRotationSpeed;
@@ -63,6 +73,13 @@ public:
 	// Movement
 	UFUNCTION(BlueprintCallable, Category = "Movement")
 	FVector2D GetLastMovementInput() const { return m_LastMovementInput; }
+	
+	UFUNCTION(BlueprintCallable, Category = "Movement")
+	float GetCurrentDashTime() const { return m_CurrentDashTime; }
+
+public:
+	void Dash();
+
 
 private:
 	// Member variables
@@ -73,6 +90,7 @@ private:
 
 	// Movement
 	FVector2D m_LastMovementInput;
+	float m_CurrentDashTime;
 
 	// Member functions
 	// ----------------
@@ -81,4 +99,6 @@ private:
 	// Movement
 	void Move(const FInputActionValue& value) { m_LastMovementInput = value.Get<FVector2D>(); }
 	void StopMove() { m_LastMovementInput = {}; }
+
+	void HandleDashTimer(float deltaTime);
 };

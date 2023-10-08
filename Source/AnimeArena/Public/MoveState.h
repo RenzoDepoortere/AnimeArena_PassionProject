@@ -29,6 +29,5 @@ private:
 	void NoMovement();
 
 	void Jump();
-
-	//void Dash();
+	void Dash();
 };

@@ -3,7 +3,7 @@
 #include "KinematicController.h"
 
 UJumpState::UJumpState()
-	: m_IsInput{}
+	: m_HasStoppedFall{ false }
 	, m_CurrentJumpTime{}
 {
 	StateDisplayName = "Jump";
@@ -16,21 +16,23 @@ void UJumpState::OnEnter(AActor* pStateOwner)
 	// Variables
 	// ---------
 	m_CurrentJumpTime = 0.f;
+	m_HasStoppedFall = false;
 
 	auto pKinematicController{ GetKinematicController() };
 	const bool wasInput{ !pKinematicController->GetIsInAir() };
-	m_IsInput = wasInput;
+
+	// Kinematic controller
+	// --------------------
 
 	// Check if pressed jump
 	if (wasInput)
 	{
-		pKinematicController->GetTotalVelocity().Z = pKinematicController->JumpSpeed;
+		pKinematicController->AddForce(FVector{ 0.f, 0.f, pKinematicController->JumpSpeed });
 		pKinematicController->SetShouldFall(false);
 	}
-	else
-	{
-
-	}
+	
+	// Keep momentum
+	pKinematicController->SetKeepMomentum(true);
 
 	// Subscribe to events
 	// -------------------
@@ -53,6 +55,16 @@ void UJumpState::OnEnter(AActor* pStateOwner)
 }
 void UJumpState::OnExit() 
 {
+	// Kinematic controller
+	// --------------------
+
+	// Fall
+	auto pKinematicController{ GetKinematicController() };
+	pKinematicController->SetShouldFall(true);
+
+	// Lose momentum
+	pKinematicController->SetKeepMomentum(false);
+
 	// Unsubscribe from events
 	// -----------------------
 
@@ -66,16 +78,16 @@ void UJumpState::OnExit()
 		pController->GetJumpEvent()->RemoveAll(this);
 		pController->GetJumpStopEvent()->RemoveAll(this);
 
-		pController->GetDashEvent()->RemoveAll(this);
+		//pController->GetDashEvent()->RemoveAll(this);
 	}
 
 	// Player
-	auto pKinematicController{ GetKinematicController() };
 	pKinematicController->GetLandEvent()->RemoveAll(this);
 }
 void UJumpState::Tick(float deltaTime)
 {
-	HandleInput(deltaTime);
+	m_CurrentJumpTime += deltaTime;
+	HandleJumpTime(deltaTime);
 }
 
 void UJumpState::Move(const FInputActionValue& value)
@@ -87,8 +99,7 @@ void UJumpState::Move(const FInputActionValue& value)
 }
 void UJumpState::StopMove()
 {
-	//auto pCharacter{ GetCharacter() };
-	//pCharacter->SetShouldMove(false);
+	
 }
 
 void UJumpState::Jump()
@@ -97,51 +108,24 @@ void UJumpState::Jump()
 }
 void UJumpState::StopJump()
 {
-	m_IsInput = false;
-	auto pKinematicController{ GetKinematicController() };
-	pKinematicController->SetShouldFall(true);
+	// NOTE: This for charge jump
 }
 
-void UJumpState::HandleInput(float deltaTime)
+void UJumpState::HandleJumpTime(float deltaTime)
 {
-	// Keep going up with input
-	if (m_IsInput)
+	if (m_HasStoppedFall) return;
+	
+	// Fall down after time
+	auto pKinematicController{ GetKinematicController() };
+	if (pKinematicController->MaxJumpTime <= m_CurrentJumpTime)
 	{
-		auto pKinematicController{ GetKinematicController() };
-		pKinematicController->GetTotalVelocity().Z = pKinematicController->JumpSpeed;
-
-		// After some time, stop going up
-		m_CurrentJumpTime += deltaTime;
-		if (pKinematicController->MaxJumpTime < m_CurrentJumpTime)
-		{
-			m_IsInput = false;
-			pKinematicController->SetShouldFall(true);
-		}
+		m_HasStoppedFall = true;
+		pKinematicController->SetShouldFall(true);
 	}
 }
 void UJumpState::Landed()
 {
-	// Fall
-	auto pKinematicController{ GetKinematicController() };
-	pKinematicController->SetShouldFall(true);
-
 	// Change to idleState
 	auto pStateMachine{ GetStateOwner()->GetComponentByClass<UStateMachineComponent>() };
 	pStateMachine->SwitchStateByKey({ "Idle" });
 }
-
-//void UJumpState::Dash()
-//{
-//	//auto pCharacter{ GetCharacter() };
-//
-//	//// Check if used airDash before
-//	//if (pCharacter->GetUsedAirDash() == false)
-//	//{
-//	//	// Set usedAirDash
-//	//	pCharacter->SetUsedAirDash(true);
-//
-//	//	// Change to dashState
-//	//	auto pStateMachine{ GetStateOwner()->GetComponentByClass<UStateMachineComponent>() };
-//	//	pStateMachine->SwitchStateByKey({ "Dash" });
-//	//}
-//}

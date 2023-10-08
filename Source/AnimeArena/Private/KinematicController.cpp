@@ -16,7 +16,8 @@ UKinematicController::UKinematicController()
 
 	// Air
 	, JumpSpeed{ 500.f }
-	, MaxJumpTime{ 0.2f }
+	, MaxJumpTime{ 0.1f }
+	, MaxJumpHoldTime{ 0.2f }
 	, AirControl{ 0.5f }
 	, MaxFallSpeed{ 981.f }
 	, FallAccelerationTime{ 0.5f }
@@ -40,6 +41,7 @@ UKinematicController::UKinematicController()
 	// Grounded
 	, m_MoveSpeed{}
 	, m_ShouldMove{ false }
+	, m_KeepMomentum{ false }
 
 	// Air
 	, m_IsInAir{ false }
@@ -81,7 +83,9 @@ void UKinematicController::TickComponent(float DeltaTime, ELevelTick TickType, F
 	HandleMovement(DeltaTime);
 	
 	HandleWallCollision(DeltaTime);
+
 	HandleDisplacement(DeltaTime);
+	HandleRotation(DeltaTime);
 }
 
 void UKinematicController::RotateCharacter(const FVector2D& input)
@@ -115,7 +119,14 @@ void UKinematicController::MoveCharacter(const FVector2D& input, bool rotateChar
 
 	// Calculate direction
 	// -------------------
+	m_CurrentDirection = ConvertInputToWorld(input);
 
+	// Calculate desiredRotation
+	// -------------------------
+	if (rotateCharacter) m_DesiredRotation = FRotationMatrix::MakeFromX(m_CurrentDirection).Rotator();
+}
+FVector UKinematicController::ConvertInputToWorld(const FVector2D& input)
+{
 	// Get rotations
 	const FRotator rotation = m_pController->GetControlRotation();
 	const FRotator yawRotation{ 0, rotation.Yaw, 0 };
@@ -125,12 +136,22 @@ void UKinematicController::MoveCharacter(const FVector2D& input, bool rotateChar
 	const FVector rightDirection = FRotationMatrix(yawRotation).GetUnitAxis(EAxis::Y);
 
 	// Calculate direction
-	m_CurrentDirection = forwardDirection * input.Y + rightDirection * input.X;
-	m_CurrentDirection.Normalize();
+	FVector worldDirection = forwardDirection * input.Y + rightDirection * input.X;
+	worldDirection.Normalize();
 
-	// Calculate desiredRotation
-	// -------------------------
-	if (rotateCharacter) m_DesiredRotation = FRotationMatrix::MakeFromX(m_CurrentDirection).Rotator();
+	// Return
+	return worldDirection;
+}
+
+void UKinematicController::AddForce(const FVector& force, bool resetVelocity)
+{
+	// Add force
+	if (resetVelocity) m_TotalVelocity = FVector::ZeroVector;
+	m_TotalVelocity += force;
+
+	// Move speed
+	const FVector2D horizontalVelocity{ m_TotalVelocity.X, m_TotalVelocity.Y };
+	m_MoveSpeed = horizontalVelocity.Length();
 }
 
 void UKinematicController::CheckGround(float deltaTime)
@@ -202,28 +223,31 @@ void UKinematicController::HandleGravity(float deltaTime)
 }
 void UKinematicController::HandleMovement(float deltaTime)
 {
-	// Calculate movement
-	// ------------------
-	const float moveAcceleration = FMath::IsNearlyEqual(MoveAccelerationTime, 0.f) ? MaxMovementSpeed : MaxMovementSpeed / MoveAccelerationTime;
+	if (m_KeepMomentum == false)
+	{
+		// Calculate movement
+		// ------------------
+		const float moveAcceleration = FMath::IsNearlyEqual(MoveAccelerationTime, 0.f) ? MaxMovementSpeed : MaxMovementSpeed / MoveAccelerationTime;
 
-	// If input
-	if (m_ShouldMove)
-	{
-		// Speed up
-		m_MoveSpeed += moveAcceleration * deltaTime;
-		if (MaxMovementSpeed < m_MoveSpeed) m_MoveSpeed = MaxMovementSpeed;
-	}
-	// No input
-	else
-	{
-		// Slow down
-		m_MoveSpeed -= moveAcceleration * deltaTime;
-		if (m_MoveSpeed < 0)
+		// If input
+		if (m_ShouldMove && m_MoveSpeed < MaxMovementSpeed)
 		{
-			m_MoveSpeed = 0;
+			// Speed up
+			m_MoveSpeed += moveAcceleration * deltaTime;
+			if (MaxMovementSpeed < m_MoveSpeed) m_MoveSpeed = MaxMovementSpeed;
+		}
+		// No input
+		else
+		{
+			// Slow down
+			m_MoveSpeed -= moveAcceleration * deltaTime;
+			if (m_MoveSpeed < 0)
+			{
+				m_MoveSpeed = 0;
 
-			// Send event
-			if (m_NoMovementEvent.IsBound()) m_NoMovementEvent.Broadcast();
+				// Send event
+				if (m_NoMovementEvent.IsBound()) m_NoMovementEvent.Broadcast();
+			}
 		}
 	}
 
@@ -234,14 +258,6 @@ void UKinematicController::HandleMovement(float deltaTime)
 
 	m_TotalVelocity.X = horizontalVelocity.X;
 	m_TotalVelocity.Y = horizontalVelocity.Y;
-
-	// Set rotation
-	// ------------
-	const FRotator currentRotation{ m_pActor->GetActorRotation() };
-	const float rotationSpeed{ RotationSpeed * deltaTime };
-
-	const FRotator newRotation{ FMath::Lerp(currentRotation, m_DesiredRotation, rotationSpeed) };
-	m_pActor->SetActorRotation(newRotation);
 }
 void UKinematicController::HandleWallCollision(float /*deltaTime*/)
 {
@@ -280,6 +296,16 @@ void UKinematicController::HandleDisplacement(float deltaTime)
 {
 	const FVector displacement{ m_TotalVelocity * deltaTime };
 	m_pActor->AddActorWorldOffset(displacement, true);
+}
+void UKinematicController::HandleRotation(float deltaTime)
+{
+	// Set rotation
+	// ------------
+	const FRotator currentRotation{ m_pActor->GetActorRotation() };
+	const float rotationSpeed{ RotationSpeed * deltaTime };
+
+	const FRotator newRotation{ FMath::Lerp(currentRotation, m_DesiredRotation, rotationSpeed) };
+	m_pActor->SetActorRotation(newRotation);
 }
 
 void UKinematicController::SlideAlongWall(const FVector& velocity, const FVector& hitNormal)
