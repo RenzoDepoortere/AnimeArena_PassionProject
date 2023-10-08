@@ -121,6 +121,10 @@ void UJumpState::HandleInput(float deltaTime)
 }
 void UJumpState::Landed()
 {
+	// Fall
+	auto pCharacter{ GetCharacter() };
+	pCharacter->SetShouldFall(true);
+
 	// Change to idleState
 	auto pStateMachine{ GetStateOwner()->GetComponentByClass<UStateMachineComponent>() };
 	pStateMachine->SwitchStateByKey({ "Idle" });

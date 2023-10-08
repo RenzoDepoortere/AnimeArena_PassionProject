@@ -33,8 +33,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components|Base")
 	class UCapsuleComponent* Collision;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components|Base")
-	class UBoxComponent* GroundCollision;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components|Base")
 	class USkeletalMeshComponent* Mesh;
 
 	// Camera
@@ -86,6 +84,8 @@ public:
 	float SkinWidth;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Other")
 	float WallCollisionLength;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Other")
+	float GroundCollisionLength;
 
 	// Functions
 	// ---------
@@ -142,6 +142,8 @@ private:
 	void Move(const FInputActionValue& value) { m_LastMovementInput = value.Get<FVector2D>(); }
 	void StopMove() { m_LastMovementInput = {}; }
 
+	void CheckGround(float deltaTime);
+
 	void HandleGravity(float deltaTime);
 	void HandleMovement(float deltaTime);
 
@@ -150,12 +152,4 @@ private:
 
 	void SlideAlongWall(const FVector& velocity, const FVector& hitNormal);
 	void SlideAlongSlope(const FVector& velocity, const FVector& hitNormal);
-
-	// Overlap
-	UFUNCTION()
-	void OnGroundBeginOverlap(	UPrimitiveComponent* overlappedComp, AActor* otherActor, UPrimitiveComponent* otherComp,
-								int32 otherBodyIndex, bool bFromSweep, const FHitResult& sweepResult);
-	UFUNCTION()
-	void OnGroundEndOverlap(	UPrimitiveComponent* overlappedComp, AActor* otherActor, UPrimitiveComponent* otherComp,
-								int32 otherBodyIndex);
 };

@@ -18,7 +18,6 @@ ABaseCharacter::ABaseCharacter()
 
 	// Base
 	: Collision{}
-	, GroundCollision{}
 	, Mesh{}
 	// Camera
 	, SpringArm{}
@@ -46,6 +45,7 @@ ABaseCharacter::ABaseCharacter()
 	, CameraRotationSpeed{ 1.f }
 	, SkinWidth{ 0.1f }
 	, WallCollisionLength{ 15.f }
+	, GroundCollisionLength{ 10.f }
 
 	// Privates
 	// --------
@@ -79,12 +79,6 @@ ABaseCharacter::ABaseCharacter()
 	Collision->SetCollisionProfileName("Pawn");
 
 	RootComponent = Collision;
-
-	// Ground collision
-	GroundCollision = CreateDefaultSubobject<UBoxComponent>(TEXT("GroundCollision"));
-	GroundCollision->SetupAttachment(RootComponent);
-	GroundCollision->OnComponentBeginOverlap.AddDynamic(this, &ABaseCharacter::OnGroundBeginOverlap);
-	GroundCollision->OnComponentEndOverlap.AddDynamic(this, &ABaseCharacter::OnGroundEndOverlap);
 
 	// Mesh
 	Mesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Mesh"));
@@ -155,6 +149,8 @@ void ABaseCharacter::Destroyed()
 void ABaseCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	CheckGround(DeltaTime);
 
 	HandleGravity(DeltaTime);
 	HandleMovement(DeltaTime);
@@ -238,6 +234,50 @@ void ABaseCharacter::Look(const FInputActionValue& value)
 	}
 }
 
+void ABaseCharacter::CheckGround(float deltaTime)
+{
+	const bool previousAirState{ m_IsInAir };
+
+	// Raycast params
+	// --------------
+
+	// Hitresult
+	FHitResult hitResult{};
+
+	// Position
+	const FVector startPos{ GetActorLocation() };
+	const FVector endPos{ startPos + FVector::DownVector * (GroundCollisionLength + SkinWidth) };
+
+	// Params
+	const FCollisionShape capsuleShape{ Collision->GetCollisionShape(SkinWidth) };
+	const FCollisionQueryParams traceParam{ "Raycast", true, this };
+
+	// Raycast
+	// -------
+	if (GetWorld()->SweepSingleByChannel(hitResult, startPos, endPos, FQuat::Identity, ECollisionChannel::ECC_Visibility, capsuleShape, traceParam))
+	{
+		const double surfaceAngle{ FMath::RadiansToDegrees(FMath::Acos(FVector::DotProduct(FVector::UpVector, hitResult.Normal))) };
+
+		// On ground or slope
+		if (surfaceAngle <= MaxSlopeAngle)	m_IsInAir = false;
+		// On Wall
+		else								m_IsInAir = true;
+	}
+	// Nothing hit
+	else
+	{
+		m_IsInAir = true;
+	}
+
+	// If landed on ground
+	// -------------------
+	if (previousAirState != m_IsInAir && m_IsInAir == false)
+	{
+		// Send event
+		if (m_LandEvent.IsBound()) m_LandEvent.Broadcast();
+	}
+}
+
 void ABaseCharacter::HandleGravity(float deltaTime)
 {
 	// Check conditions
@@ -250,7 +290,7 @@ void ABaseCharacter::HandleGravity(float deltaTime)
 	if (m_IsInAir)
 	{
 		// Decrease Z component
-		const float fallAcceleration{ MaxFallSpeed / FallAccelerationTime };
+		const float fallAcceleration = FMath::IsNearlyEqual(FallAccelerationTime, 0.f) ? MaxFallSpeed : MaxFallSpeed / FallAccelerationTime;
 		m_TotalVelocity.Z -= fallAcceleration * deltaTime;
 
 		// Make sure not going faster then max
@@ -266,7 +306,7 @@ void ABaseCharacter::HandleMovement(float deltaTime)
 {
 	// Calculate movement
 	// ------------------
-	const float moveAcceleration{ MaxMovementSpeed / MoveAccelerationTime };
+	const float moveAcceleration = FMath::IsNearlyEqual(MoveAccelerationTime, 0.f) ? MaxMovementSpeed : MaxMovementSpeed / MoveAccelerationTime;
 
 	// If input
 	if (m_ShouldMove)
@@ -331,8 +371,7 @@ void ABaseCharacter::HandleWallCollision(float /*deltaTime*/)
 	if (GetWorld()->SweepSingleByChannel(hitResult, startPos, endPos, FQuat::Identity, ECollisionChannel::ECC_Visibility, capsuleShape, traceParam))
 	{
 		const double surfaceAngle{ FMath::RadiansToDegrees(FMath::Acos(FVector::DotProduct(FVector::UpVector, hitResult.Normal))) };
-		GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Yellow, "SurfaceAngle: " + FString::SanitizeFloat(surfaceAngle));
-
+	
 		// Wall
 		if (MaxSlopeAngle < surfaceAngle)	SlideAlongWall(adjustedVelocity, hitResult.Normal);
 		// Slope
@@ -360,30 +399,4 @@ void ABaseCharacter::SlideAlongSlope(const FVector& velocity, const FVector& hit
 	m_TotalVelocity.X = desiredVelocity.X;
 	m_TotalVelocity.Y = desiredVelocity.Y;
 	m_TotalVelocity.Z = desiredVelocity.Z;
-}
-
-void ABaseCharacter::OnGroundBeginOverlap(	UPrimitiveComponent* overlappedComp, AActor* otherActor, UPrimitiveComponent* otherComp,
-											int32 otherBodyIndex, bool bFromSweep, const FHitResult& sweepResult)
-{
-	// Check for ground
-	// ----------------
-	//const FName floorTag{ "Floor" };
-	if (otherActor != this)
-	{
-		m_IsInAir = false;
-
-		// Send event
-		if (m_LandEvent.IsBound()) m_LandEvent.Broadcast();
-	}
-}
-void ABaseCharacter::OnGroundEndOverlap(	UPrimitiveComponent* overlappedComp, AActor* otherActor, UPrimitiveComponent* otherComp,
-											int32 otherBodyIndex)
-{
-	// Check for ground
-	// ----------------
-	//const FName floorTag{ "Floor" };
-	if (otherActor != this)
-	{
-		m_IsInAir = true;
-	}
 }
