@@ -1,5 +1,6 @@
 #include "BasePlayerState.h"
 #include "../BasePlayerController.h"
+#include "KinematicController.h"
 
 #include <Kismet/GameplayStatics.h>
 
@@ -10,6 +11,7 @@ void UBasePlayerState::OnEnter(AActor* pStateOwner)
 	// Get owners
 	m_pCharacter = Cast<ABaseCharacter>(pStateOwner);
 	m_pPlayerController = Cast<ABasePlayerController>(UGameplayStatics::GetPlayerController(this, 0));
+	m_pKinematicController = Cast<UKinematicController>(m_pCharacter->FindComponentByClass(UKinematicController::StaticClass()));
 }
 
 void UBasePlayerState::BaseMove(const FVector2D& direction)

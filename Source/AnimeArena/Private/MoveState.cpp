@@ -2,6 +2,7 @@
 #include "MoveState.h"
 #include "../BasePlayerController.h"
 #include "GameFramework/Controller.h"
+#include "KinematicController.h"
 
 UMoveState::UMoveState()
 {
@@ -14,9 +15,9 @@ void UMoveState::OnEnter(AActor* pStateOwner)
 
 	// Variables
 	// ---------
-	auto pPlayer{ GetCharacter() };
-
-	pPlayer->MoveCharacter(pPlayer->GetLastMovementInput());
+	auto pCharacter{ GetCharacter() };
+	auto pKinematicController{ GetKinematicController() };
+	pKinematicController->MoveCharacter(pCharacter->GetLastMovementInput());
 
 	// Subscribe to events
 	// -------------------
@@ -33,7 +34,7 @@ void UMoveState::OnEnter(AActor* pStateOwner)
 	}
 
 	// Player
-	pPlayer->GetNoMovementEvent()->AddUObject(this, &UMoveState::NoMovement);
+	pKinematicController->GetNoMovementEvent()->AddUObject(this, &UMoveState::NoMovement);
 }
 void UMoveState::OnExit()
 {
@@ -52,8 +53,8 @@ void UMoveState::OnExit()
 	}
 
 	// Player
-	auto pPlayer{ GetCharacter() };
-	pPlayer->GetNoMovementEvent()->RemoveAll(this);
+	auto pKinematicController{ GetKinematicController() };
+	pKinematicController->GetNoMovementEvent()->RemoveAll(this);
 }
 void UMoveState::Tick(float deltaTime)
 {
@@ -70,13 +71,13 @@ void UMoveState::Move(const FInputActionValue& value)
 {
 	const FVector2D input{ value.Get<FVector2D>() };
 
-	auto pCharacter{ GetCharacter() };
-	pCharacter->MoveCharacter(input);
+	auto pKinematicController{ GetKinematicController() };
+	pKinematicController->MoveCharacter(input);
 }
 void UMoveState::StopMove()
 {
-	auto pCharacter{ GetCharacter() };
-	pCharacter->SetShouldMove(false);
+	auto pKinematicController{ GetKinematicController() };
+	pKinematicController->SetShouldMove(false);
 }
 void UMoveState::NoMovement()
 {

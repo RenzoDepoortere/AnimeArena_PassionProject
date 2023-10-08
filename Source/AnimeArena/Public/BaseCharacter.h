@@ -7,9 +7,6 @@
 #include "InputActionValue.h"
 #include "BaseCharacter.generated.h"
 
-DECLARE_MULTICAST_DELEGATE(FLandEvent);
-DECLARE_MULTICAST_DELEGATE(FNoMovement);
-
 UCLASS()
 class ANIMEARENA_API ABaseCharacter : public APawn
 {
@@ -44,6 +41,8 @@ public:
 	// Other
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Component|Other")
 	class UStateMachineComponent* StateMachineComponent;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Component|Other")
+	class UKinematicController* KinematicController;
 
 	// Variables
 	// ---------
@@ -54,38 +53,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	class UInputAction* LookAction;
 
-	// Movement
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Movement")
-	float MaxMovementSpeed;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Movement")
-	float MoveAccelerationTime;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Movement")
-	float JumpSpeed;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Movement")
-	float MaxJumpTime;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Movement", meta = (UIMin = 0.0f, UIMax = 1.0f, ClampMin = 0.0f, ClampMax = 1.0f, SliderExponent = 0.1f))
-	float AirControl;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Movement")
-	float MaxFallSpeed;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Movement")
-	float FallAccelerationTime;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Movement")
-	float RotationSpeed;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Movement", meta = (UIMin = 0.0f, UIMax = 90.0f, ClampMin = 0.0f, ClampMax = 90.0f, SliderExponent = 1.f))
-	float MaxSlopeAngle;
-
 	// Other
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Other")
 	float CameraRotationSpeed;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Other")
-	float SkinWidth;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Other")
-	float WallCollisionLength;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Other")
-	float GroundCollisionLength;
 
 	// Functions
 	// ---------
@@ -93,25 +63,6 @@ public:
 	// Movement
 	UFUNCTION(BlueprintCallable, Category = "Movement")
 	FVector2D GetLastMovementInput() const { return m_LastMovementInput; }
-	UFUNCTION(BlueprintCallable, Category = "Movement")
-	bool GetIsInAir() const { return m_IsInAir; }
-
-	UFUNCTION(BlueprintCallable, Category = "Movement")
-	FVector& GetTotalVelocity() { return m_TotalVelocity; }
-
-	UFUNCTION(BlueprintCallable, Category = "Movement")
-	void SetShouldFall(bool shouldFall) { m_ShouldFall = shouldFall; }
-	UFUNCTION(BlueprintCallable, Category = "Movement")
-	void SetShouldMove(bool shouldMove) { m_ShouldMove = shouldMove; }
-
-	UFUNCTION(BlueprintCallable, Category = "Movement")
-	void MoveCharacter(const FVector2D& input, float inputMultiplier = 1.0f, bool rotateCharacter = true);
-	UFUNCTION(BlueprintCallable, Category = "Movement")
-	void RotateCharacter(const FVector2D& input);
-
-public:
-	FLandEvent* const GetLandEvent() { return &m_LandEvent; }
-	FNoMovement* const GetNoMovementEvent() { return &m_NoMovementEvent; }
 
 private:
 	// Member variables
@@ -122,17 +73,6 @@ private:
 
 	// Movement
 	FVector2D m_LastMovementInput;
-	bool m_ShouldMove;
-	FVector m_CurrentDirection;
-	FRotator m_DesiredRotation;
-	float m_MoveSpeed;
-	FNoMovement m_NoMovementEvent;
-
-	bool m_IsInAir;
-	bool m_ShouldFall;
-	FLandEvent m_LandEvent;
-
-	FVector m_TotalVelocity;
 
 	// Member functions
 	// ----------------
@@ -141,15 +81,4 @@ private:
 	// Movement
 	void Move(const FInputActionValue& value) { m_LastMovementInput = value.Get<FVector2D>(); }
 	void StopMove() { m_LastMovementInput = {}; }
-
-	void CheckGround(float deltaTime);
-
-	void HandleGravity(float deltaTime);
-	void HandleMovement(float deltaTime);
-
-	void HandleWallCollision(float deltaTime);
-	void HandleDisplacement(float deltaTime);
-
-	void SlideAlongWall(const FVector& velocity, const FVector& hitNormal);
-	void SlideAlongSlope(const FVector& velocity, const FVector& hitNormal);
 };

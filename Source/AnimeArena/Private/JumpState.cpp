@@ -1,6 +1,6 @@
-// Fill out your copyright notice in the Description page of Project Settings.
 #include "JumpState.h"
 #include "../BasePlayerController.h"
+#include "KinematicController.h"
 
 UJumpState::UJumpState()
 	: m_IsInput{}
@@ -17,15 +17,15 @@ void UJumpState::OnEnter(AActor* pStateOwner)
 	// ---------
 	m_CurrentJumpTime = 0.f;
 
-	auto pCharacter{ GetCharacter() };
-	const bool wasInput{ !pCharacter->GetIsInAir() };
+	auto pKinematicController{ GetKinematicController() };
+	const bool wasInput{ !pKinematicController->GetIsInAir() };
 	m_IsInput = wasInput;
 
 	// Check if pressed jump
 	if (wasInput)
 	{
-		pCharacter->GetTotalVelocity().Z = pCharacter->JumpSpeed;
-		pCharacter->SetShouldFall(false);
+		pKinematicController->GetTotalVelocity().Z = pKinematicController->JumpSpeed;
+		pKinematicController->SetShouldFall(false);
 	}
 	else
 	{
@@ -49,7 +49,7 @@ void UJumpState::OnEnter(AActor* pStateOwner)
 	}
 
 	// Player
-	pCharacter->GetLandEvent()->AddUObject(this, &UJumpState::Landed);
+	pKinematicController->GetLandEvent()->AddUObject(this, &UJumpState::Landed);
 }
 void UJumpState::OnExit() 
 {
@@ -70,8 +70,8 @@ void UJumpState::OnExit()
 	}
 
 	// Player
-	auto pCharacter{ GetCharacter() };
-	pCharacter->GetLandEvent()->RemoveAll(this);
+	auto pKinematicController{ GetKinematicController() };
+	pKinematicController->GetLandEvent()->RemoveAll(this);
 }
 void UJumpState::Tick(float deltaTime)
 {
@@ -82,8 +82,8 @@ void UJumpState::Move(const FInputActionValue& value)
 {
 	const FVector2D input{ value.Get<FVector2D>() };
 
-	auto pCharacter{ GetCharacter() };
-	pCharacter->MoveCharacter(input, pCharacter->AirControl);
+	auto pKinematicController{ GetKinematicController() };
+	pKinematicController->MoveCharacter(input);
 }
 void UJumpState::StopMove()
 {
@@ -98,8 +98,8 @@ void UJumpState::Jump()
 void UJumpState::StopJump()
 {
 	m_IsInput = false;
-	auto pCharacter{ GetCharacter() };
-	pCharacter->SetShouldFall(true);
+	auto pKinematicController{ GetKinematicController() };
+	pKinematicController->SetShouldFall(true);
 }
 
 void UJumpState::HandleInput(float deltaTime)
@@ -107,23 +107,23 @@ void UJumpState::HandleInput(float deltaTime)
 	// Keep going up with input
 	if (m_IsInput)
 	{
-		auto pCharacter{ GetCharacter() };
-		pCharacter->GetTotalVelocity().Z = pCharacter->JumpSpeed;
+		auto pKinematicController{ GetKinematicController() };
+		pKinematicController->GetTotalVelocity().Z = pKinematicController->JumpSpeed;
 
 		// After some time, stop going up
 		m_CurrentJumpTime += deltaTime;
-		if (pCharacter->MaxJumpTime < m_CurrentJumpTime)
+		if (pKinematicController->MaxJumpTime < m_CurrentJumpTime)
 		{
 			m_IsInput = false;
-			pCharacter->SetShouldFall(true);
+			pKinematicController->SetShouldFall(true);
 		}
 	}
 }
 void UJumpState::Landed()
 {
 	// Fall
-	auto pCharacter{ GetCharacter() };
-	pCharacter->SetShouldFall(true);
+	auto pKinematicController{ GetKinematicController() };
+	pKinematicController->SetShouldFall(true);
 
 	// Change to idleState
 	auto pStateMachine{ GetStateOwner()->GetComponentByClass<UStateMachineComponent>() };

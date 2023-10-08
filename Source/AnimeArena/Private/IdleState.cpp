@@ -1,6 +1,6 @@
-// Fill out your copyright notice in the Description page of Project Settings.
 #include "IdleState.h"
 #include "../BasePlayerController.h"
+#include "KinematicController.h"
 
 UIdleState::UIdleState()
 {
@@ -13,8 +13,8 @@ void UIdleState::OnEnter(AActor* pStateOwner)
 
 	// Variables
 	// ---------
-	auto pCharacter{ GetCharacter() };
-	pCharacter->SetShouldMove(false);
+	auto pKinematicController{ GetKinematicController() };
+	pKinematicController->SetShouldMove(false);
 
 	// Subscribe to events
 	// -------------------

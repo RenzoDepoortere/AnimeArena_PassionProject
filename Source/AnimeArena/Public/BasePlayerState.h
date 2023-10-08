@@ -15,6 +15,7 @@
 
 class ABaseCharacter;
 class ABasePlayerController;
+class UKinematicController;
 
 UCLASS()
 class ANIMEARENA_API UBasePlayerState : public UStateBase
@@ -29,6 +30,7 @@ public:
 protected:
 	ABaseCharacter* GetCharacter() const { return m_pCharacter; }
 	ABasePlayerController* GetPlayerController() const { return m_pPlayerController; }
+	UKinematicController* GetKinematicController() const { return m_pKinematicController; }
 
 protected:
 	void BaseMove(const FVector2D& direction);
@@ -40,4 +42,5 @@ private:
 	// Base
 	ABaseCharacter* m_pCharacter;
 	ABasePlayerController* m_pPlayerController;
+	UKinematicController* m_pKinematicController;
 };
