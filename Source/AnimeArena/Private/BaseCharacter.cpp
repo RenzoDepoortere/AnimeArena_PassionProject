@@ -40,10 +40,7 @@ ABaseCharacter::ABaseCharacter()
 	// ========
 
 	// SpeedLevel
-	, Level1_SpeedLimit{ 100.f }
-	, Level2_SpeedLimit{ 500.f }
-	, Level3_SpeedLimit{ 1000.f }
-	, Level4_SpeedLimit{ 1500.f }
+	, SpeedLevels{}
 	, SpeedLimitTreshold{ 50.f }
 	// Dash
 	, DashSpeed{ 1500.f }
@@ -60,7 +57,9 @@ ABaseCharacter::ABaseCharacter()
 	, m_pController{}
 	// Movement
 	, m_LastMovementInput{}
-	, m_CurrentSpeedLevel{ ESpeedLevel::Level_1 }
+	, m_CurrentSpeedLevel{ 0 }
+	, m_LevelToReach{ 0 }
+	, m_CurrentLevelReachTime{}
 	, m_SpeedLevelTresholds{}
 	, m_CurrentDashTime{}
 {
@@ -119,10 +118,12 @@ void ABaseCharacter::BeginPlay()
 	// Calculate speedTresholds
 	// ------------------------
 
-	m_SpeedLevelTresholds.Add((Level1_SpeedLimit * Level1_SpeedLimit) - SpeedLimitTreshold);
-	m_SpeedLevelTresholds.Add((Level2_SpeedLimit * Level2_SpeedLimit) - SpeedLimitTreshold);
-	m_SpeedLevelTresholds.Add((Level3_SpeedLimit * Level3_SpeedLimit) - SpeedLimitTreshold);
-	m_SpeedLevelTresholds.Add((Level4_SpeedLimit * Level4_SpeedLimit) - SpeedLimitTreshold);
+	int treshold{};
+	for (int32 idx{}; idx < SpeedLevels.Num(); ++idx)
+	{
+		treshold = (SpeedLevels[idx].SpeedLimit * SpeedLevels[idx].SpeedLimit) - SpeedLimitTreshold;
+		m_SpeedLevelTresholds.Add(treshold);
+	}
 
 	// Add Input Mapping Context
 	// ------------------------
@@ -161,7 +162,7 @@ void ABaseCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	HandleSpeedLimit();
+	HandleSpeedLimit(DeltaTime);
 	HandleDashTimer(DeltaTime);
 }
 void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -210,42 +211,54 @@ void ABaseCharacter::Look(const FInputActionValue& value)
 	}
 }
 
-void ABaseCharacter::HandleSpeedLimit()
+void ABaseCharacter::HandleSpeedLimit(float deltaTime)
 {
+	// Check currentSpeed
+	// ==================
+
 	// Get current variables
 	const FVector totalVelocity{ KinematicController->GetTotalVelocity() };
 	const double velocityLength{ FVector::VectorPlaneProject(totalVelocity, FVector::UpVector).SquaredLength() };
-	const ESpeedLevel startSpeedLevel{ m_CurrentSpeedLevel };
+	const int32 startSpeedLevel{ m_LevelToReach };
 
 	// Set speedLevel
 	for (int32 idx{}; idx < m_SpeedLevelTresholds.Num(); ++idx)
 	{
 		if (velocityLength < m_SpeedLevelTresholds[idx])
 		{
-			m_CurrentSpeedLevel = static_cast<ESpeedLevel>(idx);
+			m_LevelToReach = idx;
 			break;
 		}
 	}
+	
+	// Check levelSwitch
+	// =================
 
-	// Change variables if necessary
-	if (m_CurrentSpeedLevel == startSpeedLevel) return;
-	if (OnSpeedSwitch.IsBound()) OnSpeedSwitch.Broadcast(static_cast<int>(m_CurrentSpeedLevel) + 1);
+	// If max, return
+	const int32 maxLevels{ SpeedLevels.Num() - 1 };
+	if (m_LevelToReach == maxLevels && m_CurrentSpeedLevel == maxLevels) return;
 
-	switch (m_CurrentSpeedLevel)
+	// If wants to go up
+	if ((m_CurrentSpeedLevel == m_LevelToReach) || (m_CurrentSpeedLevel + 1 == m_LevelToReach))
 	{
-	case ESpeedLevel::Level_1:
-		KinematicController->MaxMovementSpeed = Level1_SpeedLimit;
-		break;
-	case ESpeedLevel::Level_2:
-		KinematicController->MaxMovementSpeed = Level2_SpeedLimit;
-		break;
-	case ESpeedLevel::Level_3:
-		KinematicController->MaxMovementSpeed = Level3_SpeedLimit;
-		break;
-	case ESpeedLevel::Level_4:
-		KinematicController->MaxMovementSpeed = Level4_SpeedLimit;
-		break;
+		// Cooldown
+		m_CurrentLevelReachTime += deltaTime;
+		if (m_CurrentLevelReachTime < SpeedLevels[m_CurrentSpeedLevel + 1].ChangeTime) return;
 	}
+
+	// Set level and reset time
+	m_CurrentSpeedLevel = m_LevelToReach;
+	m_CurrentLevelReachTime = 0.f;
+
+	// Event
+	if (OnSpeedSwitch.IsBound()) OnSpeedSwitch.Broadcast(m_CurrentSpeedLevel + 1);
+
+
+	// Set variables
+	// =============
+	
+	// Set speedLimit
+	KinematicController->MaxMovementSpeed = SpeedLevels[m_CurrentSpeedLevel].SpeedLimit;
 }
 void ABaseCharacter::HandleDashTimer(float deltaTime)
 {

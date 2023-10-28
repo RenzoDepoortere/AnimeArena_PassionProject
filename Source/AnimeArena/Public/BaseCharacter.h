@@ -7,13 +7,17 @@
 #include "InputActionValue.h"
 #include "BaseCharacter.generated.h"
 
-UENUM(BlueprintType)
-enum class ESpeedLevel : uint8
+USTRUCT(BlueprintType)
+struct FSpeedLevel
 {
-	Level_1		UMETA(DisplayName = "Level_1"),
-	Level_2		UMETA(DisplayName = "Level_2"),
-	Level_3		UMETA(DisplayName = "Level_3"),
-	Level_4		UMETA(DisplayName = "Level_4")
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings")
+	float SpeedLimit;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings")
+	float Drag;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings")
+	float ChangeTime;
 };
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSpeedSwitch, int, speedLevel);
@@ -74,14 +78,7 @@ public:
 
 	// Speed level
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Movement|SpeedLevel")
-	float Level1_SpeedLimit;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Movement|SpeedLevel")
-	float Level2_SpeedLimit;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Movement|SpeedLevel")
-	float Level3_SpeedLimit;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Movement|SpeedLevel")
-	float Level4_SpeedLimit;
-
+	TArray<FSpeedLevel> SpeedLevels;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Movement|SpeedLevel")
 	float SpeedLimitTreshold;
 
@@ -107,7 +104,7 @@ public:
 	FVector2D GetLastMovementInput() const { return m_LastMovementInput; }
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Movement")
-	ESpeedLevel GetCurrentSpeedLevel() const { return m_CurrentSpeedLevel; }
+	int32 GetCurrentSpeedLevel() const { return m_CurrentSpeedLevel; }
 	
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Movement")
 	float GetCurrentDashTime() const { return m_CurrentDashTime; }
@@ -125,7 +122,11 @@ private:
 
 	// Movement
 	FVector2D m_LastMovementInput;
-	ESpeedLevel m_CurrentSpeedLevel;
+
+	int32 m_CurrentSpeedLevel;
+	int32 m_LevelToReach;
+	float m_CurrentLevelReachTime;
+
 	TArray<float> m_SpeedLevelTresholds;
 
 	float m_CurrentDashTime;
@@ -138,6 +139,6 @@ private:
 	void Move(const FInputActionValue& value) { m_LastMovementInput = value.Get<FVector2D>(); }
 	void StopMove() { m_LastMovementInput = {}; }
 
-	void HandleSpeedLimit();
+	void HandleSpeedLimit(float deltaTime);
 	void HandleDashTimer(float deltaTime);
 };
