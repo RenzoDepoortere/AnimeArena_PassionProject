@@ -82,7 +82,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Movement")
 	void SetKeepMomentum(bool keepMomentum) { m_KeepMomentum = keepMomentum; }
 
-	UFUNCTION(BlueprintCallable, Category = "Air")
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Air")
 	bool GetIsInAir() const { return m_IsInAir; }
 	UFUNCTION(BlueprintCallable, Category = "Air")
 	void SetShouldFall(bool shouldFall) { m_ShouldFall = shouldFall; }

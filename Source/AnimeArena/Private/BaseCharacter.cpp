@@ -26,6 +26,10 @@ ABaseCharacter::ABaseCharacter()
 	, StateMachineComponent{}
 	, KinematicController{}
 
+	// Events
+	// ------
+	, OnSpeedSwitch{}
+
 	// Variables
 	// ---------
 
@@ -33,6 +37,15 @@ ABaseCharacter::ABaseCharacter()
 	, DefaultMappingContext{}
 	, LookAction{}
 	// Movement
+	// ========
+
+	// SpeedLevel
+	, Level1_SpeedLimit{ 100.f }
+	, Level2_SpeedLimit{ 500.f }
+	, Level3_SpeedLimit{ 1000.f }
+	, Level4_SpeedLimit{ 1500.f }
+	, SpeedLimitTreshold{ 50.f }
+	// Dash
 	, DashSpeed{ 1500.f }
 	, DashPerfectMultiplier{ 1.5f }
 	, DashCooldown{ 0.5f }
@@ -47,6 +60,8 @@ ABaseCharacter::ABaseCharacter()
 	, m_pController{}
 	// Movement
 	, m_LastMovementInput{}
+	, m_CurrentSpeedLevel{ ESpeedLevel::Level_1 }
+	, m_SpeedLevelTresholds{}
 	, m_CurrentDashTime{}
 {
  	// Settings
@@ -101,6 +116,14 @@ void ABaseCharacter::BeginPlay()
 	// Get controller
 	m_pController = Cast<ABasePlayerController>(UGameplayStatics::GetPlayerController(this, 0));
 
+	// Calculate speedTresholds
+	// ------------------------
+
+	m_SpeedLevelTresholds.Add((Level1_SpeedLimit * Level1_SpeedLimit) - SpeedLimitTreshold);
+	m_SpeedLevelTresholds.Add((Level2_SpeedLimit * Level2_SpeedLimit) - SpeedLimitTreshold);
+	m_SpeedLevelTresholds.Add((Level3_SpeedLimit * Level3_SpeedLimit) - SpeedLimitTreshold);
+	m_SpeedLevelTresholds.Add((Level4_SpeedLimit * Level4_SpeedLimit) - SpeedLimitTreshold);
+
 	// Add Input Mapping Context
 	// ------------------------
 	if (m_pController)
@@ -138,6 +161,7 @@ void ABaseCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	HandleSpeedLimit();
 	HandleDashTimer(DeltaTime);
 }
 void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -172,7 +196,6 @@ void ABaseCharacter::Dash()
 	// Debug
 	if (isPerfectTimed) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Purple, "PERFECT!");
 }
-
 void ABaseCharacter::Look(const FInputActionValue& value)
 {
 	// Input is a Vector2D
@@ -187,6 +210,43 @@ void ABaseCharacter::Look(const FInputActionValue& value)
 	}
 }
 
+void ABaseCharacter::HandleSpeedLimit()
+{
+	// Get current variables
+	const FVector totalVelocity{ KinematicController->GetTotalVelocity() };
+	const double velocityLength{ FVector::VectorPlaneProject(totalVelocity, FVector::UpVector).SquaredLength() };
+	const ESpeedLevel startSpeedLevel{ m_CurrentSpeedLevel };
+
+	// Set speedLevel
+	for (int32 idx{}; idx < m_SpeedLevelTresholds.Num(); ++idx)
+	{
+		if (velocityLength < m_SpeedLevelTresholds[idx])
+		{
+			m_CurrentSpeedLevel = static_cast<ESpeedLevel>(idx);
+			break;
+		}
+	}
+
+	// Change variables if necessary
+	if (m_CurrentSpeedLevel == startSpeedLevel) return;
+	if (OnSpeedSwitch.IsBound()) OnSpeedSwitch.Broadcast(static_cast<int>(m_CurrentSpeedLevel) + 1);
+
+	switch (m_CurrentSpeedLevel)
+	{
+	case ESpeedLevel::Level_1:
+		KinematicController->MaxMovementSpeed = Level1_SpeedLimit;
+		break;
+	case ESpeedLevel::Level_2:
+		KinematicController->MaxMovementSpeed = Level2_SpeedLimit;
+		break;
+	case ESpeedLevel::Level_3:
+		KinematicController->MaxMovementSpeed = Level3_SpeedLimit;
+		break;
+	case ESpeedLevel::Level_4:
+		KinematicController->MaxMovementSpeed = Level4_SpeedLimit;
+		break;
+	}
+}
 void ABaseCharacter::HandleDashTimer(float deltaTime)
 {
 	if (m_CurrentDashTime <= -DashGraceTime) return;
