@@ -15,7 +15,7 @@ struct FSpeedLevel
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings")
 	float SpeedLimit;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings")
-	float Drag;
+	float RotationSpeed;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings")
 	float ChangeTime;
 };

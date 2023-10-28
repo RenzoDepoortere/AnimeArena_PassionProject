@@ -31,12 +31,16 @@ public:
 	// General
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|General")
 	float RotationSpeed;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|General")
+	bool UseForwardVector;
 
 	// Grounded
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Grounded")
 	float MaxMovementSpeed;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Grounded")
 	float MoveAccelerationTime;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Grounded")
+	float AngularDrag;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Grounded", meta = (UIMin = 0.0f, UIMax = 90.0f, ClampMin = 0.0f, ClampMax = 90.0f, SliderExponent = 1.f))
 	float MaxSlopeAngle;
 

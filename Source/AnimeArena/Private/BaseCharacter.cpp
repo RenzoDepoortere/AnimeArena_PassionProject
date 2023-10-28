@@ -257,8 +257,8 @@ void ABaseCharacter::HandleSpeedLimit(float deltaTime)
 	// Set variables
 	// =============
 	
-	// Set speedLimit
 	KinematicController->MaxMovementSpeed = SpeedLevels[m_CurrentSpeedLevel].SpeedLimit;
+	KinematicController->RotationSpeed = SpeedLevels[m_CurrentSpeedLevel].RotationSpeed;
 }
 void ABaseCharacter::HandleDashTimer(float deltaTime)
 {

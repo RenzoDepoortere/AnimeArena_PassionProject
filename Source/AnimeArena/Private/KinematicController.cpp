@@ -8,9 +8,11 @@ UKinematicController::UKinematicController()
 
 	// General
 	: RotationSpeed{ 20.f }
+	, UseForwardVector{ false }
 
 	// Grounded
 	, MaxMovementSpeed{ 1000.f }
+	, AngularDrag{ 0.f }
 	, MoveAccelerationTime{ 0.2f }
 	, MaxSlopeAngle{ 60.f }
 
@@ -35,7 +37,7 @@ UKinematicController::UKinematicController()
 	, m_pCollision{ nullptr }
 	, m_pController{ nullptr }
 	, m_TotalVelocity{}
-	, m_CurrentDirection{}
+	, m_CurrentDirection{ FVector::ForwardVector }
 	, m_DesiredRotation{}
 
 	// Grounded
@@ -114,15 +116,12 @@ void UKinematicController::MoveCharacter(const FVector2D& input, bool rotateChar
 	if (!m_pController) return;
 
 	// Set variables
-	// -------------
 	m_ShouldMove = true;
 
 	// Calculate direction
-	// -------------------
 	m_CurrentDirection = ConvertInputToWorld(input);
 
 	// Calculate desiredRotation
-	// -------------------------
 	if (rotateCharacter) m_DesiredRotation = FRotationMatrix::MakeFromX(m_CurrentDirection).Rotator();
 }
 FVector UKinematicController::ConvertInputToWorld(const FVector2D& input)
@@ -254,7 +253,8 @@ void UKinematicController::HandleMovement(float deltaTime)
 	// Set total veloctity
 	// -------------------
 	//const FVector moveDirection = m_IsInAir ? m_CurrentDirection * AirControl : m_CurrentDirection;
-	const FVector horizontalVelocity{ m_CurrentDirection * m_MoveSpeed };
+	const FVector movementDirection = UseForwardVector ? m_pActor->GetActorForwardVector() : m_CurrentDirection;
+	const FVector horizontalVelocity{ movementDirection * m_MoveSpeed };
 
 	m_TotalVelocity.X = horizontalVelocity.X;
 	m_TotalVelocity.Y = horizontalVelocity.Y;
@@ -302,7 +302,8 @@ void UKinematicController::HandleRotation(float deltaTime)
 	// Set rotation
 	// ------------
 	const FRotator currentRotation{ m_pActor->GetActorRotation() };
-	const float rotationSpeed{ RotationSpeed * deltaTime };
+	const float angularDrag{ FMath::Clamp(1.f - AngularDrag, 0.f, 1.f) };
+	const float rotationSpeed{ RotationSpeed * deltaTime * angularDrag };
 
 	const FRotator newRotation{ FMath::Lerp(currentRotation, m_DesiredRotation, rotationSpeed) };
 	m_pActor->SetActorRotation(newRotation);
