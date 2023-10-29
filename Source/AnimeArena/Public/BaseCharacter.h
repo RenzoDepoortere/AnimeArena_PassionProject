@@ -131,4 +131,7 @@ private:
 	void StopMove() { m_LastMovementInput = {}; }
 
 	void HandleSpeedLimit(float deltaTime);
+
+	// Camera
+	void HandleCameraMovement(float deltaTime);
 };

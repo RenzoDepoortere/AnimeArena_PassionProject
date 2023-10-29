@@ -92,6 +92,9 @@ ABaseCharacter::ABaseCharacter()
 	SpringArm->TargetArmLength = 400.0f;
 	SpringArm->bUsePawnControlRotation = true;
 
+	SpringArm->bEnableCameraLag = true;
+	SpringArm->CameraLagSpeed = 15.f;
+
 	// Create a follow camera
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(SpringArm, USpringArmComponent::SocketName);
@@ -162,6 +165,7 @@ void ABaseCharacter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	HandleSpeedLimit(DeltaTime);
+	//HandleCameraMovement(DeltaTime);
 }
 void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
