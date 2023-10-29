@@ -19,12 +19,11 @@ public:
 
 	virtual void OnEnter(AActor* pStateOwner) override;
 	virtual void OnExit() override;
-	virtual void Tick(float deltaTime) override;
 
 private:
 	// Member functions
 	// ----------------
 	void Move(const FInputActionValue& value);
 	void Jump();
-	//void Dash();
+	void Dash();
 };

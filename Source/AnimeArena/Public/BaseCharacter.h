@@ -84,13 +84,13 @@ public:
 
 	// Dashing
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Movement|Dash")
-	float DashSpeed;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Movement|Dash")
-	float DashPerfectMultiplier;
+	float DashMultiplier;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Movement|Dash")
 	float DashCooldown;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Movement|Dash")
-	float DashGraceTime;
+	float DashTime;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Movement|Dash")
+	float DashRotationSpeed;
 
 	// Other
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Other")
@@ -105,13 +105,6 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Movement")
 	int32 GetCurrentSpeedLevel() const { return m_CurrentSpeedLevel; }
-	
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Movement")
-	float GetCurrentDashTime() const { return m_CurrentDashTime; }
-
-public:
-	void Dash();
-
 
 private:
 	// Member variables
@@ -129,8 +122,6 @@ private:
 
 	TArray<float> m_SpeedLevelTresholds;
 
-	float m_CurrentDashTime;
-
 	// Member functions
 	// ----------------
 	void Look(const FInputActionValue& value);
@@ -140,5 +131,4 @@ private:
 	void StopMove() { m_LastMovementInput = {}; }
 
 	void HandleSpeedLimit(float deltaTime);
-	void HandleDashTimer(float deltaTime);
 };

@@ -19,13 +19,8 @@ public:
 
 	virtual void OnEnter(AActor* pStateOwner) override;
 	virtual void OnExit() override;
-	virtual void Tick(float deltaTime) override;
 
 private:
 	// Member variables
-	float m_CurrentTime;
-	float m_StartFriction;
-
-	bool m_WasInput;
 	bool m_HasSetCooldown;
 };

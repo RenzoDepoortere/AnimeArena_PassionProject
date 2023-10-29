@@ -32,7 +32,7 @@ void UJumpState::OnEnter(AActor* pStateOwner)
 	}
 	
 	// Keep momentum
-	pKinematicController->SetKeepMomentum(true);
+	//pKinematicController->SetKeepMomentum(true);
 
 	// Subscribe to events
 	// -------------------
@@ -47,7 +47,7 @@ void UJumpState::OnEnter(AActor* pStateOwner)
 		pController->GetJumpEvent()->AddUObject(this, &UJumpState::Jump);
 		pController->GetJumpStopEvent()->AddUObject(this, &UJumpState::StopJump);
 
-		//pController->GetDashEvent()->AddUObject(this, &UJumpState::Dash);
+		pController->GetDashEvent()->AddUObject(this, &UJumpState::Dash);
 	}
 
 	// Player
@@ -63,7 +63,7 @@ void UJumpState::OnExit()
 	pKinematicController->SetShouldFall(true);
 
 	// Lose momentum
-	pKinematicController->SetKeepMomentum(false);
+	//pKinematicController->SetKeepMomentum(false);
 
 	// Unsubscribe from events
 	// -----------------------
@@ -78,7 +78,7 @@ void UJumpState::OnExit()
 		pController->GetJumpEvent()->RemoveAll(this);
 		pController->GetJumpStopEvent()->RemoveAll(this);
 
-		//pController->GetDashEvent()->RemoveAll(this);
+		pController->GetDashEvent()->RemoveAll(this);
 	}
 
 	// Player
@@ -128,4 +128,11 @@ void UJumpState::Landed()
 	// Change to idleState
 	auto pStateMachine{ GetStateOwner()->GetComponentByClass<UStateMachineComponent>() };
 	pStateMachine->SwitchStateByKey({ "Idle" });
+}
+
+void UJumpState::Dash()
+{
+	// Change to dashState
+	auto pStateMachine{ GetStateOwner()->GetComponentByClass<UStateMachineComponent>() };
+	pStateMachine->SwitchStateByKey({ "Dash" });
 }

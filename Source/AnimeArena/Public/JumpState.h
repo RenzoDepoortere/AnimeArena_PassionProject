@@ -38,5 +38,5 @@ private:
 	void HandleJumpTime(float deltaTime);
 	void Landed();
 
-	//void Dash();
+	void Dash();
 };

@@ -43,10 +43,10 @@ ABaseCharacter::ABaseCharacter()
 	, SpeedLevels{}
 	, SpeedLimitTreshold{ 50.f }
 	// Dash
-	, DashSpeed{ 1500.f }
-	, DashPerfectMultiplier{ 1.5f }
+	, DashMultiplier{ 1.5f }
 	, DashCooldown{ 0.5f }
-	, DashGraceTime{ 0.1f }
+	, DashTime{ 0.2f }
+	, DashRotationSpeed{ 30.f }
 	// Other
 	, CameraRotationSpeed{ 1.f }
 
@@ -61,7 +61,6 @@ ABaseCharacter::ABaseCharacter()
 	, m_LevelToReach{ 0 }
 	, m_CurrentLevelReachTime{}
 	, m_SpeedLevelTresholds{}
-	, m_CurrentDashTime{}
 {
  	// Settings
 	// --------
@@ -163,7 +162,6 @@ void ABaseCharacter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	HandleSpeedLimit(DeltaTime);
-	HandleDashTimer(DeltaTime);
 }
 void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
@@ -178,25 +176,6 @@ void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	}
 }
 
-void ABaseCharacter::Dash()
-{
-	// On cooldown
-	if (0 < m_CurrentDashTime) return;
-
-	// Calculate dashSpeed
-	const bool isPerfectTimed{  -DashGraceTime <= m_CurrentDashTime };
-	const float dashSpeed = isPerfectTimed ? DashSpeed * DashPerfectMultiplier : DashSpeed;
-
-	// Apply speed
-	const FVector dashDirection{ KinematicController->ConvertInputToWorld(m_LastMovementInput) * dashSpeed };
-	KinematicController->AddForce(dashDirection, true);
-
-	// Reset timer
-	m_CurrentDashTime = DashCooldown;
-
-	// Debug
-	if (isPerfectTimed) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Purple, "PERFECT!");
-}
 void ABaseCharacter::Look(const FInputActionValue& value)
 {
 	// Input is a Vector2D
@@ -259,9 +238,4 @@ void ABaseCharacter::HandleSpeedLimit(float deltaTime)
 	
 	KinematicController->MaxMovementSpeed = SpeedLevels[m_CurrentSpeedLevel].SpeedLimit;
 	KinematicController->RotationSpeed = SpeedLevels[m_CurrentSpeedLevel].RotationSpeed;
-}
-void ABaseCharacter::HandleDashTimer(float deltaTime)
-{
-	if (m_CurrentDashTime <= -DashGraceTime) return;
-	m_CurrentDashTime -= deltaTime;
 }

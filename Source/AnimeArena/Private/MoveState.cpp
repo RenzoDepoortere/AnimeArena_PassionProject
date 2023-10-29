@@ -95,5 +95,7 @@ void UMoveState::Jump()
 
 void UMoveState::Dash()
 {
-	GetCharacter()->Dash();
+	// Change to dashState
+	auto pStateMachine{ GetCharacter()->GetComponentByClass<UStateMachineComponent>() };
+	pStateMachine->SwitchStateByKey({ "Dash" });
 }
