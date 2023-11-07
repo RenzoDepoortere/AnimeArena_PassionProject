@@ -15,9 +15,9 @@ struct FSpeedLevel
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings")
 	float SpeedLimit;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings")
-	float RotationSpeed;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings")
 	float ChangeTime;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings")
+	bool IsLocked;
 };
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSpeedSwitch, int, speedLevel);
@@ -80,7 +80,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Movement|SpeedLevel")
 	TArray<FSpeedLevel> SpeedLevels;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Movement|SpeedLevel")
-	float SpeedLimitTreshold;
+	float NoSpeedLimit;
 
 	// Dashing
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Movement|Dash")
@@ -120,8 +120,6 @@ private:
 	int32 m_LevelToReach;
 	float m_CurrentLevelReachTime;
 
-	TArray<float> m_SpeedLevelTresholds;
-
 	// Member functions
 	// ----------------
 	void Look(const FInputActionValue& value);
@@ -131,7 +129,4 @@ private:
 	void StopMove() { m_LastMovementInput = {}; }
 
 	void HandleSpeedLimit(float deltaTime);
-
-	// Camera
-	void HandleCameraMovement(float deltaTime);
 };

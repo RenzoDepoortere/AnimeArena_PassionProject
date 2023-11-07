@@ -4,13 +4,6 @@
 #include "../BasePlayerController.h"
 #include "KinematicController.h"
 
-//// Calculate dashSpeed
-//const bool isPerfectTimed{ -DashGraceTime <= m_CurrentDashTime };
-//const float dashSpeed = isPerfectTimed ? DashSpeed * DashPerfectMultiplier : DashSpeed;
-
-//// Debug
-//if (isPerfectTimed) GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Purple, "PERFECT!");
-
 UDashState::UDashState()
 	: m_HasSetCooldown{ false }
 {
@@ -35,6 +28,10 @@ void UDashState::OnEnter(AActor* pStateOwner)
 		SetMaxCooldown(pCharacter->DashCooldown);
 	}
 
+	// Unlock second speedLevel
+	// ------------------------
+	pCharacter->SpeedLevels[1].IsLocked = false;
+
 	// Change kinematicControllers
 	// ---------------------------
 
@@ -47,7 +44,6 @@ void UDashState::OnEnter(AActor* pStateOwner)
 	pCharacter->KinematicController->AddForce(dashDirection * dashSpeed, true);
 
 	// Set rotations
-	pCharacter->KinematicController->UseForwardVector = false;
 	pCharacter->KinematicController->RotateCharacter(movementInput);
 	pCharacter->KinematicController->RotationSpeed = pCharacter->DashRotationSpeed;
 
@@ -72,7 +68,4 @@ void UDashState::OnExit()
 	// Reset rotations
 	auto pCharacter{ GetCharacter() };
 	const FSpeedLevel currentSpeedLevel{ pCharacter->SpeedLevels[pCharacter->GetCurrentSpeedLevel()] };
-
-	pCharacter->KinematicController->UseForwardVector = true;
-	pCharacter->KinematicController->RotationSpeed = currentSpeedLevel.RotationSpeed;
 }
