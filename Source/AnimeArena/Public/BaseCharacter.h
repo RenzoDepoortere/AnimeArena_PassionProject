@@ -13,7 +13,9 @@ struct FSpeedLevel
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings")
-	float SpeedLimit;
+	float Speed;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings")
+	float RotationSpeed;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings")
 	float ChangeTime;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings")
@@ -89,8 +91,6 @@ public:
 	float DashCooldown;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Movement|Dash")
 	float DashTime;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Movement|Dash")
-	float DashRotationSpeed;
 
 	// Other
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Other")

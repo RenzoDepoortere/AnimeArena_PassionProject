@@ -26,16 +26,15 @@ private:
 	// ----------------
 	bool m_HasStoppedFall;
 	float m_CurrentJumpTime;
+	bool m_UsedForward;
 
 	// Member functions
 	// ----------------
-	void Move(const FInputActionValue& value);
-	void StopMove();
-
 	void Jump();
 	void StopJump();
 
 	void HandleJumpTime(float deltaTime);
+
 	void Landed();
 
 	void Dash();

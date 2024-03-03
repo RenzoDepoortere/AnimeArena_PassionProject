@@ -23,4 +23,8 @@ public:
 private:
 	// Member variables
 	bool m_HasSetCooldown;
+	FTimerHandle m_TimerHandle;
+
+	// Member functions
+	void Jump();
 };

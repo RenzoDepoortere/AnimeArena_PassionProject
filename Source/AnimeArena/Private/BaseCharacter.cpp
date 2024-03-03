@@ -46,7 +46,6 @@ ABaseCharacter::ABaseCharacter()
 	, DashMultiplier{ 1.5f }
 	, DashCooldown{ 0.5f }
 	, DashTime{ 0.2f }
-	, DashRotationSpeed{ 30.f }
 	// Other
 	, CameraRotationSpeed{ 1.f }
 
@@ -230,9 +229,14 @@ void ABaseCharacter::HandleSpeedLimit(float deltaTime)
 	// Event
 	if (OnSpeedSwitch.IsBound()) OnSpeedSwitch.Broadcast(m_CurrentSpeedLevel);
 
+	// UseForward
+	if (m_CurrentSpeedLevel == 0)	KinematicController->UseForwardVector = false;
+	else							KinematicController->UseForwardVector = true;
+
 
 	// Set variables
 	// =============
 	
-	KinematicController->MaxMovementSpeed = SpeedLevels[m_CurrentSpeedLevel].SpeedLimit;
+	KinematicController->MaxMovementSpeed = SpeedLevels[m_CurrentSpeedLevel].Speed;
+	KinematicController->RotationSpeed = SpeedLevels[m_CurrentLevelReachTime].RotationSpeed;
 }

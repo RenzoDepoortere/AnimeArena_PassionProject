@@ -6,6 +6,7 @@
 
 UDashState::UDashState()
 	: m_HasSetCooldown{ false }
+	, m_TimerHandle{}
 {
 	// Set name
 	StateDisplayName = "Dash";
@@ -35,37 +36,73 @@ void UDashState::OnEnter(AActor* pStateOwner)
 	// Change kinematicControllers
 	// ---------------------------
 
-	// Force
-	const FSpeedLevel currentSpeedLevel{ pCharacter->SpeedLevels[pCharacter->GetCurrentSpeedLevel()] };
-	const float dashSpeed{ currentSpeedLevel.SpeedLimit * pCharacter->DashMultiplier };
+	// Check input
 	const FVector2D movementInput{ pCharacter->GetLastMovementInput() };
-	const FVector dashDirection{ pCharacter->KinematicController->ConvertInputToWorld(movementInput) };
+	if (!movementInput.Equals(FVector2D::ZeroVector))
+	{
+		const FSpeedLevel currentSpeedLevel{ pCharacter->SpeedLevels[pCharacter->GetCurrentSpeedLevel()] };
+		const float dashSpeed{ currentSpeedLevel.Speed * pCharacter->DashMultiplier };
+		const FVector dashDirection{ pCharacter->KinematicController->ConvertInputToWorld(movementInput) };
 
-	pCharacter->KinematicController->AddForce(dashDirection * dashSpeed, true);
+		pCharacter->KinematicController->AddImpulse(dashDirection * dashSpeed, true);
+		pCharacter->KinematicController->RotateCharacter(movementInput, true);
+		pCharacter->KinematicController->SetShouldFall(false);
+	}
 
-	// Set rotations
-	pCharacter->KinematicController->RotateCharacter(movementInput);
-	pCharacter->KinematicController->RotationSpeed = pCharacter->DashRotationSpeed;
+	pCharacter->KinematicController->SetKeepMomentum(true);
 
 	// Set timerHandle
 	// ---------------
 
 	// Set variables
-	FTimerHandle timerHandle{};
 	FTimerDelegate timerDelegate{};
 	timerDelegate.BindLambda([&]()
 	{
 		// Change to idleState
 		auto pStateMachine{ GetCharacter()->GetComponentByClass<UStateMachineComponent>() };
-		pStateMachine->SwitchStateByKey({ "Idle" });
+		pStateMachine->SwitchStateByKey(pStateMachine->PreviousState);
 	});
 
 	// Set timer
-	GetWorld()->GetTimerManager().SetTimer(timerHandle, timerDelegate, pCharacter->DashTime, false);
+	GetWorld()->GetTimerManager().SetTimer(m_TimerHandle, timerDelegate, pCharacter->DashTime, false);
+
+	// Subscribe to events
+	// -------------------
+
+	// Input
+	auto pController{ GetPlayerController() };
+	if (pController)
+	{
+		pController->GetJumpEvent()->AddUObject(this, &UDashState::Jump);
+	}
 }
 void UDashState::OnExit()
 {
-	// Reset rotations
+	// Reset kinematicController
+	// -------------------------
+
 	auto pCharacter{ GetCharacter() };
-	const FSpeedLevel currentSpeedLevel{ pCharacter->SpeedLevels[pCharacter->GetCurrentSpeedLevel()] };
+	pCharacter->KinematicController->SetShouldFall(true);
+	pCharacter->KinematicController->SetKeepMomentum(false);
+
+
+	// Unsubscribe from events
+	// -----------------------
+
+	// Input
+	auto pController{ GetPlayerController() };
+	if (pController)
+	{
+		pController->GetJumpEvent()->RemoveAll(this);
+	}
+}
+
+void UDashState::Jump()
+{
+	// Change to jumpState
+	auto pStateMachine{ GetStateOwner()->GetComponentByClass<UStateMachineComponent>() };
+	pStateMachine->SwitchStateByKey({ "Jump" });
+
+	// Stop timer
+	GetWorld()->GetTimerManager().ClearTimer(m_TimerHandle);
 }

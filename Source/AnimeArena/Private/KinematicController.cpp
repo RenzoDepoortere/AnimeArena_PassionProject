@@ -7,20 +7,21 @@ UKinematicController::UKinematicController()
 	// ---------
 
 	// General
-	: RotationSpeed{ 20.f }
+	: ForceDuration{ 0.2f }
+	, RotationSpeed{ 20.f }
 	, UseForwardVector{ false }
 
 	// Grounded
 	, MaxMovementSpeed{ 1000.f }
-	, AngularDrag{ 0.f }
 	, MoveAccelerationTime{ 0.2f }
+	, AngularDrag{ 0.f }
 	, MaxSlopeAngle{ 60.f }
 
 	// Air
+	, JumpGroundBufferTime{ 0.1f }
 	, JumpSpeed{ 500.f }
 	, MaxJumpTime{ 0.1f }
 	, MaxJumpHoldTime{ 0.2f }
-	, AirControl{ 0.5f }
 	, MaxFallSpeed{ 981.f }
 	, FallAccelerationTime{ 0.5f }
 
@@ -48,6 +49,7 @@ UKinematicController::UKinematicController()
 	// Air
 	, m_IsInAir{ false }
 	, m_ShouldFall{ true }
+	, m_CheckGround{ true }
 
 	// Events
 	, m_LandEvent{}
@@ -90,7 +92,7 @@ void UKinematicController::TickComponent(float DeltaTime, ELevelTick TickType, F
 	HandleRotation(DeltaTime);
 }
 
-void UKinematicController::RotateCharacter(const FVector2D& input)
+void UKinematicController::RotateCharacter(const FVector2D& input, bool instantTurn)
 {
 	if (input.IsNearlyZero()) return;
 	if (!m_pController) return;
@@ -110,6 +112,7 @@ void UKinematicController::RotateCharacter(const FVector2D& input)
 	// Calculate desiredRotation
 	// -------------------------
 	m_DesiredRotation = FRotationMatrix::MakeFromX(currentDirection).Rotator();
+	if (instantTurn) m_pActor->SetActorRotation(m_DesiredRotation);
 }
 void UKinematicController::MoveCharacter(const FVector2D& input, bool rotateCharacter)
 {
@@ -142,9 +145,9 @@ FVector UKinematicController::ConvertInputToWorld(const FVector2D& input)
 	return worldDirection;
 }
 
-void UKinematicController::AddForce(const FVector& force, bool resetVelocity)
+void UKinematicController::AddImpulse(const FVector& force, bool resetVelocity)
 {
-	// Add force
+	// Add impulse
 	if (resetVelocity) m_TotalVelocity = FVector::ZeroVector;
 	m_TotalVelocity += force;
 
@@ -155,6 +158,8 @@ void UKinematicController::AddForce(const FVector& force, bool resetVelocity)
 
 void UKinematicController::CheckGround(float deltaTime)
 {
+	if (!m_CheckGround) return;
+
 	const bool previousAirState{ m_IsInAir };
 
 	// Raycast params
@@ -178,9 +183,13 @@ void UKinematicController::CheckGround(float deltaTime)
 		const double surfaceAngle{ FMath::RadiansToDegrees(FMath::Acos(FVector::DotProduct(FVector::UpVector, hitResult.Normal))) };
 
 		// On ground or slope
-		if (surfaceAngle <= MaxSlopeAngle)	m_IsInAir = false;
+		if (surfaceAngle <= MaxSlopeAngle)
+		{
+			m_IsInAir = false;
+			m_pActor->SetActorLocation(hitResult.Location + FVector::UpVector * SkinWidth);	// Stick to ground/slope
+		}
 		// On Wall
-		else								m_IsInAir = true;
+		else m_IsInAir = true;
 	}
 	// Nothing hit
 	else
@@ -252,7 +261,6 @@ void UKinematicController::HandleMovement(float deltaTime)
 
 	// Set total veloctity
 	// -------------------
-	//const FVector moveDirection = m_IsInAir ? m_CurrentDirection * AirControl : m_CurrentDirection;
 	const FVector movementDirection = UseForwardVector ? m_pActor->GetActorForwardVector() : m_CurrentDirection;
 	const FVector horizontalVelocity{ movementDirection * m_MoveSpeed };
 

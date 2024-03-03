@@ -30,6 +30,8 @@ public:
 
 	// General
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|General")
+	float ForceDuration;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|General")
 	float RotationSpeed;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|General")
 	bool UseForwardVector;
@@ -46,13 +48,13 @@ public:
 
 	// Air
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Air")
+	float JumpGroundBufferTime;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Air")
 	float JumpSpeed;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Air")
 	float MaxJumpTime;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Air")
 	float MaxJumpHoldTime;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Air", meta = (UIMin = 0.0f, UIMax = 1.0f, ClampMin = 0.0f, ClampMax = 1.0f, SliderExponent = 0.1f))
-	float AirControl;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Air")
 	float MaxFallSpeed;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Air")
@@ -72,12 +74,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "General")
 	FVector& GetTotalVelocity() { return m_TotalVelocity; }
 	UFUNCTION(BlueprintCallable, Category = "General")
-	void RotateCharacter(const FVector2D& input);
+	void RotateCharacter(const FVector2D& input, bool instantTurn = false);
 	UFUNCTION(BlueprintCallable, Category = "General")
 	FVector ConvertInputToWorld(const FVector2D& input);
 
 	UFUNCTION(BlueprintCallable, Category = "General")
-	void AddForce(const FVector& force, bool resetVelocity = false);
+	void AddImpulse(const FVector& force, bool resetVelocity = false);
 
 	UFUNCTION(BlueprintCallable, Category = "Movement")
 	void MoveCharacter(const FVector2D& input, bool rotateCharacter = true);
@@ -86,10 +88,17 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Movement")
 	void SetKeepMomentum(bool keepMomentum) { m_KeepMomentum = keepMomentum; }
 
+	UFUNCTION(BlueprintCallable, Category = "Movement")
+	void SetMoveSpeed(float moveSpeed) { m_MoveSpeed = moveSpeed; }
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Movement")
+	float GetMoveSpeed() const { return m_MoveSpeed; }
+
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Air")
 	bool GetIsInAir() const { return m_IsInAir; }
 	UFUNCTION(BlueprintCallable, Category = "Air")
 	void SetShouldFall(bool shouldFall) { m_ShouldFall = shouldFall; }
+	UFUNCTION(BlueprintCallable, Category = "Air")
+	void SetCheckGround(bool checkGround) { m_CheckGround = checkGround; }
 
 public:
 	FLandEvent* const GetLandEvent() { return &m_LandEvent; }
@@ -116,6 +125,7 @@ private:
 	// Air
 	bool m_IsInAir;
 	bool m_ShouldFall;
+	bool m_CheckGround;
 
 	// Events
 	FLandEvent m_LandEvent;

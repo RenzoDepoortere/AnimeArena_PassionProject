@@ -5,6 +5,7 @@
 UJumpState::UJumpState()
 	: m_HasStoppedFall{ false }
 	, m_CurrentJumpTime{}
+	, m_UsedForward{}
 {
 	StateDisplayName = "Jump";
 }
@@ -27,12 +28,13 @@ void UJumpState::OnEnter(AActor* pStateOwner)
 	// Check if pressed jump
 	if (wasInput)
 	{
-		pKinematicController->AddForce(FVector{ 0.f, 0.f, pKinematicController->JumpSpeed });
+		pKinematicController->AddImpulse(FVector{ 0.f, 0.f, pKinematicController->JumpSpeed });
 		pKinematicController->SetShouldFall(false);
 	}
-	
-	// Keep momentum
-	//pKinematicController->SetKeepMomentum(true);
+
+	m_UsedForward = pKinematicController->UseForwardVector;
+	pKinematicController->UseForwardVector = true;
+	pKinematicController->SetCheckGround(false);
 
 	// Subscribe to events
 	// -------------------
@@ -41,9 +43,6 @@ void UJumpState::OnEnter(AActor* pStateOwner)
 	auto pController{ GetPlayerController() };
 	if (pController)
 	{
-		pController->GetMoveEvent()->AddUObject(this, &UJumpState::Move);
-		pController->GetMoveStopEvent()->AddUObject(this, &UJumpState::StopMove);
-
 		pController->GetJumpEvent()->AddUObject(this, &UJumpState::Jump);
 		pController->GetJumpStopEvent()->AddUObject(this, &UJumpState::StopJump);
 
@@ -61,9 +60,9 @@ void UJumpState::OnExit()
 	// Fall
 	auto pKinematicController{ GetKinematicController() };
 	pKinematicController->SetShouldFall(true);
+	pKinematicController->SetCheckGround(true);
 
-	// Lose momentum
-	//pKinematicController->SetKeepMomentum(false);
+	pKinematicController->UseForwardVector = m_UsedForward;
 
 	// Unsubscribe from events
 	// -----------------------
@@ -90,18 +89,6 @@ void UJumpState::Tick(float deltaTime)
 	HandleJumpTime(deltaTime);
 }
 
-void UJumpState::Move(const FInputActionValue& value)
-{
-	const FVector2D input{ value.Get<FVector2D>() };
-
-	auto pKinematicController{ GetKinematicController() };
-	pKinematicController->MoveCharacter(input);
-}
-void UJumpState::StopMove()
-{
-	
-}
-
 void UJumpState::Jump()
 {
 	// NOTE: This is for doubleJump and such
@@ -114,15 +101,22 @@ void UJumpState::StopJump()
 void UJumpState::HandleJumpTime(float deltaTime)
 {
 	if (m_HasStoppedFall) return;
+
+	// Jump buffer
+	auto pKinematicController{ GetKinematicController() };
+	if (pKinematicController->JumpGroundBufferTime <= m_CurrentJumpTime)
+	{
+		pKinematicController->SetCheckGround(true);
+	}
 	
 	// Fall down after time
-	auto pKinematicController{ GetKinematicController() };
 	if (pKinematicController->MaxJumpTime <= m_CurrentJumpTime)
 	{
 		m_HasStoppedFall = true;
 		pKinematicController->SetShouldFall(true);
 	}
 }
+
 void UJumpState::Landed()
 {
 	// Change to idleState
